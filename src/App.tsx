@@ -9,7 +9,7 @@ import NotFound from "./pages/NotFound";
 import Layout from "./components/layouts/Layout.tsx";
 import Home from "./pages/Home.tsx";
 import Movies from "./components/features/Movies/Movies.tsx";
-
+import { Analytics } from "@vercel/analytics/react"
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -27,8 +27,8 @@ const App = () => (
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
-
     </TooltipProvider>
+    <Analytics />
   </QueryClientProvider>
 );
 
