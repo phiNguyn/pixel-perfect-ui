@@ -1,7 +1,7 @@
 import { Play, Star } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import type { Movie } from "@/data/movies";
+import { Movie } from "@/lib/api/movies/movieInterface";
 
 interface MovieCardProps {
   movie: Movie;
@@ -10,7 +10,7 @@ interface MovieCardProps {
 
 export default function MovieCard({ movie, rank }: MovieCardProps) {
   return (
-    <Link to={`/phim/${movie.id}`}>
+    <Link to={`/phim/${movie.slug}`}>
       <motion.div
         whileHover={{ scale: 1.05 }}
         transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
@@ -23,8 +23,8 @@ export default function MovieCard({ movie, rank }: MovieCardProps) {
         )}
         <div className="relative aspect-[2/3] rounded-lg overflow-hidden shadow-[var(--shadow-card)]">
           <img
-            src={movie.image}
-            alt={movie.title}
+            src={`https://img.ophim.live/uploads/movies/${movie.thumb_url}`}
+            alt={movie.name}
             className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
             loading="lazy"
           />
@@ -34,20 +34,26 @@ export default function MovieCard({ movie, rank }: MovieCardProps) {
               <Play className="w-4 h-4 text-primary-foreground fill-current ml-0.5" />
             </div>
           </div>
-          {movie.episodes && (
+          {movie.episode_current && (
             <span className="absolute top-2 right-2 bg-background/80 backdrop-blur-sm text-foreground text-[10px] font-medium px-1.5 py-0.5 rounded">
-              {movie.episodes}
+              {movie.episode_current}
             </span>
           )}
           <div className="absolute bottom-0 left-0 right-0 p-2">
             <div className="flex items-center gap-1 text-yellow-400 text-[10px]">
               <Star className="w-2.5 h-2.5 fill-current" />
-              <span>{movie.rating}</span>
+              <span>{movie.tmdb.vote_average}</span>
             </div>
           </div>
         </div>
-        <h3 className="mt-2 text-xs font-medium text-foreground line-clamp-2 leading-snug">{movie.title}</h3>
-        <p className="text-[10px] text-muted-foreground mt-0.5">{movie.year} · {movie.country}</p>
+        <h3 className="mt-2 text-xs font-medium text-foreground line-clamp-2 leading-snug">{movie.name}</h3>
+        <p className="text-[10px] text-muted-foreground mt-0.5">{movie.year} ·
+          <div className="flex gap-2">
+            {movie.country.map(item =>
+              item.name
+            )}
+          </div>
+        </p>
       </motion.div>
     </Link>
   );

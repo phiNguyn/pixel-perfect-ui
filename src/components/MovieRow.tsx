@@ -1,12 +1,13 @@
 import { ChevronRight } from "lucide-react";
 import { useRef } from "react";
 import MovieCard from "./MovieCard";
-import type { Movie } from "@/data/movies";
+import { Movie } from "@/lib/api/movies/movieInterface";
 
 interface MovieRowProps {
   title: string;
   movies: Movie[];
   showRank?: boolean;
+  loading?: boolean
 }
 
 export default function MovieRow({ title, movies, showRank }: MovieRowProps) {
@@ -42,8 +43,8 @@ export default function MovieRow({ title, movies, showRank }: MovieRowProps) {
           ref={scrollRef}
           className="flex gap-3 overflow-x-auto scrollbar-hide pb-2"
         >
-          {movies.map((movie, i) => (
-            <MovieCard key={movie.id} movie={movie} rank={showRank ? i + 1 : undefined} />
+          {movies?.map((movie, i) => (
+            <MovieCard key={movie._id} movie={movie} rank={showRank ? i + 1 : undefined} />
           ))}
         </div>
 
