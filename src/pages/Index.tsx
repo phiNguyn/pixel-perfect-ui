@@ -19,14 +19,15 @@ const Index = () => {
   const { queryResult } = useQueryResult({ limit: 10, page: 1 })
 
   const { data, isLoading } = useQueryMovies(queryResult, true, MovieCategory.PHIM_MOI, MovieCategory.PHIM_MOI)
-  console.log(data?.data?.items);
+  const movieData = data as any;
+  console.log(movieData?.data?.items);
 
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader />
       <HeroBanner />
       <MoodSection />
-      <MovieRow title="Phim Mới Cập Nhật" movies={data?.data?.items} loading={isLoading} />
+      <MovieRow title="Phim Mới Cập Nhật" movies={movieData?.data?.items} loading={isLoading} />
       {/* <MovieRow title="Phim Hàn Quốc Mới" movies={koreanMovies} />
       <MovieRow title="Phim Trung Quốc Mới" movies={chineseMovies} />
       <MovieRow title="Phim Mỹ, Âu Mới" movies={usMovies} />
