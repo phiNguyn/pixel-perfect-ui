@@ -1,5 +1,6 @@
 import { Play, Star } from "lucide-react";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 import type { Movie } from "@/data/movies";
 
 interface MovieCardProps {
