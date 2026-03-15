@@ -14,11 +14,14 @@ export class MoviesApi extends BaseApi {
       skipEmptyString: true,
     });
 
-    return this.get(`danh-sach/${slug}?` + stringified);
+    return this.get(`${slug}?` + stringified);
   }
 
-  async findOne(slug: string) {
-    return this.get(slug);
+  async findOne(slug: string, peoples?: string) {
+    return this.get(`phim/${slug}${peoples ? peoples : ""}`);
+  }
+  async searchMovie(queryParam: string) {
+    return this.get(`/tim-kiem?keyword=${queryParam}&limit=10`);
   }
 }
 

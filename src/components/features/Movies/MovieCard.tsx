@@ -2,19 +2,21 @@ import { Play, Star } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { Movie } from "@/lib/api/movies/movieInterface";
+import { cn } from "@/lib/utils";
 
 interface MovieCardProps {
   movie: Movie;
   rank?: number;
+  className?: string
 }
 
-export default function MovieCard({ movie, rank }: MovieCardProps) {
+export default function MovieCard({ movie, rank, className }: MovieCardProps) {
   return (
     <Link to={`/phim/${movie.slug}`}>
       <motion.div
         whileHover={{ scale: 1.05 }}
         transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
-        className="relative flex-shrink-0 w-[140px] md:w-[170px] group cursor-pointer"
+        className={cn("relative flex-shrink-0 w-[140px] md:w-[170px] group cursor-pointer", className)}
       >
         {rank !== undefined && (
           <div className="absolute -left-3 -bottom-2 z-10 text-6xl font-black text-foreground/20 leading-none select-none" style={{ WebkitTextStroke: "2px hsl(var(--primary))" }}>
@@ -23,7 +25,7 @@ export default function MovieCard({ movie, rank }: MovieCardProps) {
         )}
         <div className="relative aspect-[2/3] rounded-lg overflow-hidden shadow-[var(--shadow-card)]">
           <img
-            src={`https://img.ophim.live/uploads/movies/${movie.thumb_url}`}
+            src={`https://img.ophim.live/uploads/movies/${movie.thumb_url}?w=1920&q=75`}
             alt={movie.name}
             className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
             loading="lazy"
@@ -47,12 +49,9 @@ export default function MovieCard({ movie, rank }: MovieCardProps) {
           </div>
         </div>
         <h3 className="mt-2 text-xs font-medium text-foreground line-clamp-2 leading-snug">{movie.name}</h3>
-        <p className="text-[10px] text-muted-foreground mt-0.5">{movie.year} ·
-          <div className="flex gap-2">
-            {movie.country.map(item =>
-              item.name
-            )}
-          </div>
+        <p className="text-[10px] text-muted-foreground mt-0.5">{movie.year} · {movie.country.map(item =>
+          item.name
+        )}
         </p>
       </motion.div>
     </Link>

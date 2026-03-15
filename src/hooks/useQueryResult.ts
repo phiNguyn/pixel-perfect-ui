@@ -8,7 +8,7 @@ import useDebounce from "./useDebounce";
 export interface QueryResult {
   q?: Record<string, any> | string;
   s?: string;
-  sort?: string[] | string;
+  sort_field?: string[] | string;
   fields?: string;
   page?: number;
   limit?: number;
@@ -29,19 +29,21 @@ const generateQueryParams = (query: QueryResult): QueryResult => {
         })
       : query.q;
 
-  const sort = Array.isArray(query.sort) ? query.sort.join(",") : query.sort;
+  const sort_field = Array.isArray(query.sort_field)
+    ? query.sort_field.join(",")
+    : query.sort_field;
 
   return {
     ...query,
     q,
-    sort,
+    sort_field,
   };
 };
 
 const defaultQuery: QueryResult = {
   q: {},
   s: null,
-  sort: [],
+  sort_field: [],
   fields: "",
   page: 1,
   limit: 50,
@@ -111,7 +113,7 @@ const useQueryResult = (props?: QueryResultProps) => {
   // Debounce search value với delay 500ms
   const debouncedSearchValue = useDebounce(searchValue, 500);
 
-  // Track props ban đầu để giữ nguyên fields, sort, etc.
+  // Track props ban đầu để giữ nguyên fields, sort_field, etc.
   const initialPropsRef = useRef(props);
   const lastGeneratedRef = useRef<string>(undefined);
 

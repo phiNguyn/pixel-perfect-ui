@@ -2,15 +2,17 @@ import { ChevronRight } from "lucide-react";
 import { useRef } from "react";
 import MovieCard from "./MovieCard";
 import { Movie } from "@/lib/api/movies/movieInterface";
+import { Link } from "react-router-dom";
 
 interface MovieRowProps {
   title: string;
   movies: Movie[];
   showRank?: boolean;
   loading?: boolean
+  type_list?: string
 }
 
-export default function MovieRow({ title, movies, showRank }: MovieRowProps) {
+export default function MovieRow({ title, movies, showRank, type_list }: MovieRowProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const scroll = (dir: "left" | "right") => {
@@ -25,9 +27,9 @@ export default function MovieRow({ title, movies, showRank }: MovieRowProps) {
       <div className="max-w-[1400px] mx-auto px-4">
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-lg font-semibold text-foreground tracking-tight">{title}</h2>
-          <button className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors font-medium">
+          <Link to={`/quoc-gia/${type_list}`} className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors font-medium">
             Xem thêm <ChevronRight className="w-3.5 h-3.5" />
-          </button>
+          </Link>
         </div>
       </div>
 

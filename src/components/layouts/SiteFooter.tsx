@@ -6,7 +6,7 @@ export default function SiteFooter() {
           <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center">
             <span className="text-primary-foreground font-bold text-[10px]">TP</span>
           </div>
-          <span className="text-foreground font-bold text-sm">ThiaPhim</span>
+          <span className="text-foreground font-bold text-sm">Pinuss Flix</span>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs text-muted-foreground mb-6">
           <div className="space-y-2">
@@ -34,7 +34,7 @@ export default function SiteFooter() {
             <p className="hover:text-foreground cursor-pointer transition-colors">Bảo mật</p>
           </div>
         </div>
-        <p className="text-[10px] text-muted-foreground">© 2025 ThiaPhim. Tất cả quyền được bảo lưu.</p>
+        <p className="text-[10px] text-muted-foreground">© 2025 Pinuss Flix. Tất cả quyền được bảo lưu.</p>
       </div>
     </footer>
   );
