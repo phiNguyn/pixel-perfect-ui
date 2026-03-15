@@ -11,10 +11,7 @@ import {
     Maximize,
     Minimize,
     Settings,
-    Rewind,
-    FastForward,
     PictureInPicture2,
-    Subtitles,
     SkipBack,
     SkipForward,
     Loader2,
@@ -23,8 +20,6 @@ import {
 import {
     DropdownMenu,
     DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuSub,
     DropdownMenuSubContent,
@@ -32,6 +27,7 @@ import {
     DropdownMenuTrigger,
     DropdownMenuRadioGroup,
     DropdownMenuRadioItem,
+    DropdownMenuPortal,
 } from "@/components/ui/dropdown-menu"
 import {
     Tooltip,
@@ -40,6 +36,7 @@ import {
     TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { Slider } from "@/components/ui/slider"
+import { useIsMobile } from "@/hooks/use-mobile"
 
 interface MoviePlayerProps {
     src: string
@@ -86,7 +83,7 @@ export default function MoviePlayer({ src, title = "Movie", poster, onBack, sele
     const [isHovering, setIsHovering] = useState(false)
     const [previewTime, setPreviewTime] = useState<number | null>(null)
     const [previewPosition, setPreviewPosition] = useState(0)
-
+    const isMobile = useIsMobile()
     // Initialize HLS
     useEffect(() => {
         if (!videoRef.current) return
@@ -161,7 +158,7 @@ export default function MoviePlayer({ src, title = "Movie", poster, onBack, sele
             video.load()
             setIsLoading(false)
         }
-    }, [src, currentQuality])
+    }, [src])
 
     // Video event listeners
     useEffect(() => {
@@ -401,7 +398,7 @@ export default function MoviePlayer({ src, title = "Movie", poster, onBack, sele
             <div
                 ref={containerRef}
                 className={cn(
-                    "relative w-full bg-black overflow-hidden group rounded-md",
+                    "relative w-full bg-black overflow-hidden group rounded-md cursor-pointer",
                     isFullscreen ? "h-screen" : "aspect-video"
                 )}
                 onMouseMove={showControlsTemporarily}
@@ -442,28 +439,31 @@ export default function MoviePlayer({ src, title = "Movie", poster, onBack, sele
                 {/* Top Gradient & Title */}
                 <div
                     className={cn(
-                        "absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-black/80 to-transparent transition-opacity duration-300 z-20",
+                        "absolute top-0 left-0 right-0  bg-gradient-to-b from-black/80 to-transparent transition-opacity duration-300 z-20",
                         showControls || !isPlaying ? "opacity-100" : "opacity-0 pointer-events-none"
                     )}
                 >
-                    <div className="flex items-center gap-4 p-4">
-                        {onBack && (
-                            <button
-                                type="button"
-                                onClick={onBack}
-                                className="p-2 rounded-full hover:bg-white/10 transition-colors"
-                            >
-                                <ChevronLeft className="w-6 h-6 text-white" />
-                            </button>
-                        )}
-                        <h1 className="text-white font-medium text-lg truncate">{title} tập {selectedEp}</h1>
-                    </div>
+                    {(!isFullscreen && isMobile ?
+                        <div className="flex items-center gap-4 p-4">
+                            {onBack && (
+                                <button
+                                    type="button"
+                                    onClick={onBack}
+                                    className="p-2 rounded-full hover:bg-white/10 transition-colors"
+                                >
+                                    <ChevronLeft className="w-6 h-6 text-white" />
+                                </button>
+                            )}
+                            <h1 className="text-white font-medium text-lg truncate">{title} tập {selectedEp}</h1>
+                        </div>
+                        : null
+                    )}
                 </div>
 
                 {/* Bottom Controls */}
                 <div
                     className={cn(
-                        "absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent transition-opacity duration-300 pt-16 z-20",
+                        "absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent transition-opacity duration-300  z-20",
                         showControls || !isPlaying ? "opacity-100" : "opacity-0 pointer-events-none"
                     )}
                 >
@@ -524,7 +524,7 @@ export default function MoviePlayer({ src, title = "Movie", poster, onBack, sele
                                     </button>
                                 </TooltipTrigger>
                                 <TooltipContent side="top" sideOffset={8}>
-                                    <p>{isPlaying ? "Tam dung (K)" : "Phat (K)"}</p>
+                                    <p>{isPlaying ? "Tạm dừng" : "Phát"}</p>
                                 </TooltipContent>
                             </Tooltip>
 
@@ -575,10 +575,10 @@ export default function MoviePlayer({ src, title = "Movie", poster, onBack, sele
                                         </button>
                                     </TooltipTrigger>
                                     <TooltipContent side="top" sideOffset={8}>
-                                        <p>{isMuted ? "Bat am (M)" : "Tat am (M)"}</p>
+                                        <p>{isMuted ? "Bật âm (M)" : "Tắt âm (M)"}</p>
                                     </TooltipContent>
                                 </Tooltip>
-                                <div className="w-0 overflow-hidden group-hover/volume:w-20 transition-all duration-300">
+                                <div className={`${(isMobile && isFullscreen ? 'w-auto' : 'w-0')}  overflow-hidden group-hover/volume:w-20 transition-all duration-300`}>
                                     <Slider
                                         value={[isMuted ? 0 : volume * 100]}
                                         onValueChange={handleVolumeChange}
@@ -607,37 +607,41 @@ export default function MoviePlayer({ src, title = "Movie", poster, onBack, sele
                                     </button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent
+                                    sideOffset={8}
                                     align="end"
-                                    className="w-56 bg-zinc-900/95 border-zinc-700 text-white backdrop-blur-md"
+                                    className="!z-[9999] w-56 bg-zinc-900/95 border-zinc-700 text-white backdrop-blur-md"
                                 >
                                     {/* Playback Speed */}
                                     <DropdownMenuSub>
-                                        <DropdownMenuSubTrigger className="hover:bg-white/10 focus:bg-white/10 [&_svg]:text-white">
+                                        <DropdownMenuSubTrigger className="hover:bg-white/10 focus:bg-white/10 [&_svg]:text-white cursor-pointer">
                                             <span>Tốc độ phát</span>
                                             <span className="ml-auto text-zinc-400 text-xs">
                                                 {playbackSpeed === 1 ? "Bình thường" : `${playbackSpeed}x`}
                                             </span>
                                         </DropdownMenuSubTrigger>
-                                        <DropdownMenuSubContent className="bg-zinc-900/95 border-zinc-700 text-white backdrop-blur-md">
-                                            <DropdownMenuRadioGroup
-                                                value={playbackSpeed.toString()}
-                                                onValueChange={handlePlaybackSpeedChange}
-                                            >
-                                                {PLAYBACK_SPEEDS.map((speed) => (
-                                                    <DropdownMenuRadioItem
-                                                        key={speed}
-                                                        value={speed.toString()}
-                                                        className="hover:bg-white/10 focus:bg-white/10"
-                                                    >
-                                                        {speed === 1 ? "Bình thường" : `${speed}x`}
-                                                    </DropdownMenuRadioItem>
-                                                ))}
-                                            </DropdownMenuRadioGroup>
-                                        </DropdownMenuSubContent>
+
+                                        <DropdownMenuPortal>
+                                            <DropdownMenuSubContent className="bg-zinc-900/95 border-zinc-700 text-white backdrop-blur-md">
+                                                <DropdownMenuRadioGroup
+                                                    value={playbackSpeed.toString()}
+                                                    onValueChange={handlePlaybackSpeedChange}
+                                                >
+                                                    {PLAYBACK_SPEEDS.map((speed) => (
+                                                        <DropdownMenuRadioItem
+                                                            key={speed}
+                                                            value={speed.toString()}
+                                                            className="hover:bg-white/10 focus:bg-white/10"
+                                                        >
+                                                            {speed === 1 ? "Bình thường" : `${speed}x`}
+                                                        </DropdownMenuRadioItem>
+                                                    ))}
+                                                </DropdownMenuRadioGroup>
+                                            </DropdownMenuSubContent>
+                                        </DropdownMenuPortal>
                                     </DropdownMenuSub>
 
                                     {/* Quality */}
-                                    {qualityLevels.length > 0 && (
+                                    {qualityLevels.length > 1 && (
                                         <>
                                             <DropdownMenuSeparator className="bg-zinc-700" />
                                             <DropdownMenuSub>
@@ -649,33 +653,35 @@ export default function MoviePlayer({ src, title = "Movie", poster, onBack, sele
                                                             : `${qualityLevels.find((q) => q.index === currentQuality)?.height}p`}
                                                     </span>
                                                 </DropdownMenuSubTrigger>
-                                                <DropdownMenuSubContent className="bg-zinc-900/95 border-zinc-700 text-white backdrop-blur-md">
-                                                    <DropdownMenuRadioGroup
-                                                        value={currentQuality.toString()}
-                                                        onValueChange={handleQualityChange}
-                                                    >
-                                                        <DropdownMenuRadioItem
-                                                            value="-1"
-                                                            className="hover:bg-white/10 focus:bg-white/10"
+                                                <DropdownMenuPortal>
+                                                    <DropdownMenuSubContent className="bg-zinc-900/95 border-zinc-700 text-white backdrop-blur-md">
+                                                        <DropdownMenuRadioGroup
+                                                            value={currentQuality.toString()}
+                                                            onValueChange={handleQualityChange}
                                                         >
-                                                            Tự động
-                                                        </DropdownMenuRadioItem>
-                                                        {qualityLevels
-                                                            .sort((a, b) => b.height - a.height)
-                                                            .map((level) => (
-                                                                <DropdownMenuRadioItem
-                                                                    key={level.index}
-                                                                    value={level.index.toString()}
-                                                                    className="hover:bg-white/10 focus:bg-white/10"
-                                                                >
-                                                                    {level.height}p
-                                                                    <span className="ml-2 text-zinc-400 text-xs">
-                                                                        {(level.bitrate / 1000000).toFixed(1)} Mbps
-                                                                    </span>
-                                                                </DropdownMenuRadioItem>
-                                                            ))}
-                                                    </DropdownMenuRadioGroup>
-                                                </DropdownMenuSubContent>
+                                                            <DropdownMenuRadioItem
+                                                                value="-1"
+                                                                className="hover:bg-white/10 focus:bg-white/10"
+                                                            >
+                                                                Tự động
+                                                            </DropdownMenuRadioItem>
+                                                            {qualityLevels
+                                                                .sort((a, b) => b.height - a.height)
+                                                                .map((level) => (
+                                                                    <DropdownMenuRadioItem
+                                                                        key={level.index}
+                                                                        value={level.index.toString()}
+                                                                        className="hover:bg-white/10 focus:bg-white/10"
+                                                                    >
+                                                                        {level.height}p
+                                                                        <span className="ml-2 text-zinc-400 text-xs">
+                                                                            {(level.bitrate / 1000000).toFixed(1)} Mbps
+                                                                        </span>
+                                                                    </DropdownMenuRadioItem>
+                                                                ))}
+                                                        </DropdownMenuRadioGroup>
+                                                    </DropdownMenuSubContent>
+                                                </DropdownMenuPortal>
                                             </DropdownMenuSub>
                                         </>
                                     )}
@@ -695,7 +701,7 @@ export default function MoviePlayer({ src, title = "Movie", poster, onBack, sele
                                         </button>
                                     </TooltipTrigger>
                                     <TooltipContent side="top" sideOffset={8}>
-                                        <p>Hinh trong hinh</p>
+                                        <p>Hình trong hình</p>
                                     </TooltipContent>
                                 </Tooltip>
                             )}
@@ -716,7 +722,7 @@ export default function MoviePlayer({ src, title = "Movie", poster, onBack, sele
                                     </button>
                                 </TooltipTrigger>
                                 <TooltipContent side="top" sideOffset={8}>
-                                    <p>{isFullscreen ? "Thoat toan man hinh (F)" : "Toan man hinh (F)"}</p>
+                                    <p>{isFullscreen ? "Thoát toàn màn hình (F)" : "Toàn màn hình (F)"}</p>
                                 </TooltipContent>
                             </Tooltip>
                         </div>

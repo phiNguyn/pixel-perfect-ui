@@ -10,7 +10,7 @@ import { useParams } from "react-router-dom"
 const Movies = () => {
     const { slug, type } = useParams();
     const { queryResult, setPage } = useQueryResult({ limit: 24, page: 1, sort_field: 'year' })
-    const { data, isLoading, isFetching } = useQueryMovies(queryResult, slug ? true : false, type, `${type}/${slug}`)
+    const { data, isLoading, isFetching } = useQueryMovies(queryResult, slug ? true : false, type, `${type}/${slug}`, true)
     const { items, params } = data?.data || []
     const { pagination } = params || []
     return (

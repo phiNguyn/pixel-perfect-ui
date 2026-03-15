@@ -7,6 +7,7 @@ export const useQueryMovies = (
   enabled = true,
   key = "movies",
   slug: string,
+  isKeepData = false,
 ) => {
   return useQuery({
     queryKey: [key, JSON.stringify(query), slug],
@@ -15,6 +16,7 @@ export const useQueryMovies = (
     retry: false,
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
+    placeholderData: isKeepData ? keepPreviousData : undefined,
   });
 };
 

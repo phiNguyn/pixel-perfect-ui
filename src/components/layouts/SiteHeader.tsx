@@ -43,7 +43,7 @@ export default function SiteHeader() {
               <span className="text-foreground font-bold text-lg tracking-tight">Pinuss Flix</span>
             </div>
           </div>
-
+          {/* search */}
           <div className="hidden md:flex items-center gap-1 relative">
             {searchOpen ? (
               <div >
@@ -84,7 +84,7 @@ export default function SiteHeader() {
         </div>
 
         {/* Navigation */}
-        <nav className="flex items-center gap-1 pb-2 overflow-x-auto scrollbar-hide">
+        <nav className="hidden md:flex items-center gap-1 pb-2 overflow-x-auto scrollbar-hide">
           <span className="text-sm text-muted-foreground mr-2 whitespace-nowrap">Tìm đang xem gì?</span>
           {isLoading ? <Loader /> : items.map((cat, i) => (
             <Link to={`/the-loai/${cat.slug}`}
@@ -102,7 +102,7 @@ export default function SiteHeader() {
         </nav>
 
         {/* Sub navigation */}
-        <div className="flex items-center gap-4 pb-2 text-xs">
+        <div className="hidden md:flex items-center gap-4 pb-2 text-xs">
           <span className="text-sm text-muted-foreground mr-2 whitespace-nowrap">Quốc gia:</span>
           <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
             {countryLoading ? <Skeleton className="h-4 w-full" /> : countries?.data?.items.map((c: Country) => (
