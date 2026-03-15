@@ -62,7 +62,7 @@ export function PaginationBase({
 
                 {pages.map((page, index) =>
                     page === "ellipsis" ? (
-                        <PaginationItem key={index}>
+                        <PaginationItem key={page + index}>
                             <PaginationEllipsis />
                         </PaginationItem>
                     ) : (

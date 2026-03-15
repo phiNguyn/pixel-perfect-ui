@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
 
 import Hls from "hls.js"
@@ -66,7 +67,7 @@ export default function MoviePlayer({ src, title = "Movie", poster, onBack, sele
     const hlsRef = useRef<Hls | null>(null)
     const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null)
     const progressRef = useRef<HTMLDivElement>(null)
-
+    const [isFakeFullscreen, setIsFakeFullscreen] = useState(false)
     const [isPlaying, setIsPlaying] = useState(false)
     const [currentTime, setCurrentTime] = useState(0)
     const [duration, setDuration] = useState(0)
@@ -152,6 +153,9 @@ export default function MoviePlayer({ src, title = "Movie", poster, onBack, sele
             return () => {
                 hls.destroy()
                 hlsRef.current = null
+                document.body.style.overflow = '' // ← thêm dòng này
+                if (controlsTimeoutRef.current)
+                    clearTimeout(controlsTimeoutRef.current)
             }
         } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
             video.src = src
@@ -268,12 +272,47 @@ export default function MoviePlayer({ src, title = "Movie", poster, onBack, sele
 
     // Fullscreen change listener
     useEffect(() => {
+        const video = videoRef.current
+
         const handleFullscreenChange = () => {
-            setIsFullscreen(!!document.fullscreenElement)
+            const isFS =
+                !!document.fullscreenElement ||
+                !!(document as any).webkitFullscreenElement ||
+                !!(document as any).mozFullScreenElement ||
+                !!(document as any).msFullscreenElement ||
+                !!(video as any)?.webkitDisplayingFullscreen
+            setIsFullscreen(isFS)
+        }
+
+        // iOS Safari video fullscreen events
+        const handleiOSFullscreen = () => {
+            setIsFullscreen(true)
+        }
+        const handleiOSExitFullscreen = () => {
+            setIsFullscreen(false)
         }
 
         document.addEventListener("fullscreenchange", handleFullscreenChange)
-        return () => document.removeEventListener("fullscreenchange", handleFullscreenChange)
+        document.addEventListener("webkitfullscreenchange", handleFullscreenChange)
+        document.addEventListener("mozfullscreenchange", handleFullscreenChange)
+        document.addEventListener("MSFullscreenChange", handleFullscreenChange)
+
+        // iOS Safari specific events
+        if (video) {
+            video.addEventListener("webkitbeginfullscreen", handleiOSFullscreen)
+            video.addEventListener("webkitendfullscreen", handleiOSExitFullscreen)
+        }
+
+        return () => {
+            document.removeEventListener("fullscreenchange", handleFullscreenChange)
+            document.removeEventListener("webkitfullscreenchange", handleFullscreenChange)
+            document.removeEventListener("mozfullscreenchange", handleFullscreenChange)
+            document.removeEventListener("MSFullscreenChange", handleFullscreenChange)
+            if (video) {
+                video.removeEventListener("webkitbeginfullscreen", handleiOSFullscreen)
+                video.removeEventListener("webkitendfullscreen", handleiOSExitFullscreen)
+            }
+        }
     }, [])
 
     // Auto-hide controls
@@ -356,12 +395,66 @@ export default function MoviePlayer({ src, title = "Movie", poster, onBack, sele
     }
 
     const toggleFullscreen = async () => {
-        if (!containerRef.current) return
+        const container = containerRef.current
+        const video = videoRef.current
+        if (!container || !video) return
 
-        if (!document.fullscreenElement) {
-            await containerRef.current.requestFullscreen()
+        // Check if we're currently in fullscreen (cross-browser)
+        const isCurrentlyFullscreen =
+            document.fullscreenElement ||
+            (document as any).webkitFullscreenElement ||
+            (document as any).mozFullScreenElement ||
+            (document as any).msFullscreenElement ||
+            (video as any).webkitDisplayingFullscreen
+
+        if (!isCurrentlyFullscreen) {
+            // Try to enter fullscreen
+            try {
+                if (container.requestFullscreen) {
+                    await container.requestFullscreen()
+                } else if ((container as any).webkitRequestFullscreen) {
+                    // Safari desktop
+                    await (container as any).webkitRequestFullscreen()
+                } else if ((container as any).mozRequestFullScreen) {
+                    // Firefox
+                    await (container as any).mozRequestFullScreen()
+                } else if ((container as any).msRequestFullscreen) {
+                    // IE/Edge
+                    await (container as any).msRequestFullscreen()
+                } else if ((video as any).webkitEnterFullscreen) {
+                    // iOS Safari - only supports video element fullscreen
+                    await (video as any).webkitEnterFullscreen()
+                } else if ((video as any).webkitSupportsFullscreen && (video as any).webkitEnterFullScreen) {
+                    // Older iOS
+                    await (video as any).webkitEnterFullScreen()
+                }
+            } catch (err) {
+                // Fallback for iOS - try video element fullscreen
+                if ((video as any).webkitEnterFullscreen) {
+                    try {
+                        await (video as any).webkitEnterFullscreen()
+                    } catch (e) {
+                        console.error("Fullscreen not supported")
+                    }
+                }
+            }
         } else {
-            await document.exitFullscreen()
+            // Exit fullscreen
+            try {
+                if (document.exitFullscreen) {
+                    await document.exitFullscreen()
+                } else if ((document as any).webkitExitFullscreen) {
+                    await (document as any).webkitExitFullscreen()
+                } else if ((document as any).mozCancelFullScreen) {
+                    await (document as any).mozCancelFullScreen()
+                } else if ((document as any).msExitFullscreen) {
+                    await (document as any).msExitFullscreen()
+                } else if ((video as any).webkitExitFullscreen) {
+                    await (video as any).webkitExitFullscreen()
+                }
+            } catch (err) {
+                console.error("Exit fullscreen failed")
+            }
         }
     }
 
@@ -398,10 +491,12 @@ export default function MoviePlayer({ src, title = "Movie", poster, onBack, sele
             <div
                 ref={containerRef}
                 className={cn(
-                    "relative w-full bg-black overflow-hidden group rounded-md cursor-pointer",
+                    "relative w-full bg-black overflow-hidden group",
                     isFullscreen ? "h-screen" : "aspect-video"
                 )}
                 onMouseMove={showControlsTemporarily}
+                onTouchStart={showControlsTemporarily}
+                onTouchMove={showControlsTemporarily}
                 onMouseEnter={() => setIsHovering(true)}
                 onMouseLeave={() => {
                     setIsHovering(false)

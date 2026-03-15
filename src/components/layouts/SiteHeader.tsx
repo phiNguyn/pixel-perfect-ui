@@ -1,4 +1,4 @@
-import { Search, Bell, User, Menu, Loader, X } from "lucide-react";
+import { Search, Bell, User, Menu, Loader, X, XIcon } from "lucide-react";
 import { useState } from "react";
 import { categories, genres, countries } from "@/data/movies";
 import { useQueryCategories } from "@/lib/api/categories/categorieQuery";
@@ -15,6 +15,8 @@ import {
   SheetTitle,
   SheetClose,
 } from "@/components/ui/sheet";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { Input } from "../ui/input";
 
 export default function SiteHeader() {
   const { slug } = useParams()
@@ -36,12 +38,13 @@ export default function SiteHeader() {
         {/* Top bar */}
         <div className="flex items-center justify-between h-14">
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-sm">TP</span>
-              </div>
+            <Link to={'/'} className="flex items-center gap-2">
+              <Avatar className="size-8 mb-1.5">
+                <AvatarImage src={`https://api-sandbox.vnhub.com/resource/2026/02/27/1772203272485-1000003143.png`} className="object-cover" />
+                <AvatarFallback className="bg-muted text-muted-foreground text-xs">PF</AvatarFallback>
+              </Avatar>
               <span className="text-foreground font-bold text-lg tracking-tight">Pinuss Flix</span>
-            </div>
+            </Link>
           </div>
           {/* search */}
           <div className="hidden md:flex items-center gap-1 relative">
@@ -132,14 +135,18 @@ export default function SiteHeader() {
         <SheetContent side="right" className="w-full sm:w-[350px] p-0 overflow-y-auto">
           <SheetHeader className="border-b border-border/50 p-4">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
-                  <span className="text-primary-foreground font-bold text-sm">TP</span>
-                </div>
+              <Link onClick={() => {
+                setMobileMenuOpen(false);
+                setMobileSearch('');
+              }} to={'/'} className="flex items-center gap-2">
+                <Avatar className="size-8 mb-1.5">
+                  <AvatarImage src={`https://api-sandbox.vnhub.com/resource/2026/02/27/1772203272485-1000003143.png`} className="object-cover" />
+                  <AvatarFallback className="bg-muted text-muted-foreground text-xs">PF</AvatarFallback>
+                </Avatar>
                 <SheetTitle className="text-foreground font-bold text-lg tracking-tight">
                   Pinuss Flix
                 </SheetTitle>
-              </div>
+              </Link>
             </div>
           </SheetHeader>
 
@@ -153,28 +160,30 @@ export default function SiteHeader() {
                 value={mobileSearch}
                 onChange={(e) => setMobileSearch(e.target.value)}
               />
-              <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              {mobileSearchValue ? <XIcon onClick={() => setMobileSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"></XIcon> : <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />}
             </div>
 
             {/* Mobile Search Results */}
             {mobileSearch && (
-              <div className="flex flex-col gap-3 max-h-[200px] overflow-y-auto bg-secondary/50 rounded-lg p-3">
+              <div className="flex flex-col gap-3 max-h-[320px] overflow-y-auto bg-secondary/50 rounded-lg p-3">
                 {mobileSearchLoading || mobileSearchFetching ? (
-                  <div className="text-sm text-muted-foreground">Đang tìm...</div>
+                  <div className="flex w-full max-w-xs flex-col gap-2">
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-3/4" />
+                  </div>
                 ) : mobileSearchMovie?.data?.items?.length > 0 ? (
-                  mobileSearchMovie.data.items.slice(0, 5).map(item => (
-                    <Link
-                      to={`/phim/${item.slug}`}
-                      key={item._id}
-                      className="text-sm text-foreground hover:text-primary transition-colors"
-                      onClick={() => {
-                        setMobileMenuOpen(false);
-                        setMobileSearch('');
-                      }}
-                    >
-                      {item.name}
-                    </Link>
-                  ))
+                  <div className="flex flex-col gap-2" onClick={() => {
+                    setMobileSearch('')
+                    setMobileMenuOpen(false)
+                  }}>
+                    {
+                      mobileSearchMovie.data.items.map(item => (
+                        <MovieCardSeach movie={item} key={item.slug} />
+                      ))
+
+                    }
+                  </div>
                 ) : (
                   <div className="text-sm text-muted-foreground">Không có kết quả</div>
                 )}
@@ -182,7 +191,7 @@ export default function SiteHeader() {
             )}
 
             {/* User Actions */}
-            <div className="flex items-center gap-2 py-2 border-b border-border/50">
+            {/* <div className="flex items-center gap-2 py-2 border-b border-border/50">
               <button className="flex-1 flex items-center justify-center gap-2 p-3 rounded-lg bg-secondary text-foreground hover:bg-muted transition-colors">
                 <Bell className="w-5 h-5" />
                 <span className="text-sm">Thông báo</span>
@@ -191,7 +200,7 @@ export default function SiteHeader() {
                 <User className="w-5 h-5" />
                 <span className="text-sm">Tài khoản</span>
               </button>
-            </div>
+            </div> */}
 
             {/* Categories */}
             <div className="flex flex-col gap-2">

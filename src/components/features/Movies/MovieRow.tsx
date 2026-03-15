@@ -10,9 +10,10 @@ interface MovieRowProps {
   showRank?: boolean;
   loading?: boolean
   type_list?: string
+  type?: string
 }
 
-export default function MovieRow({ title, movies, showRank, type_list }: MovieRowProps) {
+export default function MovieRow({ title, movies, showRank, type_list, type = 'quoc-gia' }: MovieRowProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const scroll = (dir: "left" | "right") => {
@@ -23,40 +24,42 @@ export default function MovieRow({ title, movies, showRank, type_list }: MovieRo
   };
 
   return (
-    <section className="py-4">
-      <div className="max-w-[1400px] mx-auto px-4">
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-lg font-semibold text-foreground tracking-tight">{title}</h2>
-          <Link to={`/quoc-gia/${type_list}`} className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors font-medium">
-            Xem thêm <ChevronRight className="w-3.5 h-3.5" />
-          </Link>
-        </div>
-      </div>
-
-      <div className="relative group/row max-w-[1400px] mx-auto px-4">
-        <button
-          onClick={() => scroll("left")}
-          className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-8 h-16 bg-background/80 backdrop-blur-sm rounded-r-lg flex items-center justify-center text-foreground opacity-0 group-hover/row:opacity-100 transition-opacity"
-        >
-          <ChevronRight className="w-4 h-4 rotate-180" />
-        </button>
-
-        <div
-          ref={scrollRef}
-          className="flex gap-3 overflow-x-auto scrollbar-hide pb-2"
-        >
-          {movies?.map((movie, i) => (
-            <MovieCard key={movie._id} movie={movie} rank={showRank ? i + 1 : undefined} />
-          ))}
+    <>
+      <section className="py-4">
+        <div className="max-w-[1400px] mx-auto px-4">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-lg font-semibold text-foreground tracking-tight">{title}</h2>
+            <Link to={`/${type}/${type_list}`} className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors font-medium">
+              Xem thêm <ChevronRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
         </div>
 
-        <button
-          onClick={() => scroll("right")}
-          className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-16 bg-background/80 backdrop-blur-sm rounded-l-lg flex items-center justify-center text-foreground opacity-0 group-hover/row:opacity-100 transition-opacity"
-        >
-          <ChevronRight className="w-4 h-4" />
-        </button>
-      </div>
-    </section>
+        <div className="relative group/row max-w-[1400px] mx-auto px-4">
+          <button
+            onClick={() => scroll("left")}
+            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-8 h-16 bg-background/80 backdrop-blur-sm rounded-r-lg flex items-center justify-center text-foreground opacity-0 group-hover/row:opacity-100 transition-opacity"
+          >
+            <ChevronRight className="w-4 h-4 rotate-180" />
+          </button>
+
+          <div
+            ref={scrollRef}
+            className="flex gap-3 overflow-x-auto scrollbar-hide pb-2"
+          >
+            {movies?.map((movie, i) => (
+              <MovieCard key={movie._id} movie={movie} rank={showRank ? i + 1 : undefined} />
+            ))}
+          </div>
+
+          <button
+            onClick={() => scroll("right")}
+            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-16 bg-background/80 backdrop-blur-sm rounded-l-lg flex items-center justify-center text-foreground opacity-0 group-hover/row:opacity-100 transition-opacity"
+          >
+            <ChevronRight className="w-4 h-4" />
+          </button>
+        </div>
+      </section>
+    </>
   );
 }

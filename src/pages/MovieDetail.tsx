@@ -74,7 +74,7 @@ export default function MovieDetail() {
         :
         <>
           <Helmet>
-            <title>{movie.name}</title>
+            <title>{movie.name} - Pinuss Flix</title>
             <meta property="og:title" content={movie.name} />
             <meta property="og:image" content={movie.poster_url} />
             <meta property="og:description" content={movie.content} />
@@ -93,12 +93,14 @@ export default function MovieDetail() {
                 {/* Main content */}
                 <div className="flex-1">
                   {/* Movie header */}
-                  <div className="flex flex-col md:flex-row gap-3 md:gap-5 mb-6">
-                    <img
-                      src={`https://img.ophim.live/uploads/movies/${movie.thumb_url}`}
-                      alt={movie.name}
-                      className="w-[120px] md:w-[150px] aspect-[2/3] rounded-lg object-cover shadow-[var(--shadow-card)] flex-shrink-0"
-                    />
+                  <div className="flex mt-28 md:mt-0 flex-col md:flex-row gap-3 md:gap-5 mb-6">
+                    <div className="w-100 flex items-center justify-center">
+                      <img
+                        src={`https://img.ophim.live/uploads/movies/${movie.thumb_url}`}
+                        alt={movie.name}
+                        className="w-[120px] md:w-[150px] aspect-[2/3] rounded-lg object-cover shadow-[var(--shadow-card)] flex-shrink-0"
+                      />
+                    </div>
                     <div className="flex flex-col justify-end">
                       <div className="flex items-center gap-3 mb-3 flex-wrap">
                         <Button onClick={() => setSelectedEp(movie.episodes[0].server_data[0])} className="rounded-full gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-6">
@@ -122,7 +124,7 @@ export default function MovieDetail() {
                       <p className="text-sm text-muted-foreground mb-2">{movie.lang}</p>
 
                       <div className="flex flex-wrap items-center gap-2 mb-2">
-                        <Badge className="bg-accent text-accent-foreground text-xs">{movie.imdb.vote_average}</Badge>
+                        <Badge className="bg-accent text-accent-foreground text-xs">{movie.tmdb.vote_average}</Badge>
                         <Badge variant="secondary" className="text-xs">{movie.year}</Badge>
                         {movie.category.map(item => (
                           <Badge key={item.id} variant="secondary" className="text-xs">{item.name}</Badge>
@@ -135,7 +137,8 @@ export default function MovieDetail() {
                       </p>
                       <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
                         <Star className="w-3 h-3 text-yellow-400 fill-current" />
-                        <span>Số lượt xem: Tập {totalEps}K / {(totalEps * 3.2).toFixed(0)}K Tổng</span>
+                        <span>Số tập:  {movie?.episode_current}</span>
+                        <span>Số lượt xem: {movie.view}</span>
                       </div>
                     </div>
                   </div>

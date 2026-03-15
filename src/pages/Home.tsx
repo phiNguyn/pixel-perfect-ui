@@ -6,6 +6,7 @@ import MovieRow from "@/components/features/Movies/MovieRow";
 import { useQueryMovies } from "@/lib/api/movies/movieQuery";
 import useQueryResult from "@/hooks/useQueryResult";
 import { MovieCategory } from "@/lib/api/movies/movieInterface";
+import { Helmet } from "react-helmet-async";
 
 const Home = () => {
   const { queryResult } = useQueryResult({ limit: 10, page: 1, sort_field: 'year' })
@@ -18,9 +19,12 @@ const Home = () => {
 
   return (
     <>
+      <Helmet>
+        <title>Trang chủ - Pinuss Flix</title>
+      </Helmet>
       <HeroBanner />
       <MoodSection />
-      <MovieRow title="Phim Mới Cập Nhật" movies={movieData?.data?.items} loading={isLoading} type_list={movieData?.data?.type_list} />
+      <MovieRow title="Phim Mới Cập Nhật" movies={movieData?.data?.items} loading={isLoading} type={`danh-sach`} type_list={movieData?.data?.type_list} />
       <MovieRow title="Phim Hàn Quốc Mới" movies={koreanMovies?.data?.items as any} loading={koreanMoviesLoading} type_list={koreanMovies?.data?.type_list} />
       <MovieRow title="Phim Nhật Bản mới" movies={japanMovies?.data?.items} loading={japanMoviesLoading} type_list={japanMovies?.data?.type_list} />
       <MovieRow title="Phim Mỹ, Âu Mới" movies={usMovies?.data?.items} loading={usMoviesLoading} type_list={usMovies?.data?.type_list} />

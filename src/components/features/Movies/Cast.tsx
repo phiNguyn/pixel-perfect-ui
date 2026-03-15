@@ -15,7 +15,7 @@ const Cast = ({ loading, peoples, profile_sizes }) => {
                             <AvatarFallback className="bg-muted text-muted-foreground text-xs">{cast.name[0]}</AvatarFallback>
                         </Avatar>
                         <span className="text-xs text-foreground font-medium line-clamp-1">{cast.name}</span>
-                        <span className="text-[10px] text-muted-foreground">{cast.role}</span>
+                        <span className="text-[10px] text-muted-foreground">{cast?.character}</span>
                     </div>
                 ))}
             </div>
