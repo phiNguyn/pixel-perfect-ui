@@ -93,6 +93,22 @@ export default function MoviePlayer({ src, title = "Movie", poster, onBack, sele
 
         const video = videoRef.current
 
+        // Reset states when src changes
+        setIsPlaying(false)
+        setCurrentTime(0)
+        setDuration(0)
+        setBuffered(0)
+        setIsLoading(true)
+        setQualityLevels([])
+        setCurrentQuality(-1)
+        setPreviewTime(null)
+
+        // Destroy previous HLS instance if exists
+        if (hlsRef.current) {
+            hlsRef.current.destroy()
+            hlsRef.current = null
+        }
+
         // Check PiP support
         setIsPiPSupported("pictureInPictureEnabled" in document)
 
@@ -138,9 +154,11 @@ export default function MoviePlayer({ src, title = "Movie", poster, onBack, sele
 
             return () => {
                 hls.destroy()
+                hlsRef.current = null
             }
         } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
             video.src = src
+            video.load()
             setIsLoading(false)
         }
     }, [src, currentQuality])

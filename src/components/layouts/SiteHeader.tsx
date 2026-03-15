@@ -128,7 +128,7 @@ export default function SiteHeader() {
       )}
 
       {/* Mobile Menu */}
-      <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+      <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen} >
         <SheetContent side="right" className="w-full sm:w-[350px] p-0 overflow-y-auto">
           <SheetHeader className="border-b border-border/50 p-4">
             <div className="flex items-center justify-between">

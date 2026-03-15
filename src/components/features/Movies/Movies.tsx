@@ -15,7 +15,7 @@ const Movies = () => {
     const { pagination } = params || []
     return (
         <div className="px-4 my-0 mx-auto max-w-[1400px]">
-            <Button size="sm" className="my-2"><Filter />Bộ lọc</Button>
+            <Button size="sm" className="my-2"><Filter />Bộ lọc (nào rãnh làm)</Button>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 items-center ">
                 {isLoading || isFetching ? <Loader /> : items.map(item => (
                     <MovieCard movie={item} key={item._id} className="w-100 md:w-100" />

@@ -52,9 +52,9 @@ export function PaginationBase({
 
     return (
         <Pagination >
-            <PaginationContent className="cursor-pointer">
+            <PaginationContent className="cursor-pointer flex-wrap">
 
-                <PaginationItem>
+                <PaginationItem >
                     <PaginationPrevious
                         onClick={() => onChange?.(current - 1)}
                     />
