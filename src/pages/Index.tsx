@@ -19,7 +19,7 @@ const Index = () => {
   const { queryResult } = useQueryResult({ limit: 10, page: 1 })
 
   const { data, isLoading } = useQueryMovies(queryResult, true, MovieCategory.PHIM_MOI, MovieCategory.PHIM_MOI)
-  console.log(data.data.items);
+  console.log(data?.data?.items);
 
   return (
     <div className="min-h-screen bg-background">
