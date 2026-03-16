@@ -14,6 +14,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import BadgeSkeleton from "../features/Movies/Skeletons/BadgeSkeleton";
 
 export default function SiteHeader() {
   const { slug } = useParams()
@@ -93,19 +94,21 @@ export default function SiteHeader() {
         {/* Navigation */}
         <nav className="hidden md:flex items-center gap-1 pb-2 overflow-x-auto scrollbar-hide">
           <span className="text-sm text-muted-foreground mr-2 whitespace-nowrap">Tìm đang xem gì?</span>
-          {isLoading ? <Loader /> : items?.filter((cat) => cat.slug !== 'phim-18').map((cat, i) => (
-            <Link to={`/the-loai/${cat.slug}`}
-              key={cat._id}
-              className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors 
+          {isLoading ? <BadgeSkeleton count={10} /> :
+            items?.filter((cat) => cat.slug !== 'phim-18').map((cat, i) => (
+              <Link to={`/the-loai/${cat.slug}`}
+                key={cat._id}
+                className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors 
                 ${cat.slug === slug
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-secondary text-secondary-foreground hover:bg-muted"
-                }
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-secondary text-secondary-foreground hover:bg-muted"
+                  }
                 `}
-            >
-              {cat.name}
-            </Link>
-          ))}
+              >
+                {cat.name}
+              </Link>
+            ))
+          }
         </nav>
 
         {/* Sub navigation */}

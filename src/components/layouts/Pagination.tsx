@@ -52,7 +52,7 @@ export function PaginationBase({
 
     return (
         <Pagination >
-            <PaginationContent className="cursor-pointer flex-wrap">
+            <PaginationContent className="gap-4 cursor-pointer flex-wrap">
 
                 <PaginationItem >
                     <PaginationPrevious

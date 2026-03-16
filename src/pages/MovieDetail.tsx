@@ -15,6 +15,7 @@ import MoviePlayer from "@/components/Common/Player";
 import Cast from "@/components/features/Movies/Cast";
 import Comment from "@/components/features/Movies/Comment";
 import { Helmet } from "react-helmet-async";
+import BreadCrumb from "@/components/Common/BreadCrumb";
 
 
 const sampleComments = [
@@ -32,6 +33,7 @@ export default function MovieDetail() {
   const { id } = useParams();
   const { data, isLoading } = useQueryMovie(id)
   const movie = data?.data?.item as IMovieDetail
+  const seoOnPage = data?.data?.seoOnPage
   const [searchParams, setSearchParams] = useSearchParams();
   const epFromUrl = searchParams.get("ep");
 
@@ -41,7 +43,7 @@ export default function MovieDetail() {
 
   const [selectedEp, setSelectedEp] = useState<Episode>();
   const [selectedServer, setSelectedServer] = useState<any>(null);
-
+  const breadCrumb = data?.data?.breadCrumb
   useEffect(() => {
     if (movie?.episodes?.length) {
       setSelectedServer(movie.episodes[0]);
@@ -69,6 +71,10 @@ export default function MovieDetail() {
 
     if (ep) setSelectedEp(ep);
   }, [movie, selectedServer, searchParams]);
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  })
   return (
     <>
       {isLoading ?
@@ -78,9 +84,10 @@ export default function MovieDetail() {
           <Helmet>
             <title>{movie.name} - Pinuss Flix</title>
             <meta property="og:title" content={movie.name} />
-            <meta property="og:image" content={movie.poster_url} />
-            <meta property="og:description" content={movie.content} />
+            <meta property="og:image" content={`https://img.ophim.live/uploads/movies/${movie?.poster_url ?? movie.thumb_url}`} />
+            <meta property="og:description" content={seoOnPage?.descriptionHead} />
           </Helmet>
+          <div className="py-2 px-4 max-w-[1400px] mx-auto"><BreadCrumb breadCrumb={breadCrumb} /></div>
           <div className="my-4">
             {/* Hero backdrop */}
             <div className="relative w-full h-[320px] md:h-[400px]">
@@ -219,7 +226,7 @@ export default function MovieDetail() {
                   {/* Cast */}
                   <Cast loading={castLoading} peoples={peoples} profile_sizes={profile_sizes} />
                   {/* Comments */}
-                  <div className="mb-8">
+                  <div className="mb-8 hidden md:block">
                     <div className="flex items-center gap-3 mb-4">
                       <h3 className="text-base font-semibold text-foreground">💬 Bình luận ({sampleComments.length * 8})</h3>
                       <Button variant="default" size="sm" className="text-xs rounded-full">Tốt nhất</Button>
@@ -250,7 +257,7 @@ export default function MovieDetail() {
                 </div>
 
                 {/* Sidebar - Top phim tuần này */}
-                <aside className="lg:w-[300px] flex-shrink-0">
+                <aside className="lg:w-[300px] flex-shrink-0 hidden md:block">
                   <h3 className="text-base font-semibold text-foreground mb-4 flex items-center gap-2">
                     🔥 Top phim tuần này (này chưa làm)
                   </h3>

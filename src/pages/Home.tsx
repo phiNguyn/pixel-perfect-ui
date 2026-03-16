@@ -10,12 +10,13 @@ import { Helmet } from "react-helmet-async";
 
 const Home = () => {
   const { queryResult } = useQueryResult({ limit: 10, page: 1, sort_field: 'year' })
-  const { data, isLoading } = useQueryMovies(queryResult, true, MovieCategory.PHIM_MOI, 'danh-sach/' + MovieCategory.PHIM_MOI)
+  const isLoad = queryResult?.q === ''
+  const { data, isLoading } = useQueryMovies(queryResult, isLoad, MovieCategory.PHIM_MOI, 'danh-sach/' + MovieCategory.PHIM_MOI)
   const movieData = data as any;
-  const { data: koreanMovies, isLoading: koreanMoviesLoading } = useQueryMovies(queryResult, true, 'quoc-gia/han-quoc', 'quoc-gia/han-quoc')
-  const { data: japanMovies, isLoading: japanMoviesLoading } = useQueryMovies(queryResult, true, 'quoc-gia/nhat-ban', 'quoc-gia/nhat-ban')
-  const { data: usMovies, isLoading: usMoviesLoading } = useQueryMovies(queryResult, true, 'quoc-gia/au-my', 'quoc-gia/au-my')
-  const { data: animeMovies, isLoading: animeMoviesLoading } = useQueryMovies(queryResult, true, 'danh-sach/hoat-hinh', 'danh-sach/hoat-hinh')
+  const { data: koreanMovies, isLoading: koreanMoviesLoading } = useQueryMovies(queryResult, isLoad, 'quoc-gia/han-quoc', 'quoc-gia/han-quoc')
+  const { data: japanMovies, isLoading: japanMoviesLoading } = useQueryMovies(queryResult, isLoad, 'quoc-gia/nhat-ban', 'quoc-gia/nhat-ban')
+  const { data: usMovies, isLoading: usMoviesLoading } = useQueryMovies(queryResult, isLoad, 'quoc-gia/au-my', 'quoc-gia/au-my')
+  const { data: animeMovies, isLoading: animeMoviesLoading } = useQueryMovies(queryResult, isLoad, 'danh-sach/hoat-hinh', 'danh-sach/hoat-hinh')
 
   return (
     <>

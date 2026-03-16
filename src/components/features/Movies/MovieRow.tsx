@@ -3,6 +3,7 @@ import { useRef } from "react";
 import MovieCard from "./MovieCard";
 import { Movie } from "@/lib/api/movies/movieInterface";
 import { Link } from "react-router-dom";
+import { SkeletonCard } from "./Skeletons/SkeletonCard";
 
 interface MovieRowProps {
   title: string;
@@ -13,7 +14,7 @@ interface MovieRowProps {
   type?: string
 }
 
-export default function MovieRow({ title, movies, showRank, type_list, type = 'quoc-gia' }: MovieRowProps) {
+export default function MovieRow({ title, movies, showRank, type_list, type = 'quoc-gia', loading }: MovieRowProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const scroll = (dir: "left" | "right") => {
@@ -47,9 +48,11 @@ export default function MovieRow({ title, movies, showRank, type_list, type = 'q
             ref={scrollRef}
             className="flex gap-3 overflow-x-auto scrollbar-hide pb-2"
           >
-            {movies?.map((movie, i) => (
-              <MovieCard key={movie._id} movie={movie} rank={showRank ? i + 1 : undefined} />
-            ))}
+            {loading ? <SkeletonCard count={5} className="h-[300px]" /> :
+              movies?.map((movie, i) => (
+                <MovieCard key={movie._id} movie={movie} rank={showRank ? i + 1 : undefined} />
+              ))
+            }
           </div>
 
           <button

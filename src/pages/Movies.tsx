@@ -16,6 +16,8 @@ import { Movie } from "@/lib/api/movies/movieInterface"
 import { useEffect } from "react"
 import { Helmet } from "react-helmet-async"
 import { Link, useNavigate, useParams } from "react-router-dom"
+import { SkeletonCard } from "@/components/features/Movies/Skeletons/SkeletonCard"
+import BreadCrumb from "@/components/Common/BreadCrumb"
 
 type BreadCrumbItem = {
     name: string
@@ -51,7 +53,7 @@ const Movies = () => {
             titlePage?: string
             breadCrumb?: BreadCrumbItem[]
         }
-    }>(queryResult, slug ? true : false, type, `${type}/${slug}`, true)
+    }>(queryResult, slug ? true : false, type, `${type}/${slug}`, false)
 
     const { items = [], params, titlePage, breadCrumb } = data?.data ?? {}
     const { pagination } = params ?? {}
@@ -61,38 +63,11 @@ const Movies = () => {
                 <title>{titlePage}</title>
             </Helmet>
 
-            {!!breadCrumb?.length && (
-                <Breadcrumb className="mt-3">
-                    <BreadcrumbList>
-                        <BreadcrumbItem>
-                            <BreadcrumbLink asChild>
-                                <Link to={'/'}>Trang chủ</Link>
-                            </BreadcrumbLink>
-                        </BreadcrumbItem>
-                        {breadCrumb
-                            .slice()
-                            .sort((a, b) => a.position - b.position)
-                            .map((item, idx, arr) => (
-                                <div key={`${item.position}-${item.name}`} className="contents">
-                                    <BreadcrumbItem>
-                                        {item.isCurrent || !item.slug ? (
-                                            <BreadcrumbPage>{item.name}</BreadcrumbPage>
-                                        ) : (
-                                            <BreadcrumbLink asChild>
-                                                <Link to={item.slug}>{item.name}</Link>
-                                            </BreadcrumbLink>
-                                        )}
-                                    </BreadcrumbItem>
-                                    {idx < arr.length - 1 && <BreadcrumbSeparator />}
-                                </div>
-                            ))}
-                    </BreadcrumbList>
-                </Breadcrumb>
-            )}
+            <BreadCrumb breadCrumb={breadCrumb} />
 
             <div className="w-100 flex justify-end"><Filter clearAll={clearAll} addQuery={addQuery} getFilterValue={getFilterValue} /></div>
             <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6 items-center ">
-                {isLoading || isFetching ? <Loader /> : items.map(item => (
+                {isLoading || isFetching ? <SkeletonCard className="w-100 md:w-100 h-[320px]" count={24} /> : items.map(item => (
                     <MovieCard movie={item} key={item._id} className="w-100 md:w-100" />
                 ))}
             </div>

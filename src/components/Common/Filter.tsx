@@ -163,17 +163,17 @@ export const Filter: FC<OrderFilterProps> = ({
                     </Button>
                 </SheetTrigger>
 
-                <SheetContent side="right" className="w-full sm:w-[350px] p-0 overflow-y-auto">
+                <SheetContent side="right" className="w-full sm:w-[350px] p-0">
                     <SheetHeader className="border-b border-border/50 p-4">
-                        <div className="flex items-center justify-between gap-3">
+                        <div className="flex items-center  gap-3">
                             <SheetTitle className="text-foreground font-bold text-lg tracking-tight">Bộ lọc</SheetTitle>
-                            <Button size="sm" variant="default" onClick={handleClearAll}>
+                            <Button size="sm" variant="secondary" onClick={handleClearAll}>
                                 Xóa bộ lọc
                             </Button>
                         </div>
                     </SheetHeader>
 
-                    <div className="p-4 flex flex-col gap-4">
+                    <div style={{ maxHeight: 'calc(100vh - 70px)' }} className="p-4 flex flex-col gap-4 overflow-y-auto scrollbar">
                         {/* Categories */}
                         <div className="flex flex-col gap-2">
                             <h3 className="text-sm font-semibold text-foreground">Thể loại</h3>
