@@ -5,11 +5,18 @@ import { Button } from "@/components/ui/button"
 import useQueryResult from "@/hooks/useQueryResult"
 import { useQueryMovies } from "@/lib/api/movies/movieQuery"
 import { Filter } from "lucide-react"
+import { useEffect } from "react"
 import { Helmet } from "react-helmet-async"
-import { useParams } from "react-router-dom"
+import { redirect, useNavigate, useParams } from "react-router-dom"
 
 const Movies = () => {
     const { slug, type } = useParams();
+    const navigate = useNavigate()
+     useEffect(() => {
+    if (slug === "phim-18") {
+      navigate("/");
+    }
+  }, [slug, navigate]);
     const { queryResult, setPage } = useQueryResult({ limit: 24, page: 1, sort_field: 'year' })
     const { data, isLoading, isFetching } = useQueryMovies(queryResult, slug ? true : false, type, `${type}/${slug}`, true)
     const { items, params, titlePage } = data?.data || []

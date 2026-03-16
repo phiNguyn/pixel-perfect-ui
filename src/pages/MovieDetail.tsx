@@ -32,11 +32,13 @@ export default function MovieDetail() {
   const { id } = useParams();
   const { data, isLoading } = useQueryMovie(id)
   const movie = data?.data?.item as IMovieDetail
-  const { data: cast, isLoading: castLoading } = useQueryMovie(id, '/peoples')
   const [searchParams, setSearchParams] = useSearchParams();
   const epFromUrl = searchParams.get("ep");
-
-  const { peoples, profile_sizes } = cast?.data || {}
+  
+  const { data: cast, isLoading: castLoading } = useQueryMovie(id, '/peoples')
+  const peoples = cast?.data?.peoples ?? []
+  const profile_sizes = cast?.data?.profile_sizes ?? []
+  
   const [selectedEp, setSelectedEp] = useState<Episode>();
   const [selectedServer, setSelectedServer] = useState<any>(null);
 

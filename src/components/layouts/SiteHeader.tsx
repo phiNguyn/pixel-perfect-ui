@@ -89,7 +89,7 @@ export default function SiteHeader() {
         {/* Navigation */}
         <nav className="hidden md:flex items-center gap-1 pb-2 overflow-x-auto scrollbar-hide">
           <span className="text-sm text-muted-foreground mr-2 whitespace-nowrap">Tìm đang xem gì?</span>
-          {isLoading ? <Loader /> : items.map((cat, i) => (
+          {isLoading ? <Loader /> : items?.filter((cat) => cat.slug !== 'phim-18').map((cat, i) => (
             <Link to={`/the-loai/${cat.slug}`}
               key={cat._id}
               className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors 
@@ -209,7 +209,7 @@ export default function SiteHeader() {
                 {isLoading ? (
                   <Loader className="w-4 h-4 animate-spin" />
                 ) : (
-                  items?.map((cat) => (
+                  items?.filter((cat) => cat.slug !== 'phim-18').map((cat) => (
                     <Link
                       to={`/the-loai/${cat.slug}`}
                       key={cat._id}
