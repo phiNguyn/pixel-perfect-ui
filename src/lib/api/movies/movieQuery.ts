@@ -2,16 +2,16 @@ import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { moviesApi, MoviesApi } from "./movieApi";
 import { QueryResult } from "@/hooks/useQueryResult";
 
-export const useQueryMovies = (
+export const useQueryMovies = <TData = unknown>(
   query: QueryResult,
   enabled = true,
   key = "movies",
   slug: string,
   isKeepData = false,
 ) => {
-  return useQuery({
+  return useQuery<TData>({
     queryKey: [key, JSON.stringify(query), slug],
-    queryFn: () => moviesApi.findAll(query, slug),
+    queryFn: () => moviesApi.findAll<TData>(query, slug),
     enabled,
     retry: false,
     staleTime: 5 * 60 * 1000,
@@ -30,11 +30,11 @@ export const useQueryMovie = (id?: string, peoples?: string) => {
   });
 };
 
-export const useQuerySearchMovie = (q: string) => {
-  return useQuery({
+export const useQuerySearchMovie = <TData = unknown>(q: string) => {
+  return useQuery<TData>({
     queryKey: ["movies", q],
     enabled: !!q,
-    queryFn: () => moviesApi.searchMovie(q as string),
+    queryFn: () => moviesApi.searchMovie<TData>(q as string),
     retry: false,
     staleTime: 5 * 60 * 1000,
   });

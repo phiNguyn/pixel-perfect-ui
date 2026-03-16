@@ -1,28 +1,21 @@
-import { moods } from "@/data/movies";
+import { categories } from "@/data/movies";
+import { Link } from "react-router-dom";
 
 export default function MoodSection() {
   return (
     <section className="py-4">
       <div className="max-w-[1400px] mx-auto px-4">
         <h2 className="text-lg font-semibold text-foreground tracking-tight mb-3">
-          Tâm Trạng Của Bạn
+          Danh sách
         </h2>
         <div className="flex gap-3 overflow-x-auto scrollbar-hide">
-          {moods.map((mood) => (
-            <button
-              key={mood.label}
-              className={`px-5 py-2.5 rounded-full text-sm font-semibold whitespace-nowrap transition-all ${
-                mood.color === "destructive"
-                  ? "bg-destructive/20 text-destructive hover:bg-destructive/30"
-                  : mood.color === "accent"
-                  ? "bg-accent/20 text-accent hover:bg-accent/30"
-                  : mood.color === "primary"
-                  ? "bg-primary/20 text-primary hover:bg-primary/30"
-                  : "bg-secondary text-secondary-foreground hover:bg-muted"
-              }`}
+          {categories.map((mood) => (
+            <Link to={`/danh-sach/${mood.key}`}
+              key={mood.key}
+              className={`px-5 py-2.5 rounded-full text-sm font-semibold whitespace-nowrap transition-all `}
             >
               {mood.label}
-            </button>
+            </Link>
           ))}
         </div>
       </div>

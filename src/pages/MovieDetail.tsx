@@ -34,11 +34,11 @@ export default function MovieDetail() {
   const movie = data?.data?.item as IMovieDetail
   const [searchParams, setSearchParams] = useSearchParams();
   const epFromUrl = searchParams.get("ep");
-  
+
   const { data: cast, isLoading: castLoading } = useQueryMovie(id, '/peoples')
   const peoples = cast?.data?.peoples ?? []
   const profile_sizes = cast?.data?.profile_sizes ?? []
-  
+
   const [selectedEp, setSelectedEp] = useState<Episode>();
   const [selectedServer, setSelectedServer] = useState<any>(null);
 
@@ -105,7 +105,7 @@ export default function MovieDetail() {
                     </div>
                     <div className="flex flex-col justify-end">
                       <div className="flex items-center gap-3 mb-3 flex-wrap">
-                        <Button onClick={() => setSelectedEp(movie.episodes[0].server_data[0])} className="rounded-full gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-6">
+                        <Button disabled={movie?.episodes[0].server_data[0].link_m3u8 === ''} onClick={() => setSelectedEp(movie.episodes[0].server_data[0])} className="rounded-full gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-6">
                           <Play className="w-4 h-4 fill-current" /> Xem Ngay
                         </Button>
                         <div className="flex gap-2">
@@ -171,19 +171,22 @@ export default function MovieDetail() {
                         {/* <span className="text-xs text-muted-foreground ml-auto">Sắp xếp</span> */}
                       </div>
                       <div className="flex flex-wrap gap-2">
-                        {selectedServer?.server_data.map((item) => (
-                          <button
-                            key={item.name}
-                            onClick={() => handleSelectEp(item)}
-                            className={`flex items-center justify-center gap-1 p-2.5 rounded text-xs font-medium transition-colors ${selectedEp?.slug === item.slug
-                              ? "bg-primary text-primary-foreground"
-                              : "bg-secondary text-secondary-foreground hover:bg-muted"
-                              }`}
-                          >
-                            <Play className="w-2.5 h-2.5" />
-                            Tập {item.slug}
-                          </button>
-                        ))}
+                        {selectedServer?.server_data.map((item) => {
+                          if (!item.slug) return null;
+                          return (
+                            <button
+                              key={item.name}
+                              onClick={() => handleSelectEp(item)}
+                              className={`flex items-center justify-center gap-1 p-2.5 rounded text-xs font-medium transition-colors ${selectedEp?.slug === item.slug
+                                ? "bg-primary text-primary-foreground"
+                                : "bg-secondary text-secondary-foreground hover:bg-muted"
+                                }`}
+                            >
+                              <Play className="w-2.5 h-2.5" />
+                              Tập {item.slug}
+                            </button>
+                          )
+                        })}
                       </div>
                     </TabsContent>
 

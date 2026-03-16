@@ -8,20 +8,20 @@ export class MoviesApi extends BaseApi {
     super("");
   }
 
-  async findAll(queryParam: QueryResult, slug: string) {
+  async findAll<T>(queryParam: QueryResult, slug: string): Promise<T> {
     const stringified = queryString.stringify(queryParam, {
       skipNull: true,
       skipEmptyString: true,
     });
 
-    return this.get(`${slug}?` + stringified);
+    return this.get<T>(`${slug}?` + stringified);
   }
 
-  async findOne(slug: string, peoples?: string) {
-    return this.get(`phim/${slug}${peoples ? peoples : ""}`);
+  async findOne<T>(slug: string, peoples?: string): Promise<T> {
+    return this.get<T>(`phim/${slug}${peoples ? peoples : ""}`);
   }
-  async searchMovie(queryParam: string) {
-    return this.get(`/tim-kiem?keyword=${queryParam}&limit=10`);
+  async searchMovie<T>(queryParam: string): Promise<T> {
+    return this.get<T>(`/tim-kiem?keyword=${queryParam}&limit=10`);
   }
 }
 

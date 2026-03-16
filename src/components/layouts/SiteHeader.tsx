@@ -1,22 +1,19 @@
-import { Search, Bell, User, Menu, Loader, X, XIcon } from "lucide-react";
+import { Search, Bell, User, Menu, Loader, XIcon } from "lucide-react";
 import { useState } from "react";
-import { categories, genres, countries } from "@/data/movies";
 import { useQueryCategories } from "@/lib/api/categories/categorieQuery";
 import { Link, useParams } from "react-router-dom";
 import { useQueryMovies, useQuerySearchMovie } from "@/lib/api/movies/movieQuery";
 import useDebounce from "@/hooks/useDebounce";
 import { Skeleton } from "../ui/skeleton";
-import { Country } from "@/lib/api/movies/movieInterface";
+import { Country, Movie } from "@/lib/api/movies/movieInterface";
 import MovieCardSeach from "../features/Movies/MovieCardSeach";
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
-  SheetClose,
 } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { Input } from "../ui/input";
 
 export default function SiteHeader() {
   const { slug } = useParams()
@@ -28,9 +25,16 @@ export default function SiteHeader() {
   const [search, setSearch] = useState('')
   const value = useDebounce(search, 500)
   const mobileSearchValue = useDebounce(mobileSearch, 500)
-  const { data: searchMovie, isLoading: searchLoaing, isFetching: searchFetching } = useQuerySearchMovie(value)
-  const { data: mobileSearchMovie, isLoading: mobileSearchLoading, isFetching: mobileSearchFetching } = useQuerySearchMovie(mobileSearchValue)
-  const { data: countries, isLoading: countryLoading } = useQueryMovies({}, true, 'quoc-gia', 'quoc-gia')
+  const { data: searchMovie, isLoading: searchLoaing, isFetching: searchFetching } =
+    useQuerySearchMovie<{ data: { items: Movie[] } }>(value)
+  const { data: mobileSearchMovie, isLoading: mobileSearchLoading, isFetching: mobileSearchFetching } =
+    useQuerySearchMovie<{ data: { items: Movie[] } }>(mobileSearchValue)
+  const { data: countries, isLoading: countryLoading } = useQueryMovies<{ data: { items: Country[] } }>(
+    {},
+    true,
+    'quoc-gia',
+    'quoc-gia'
+  )
 
   return (
     <header className="sticky top-0 z-50 bg-background/90 backdrop-blur-md border-b border-border/50">

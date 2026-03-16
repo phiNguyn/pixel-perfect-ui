@@ -8,8 +8,8 @@ import MovieDetail from "./pages/MovieDetail";
 import NotFound from "./pages/NotFound";
 import Layout from "./components/layouts/Layout.tsx";
 import Home from "./pages/Home.tsx";
-import Movies from "./components/features/Movies/Movies.tsx";
 import { Analytics } from "@vercel/analytics/react"
+import Movies from "./pages/Movies.tsx";
 const queryClient = new QueryClient();
 
 const App = () => (

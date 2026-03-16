@@ -28,7 +28,7 @@ const Home = () => {
       <MovieRow title="Phim Hàn Quốc Mới" movies={koreanMovies?.data?.items as any} loading={koreanMoviesLoading} type_list={koreanMovies?.data?.type_list} />
       <MovieRow title="Phim Nhật Bản mới" movies={japanMovies?.data?.items} loading={japanMoviesLoading} type_list={japanMovies?.data?.type_list} />
       <MovieRow title="Phim Mỹ, Âu Mới" movies={usMovies?.data?.items} loading={usMoviesLoading} type_list={usMovies?.data?.type_list} />
-      <MovieRow title="Phim Hoạt Hình" movies={animeMovies?.data?.items} loading={animeMoviesLoading} type_list={animeMovies?.data?.type_list} />
+      <MovieRow title="Phim Hoạt Hình" type={`danh-sach`} movies={animeMovies?.data?.items} loading={animeMoviesLoading} type_list={animeMovies?.data?.type_list} />
       {/* <MovieRow title="Top 10 Phim Kế Bên Nay" movies={topMovies} showRank /> */}
     </>
   );

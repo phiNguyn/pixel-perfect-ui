@@ -42,7 +42,7 @@ export default function MovieCard({ movie, rank, className }: MovieCardProps) {
             </span>
           )}
           <div className="absolute bottom-0 left-0 right-0 p-2">
-            <div className="flex items-center gap-1 text-yellow-400 text-[10px]">
+            <div className="w-fit flex items-center gap-1 text-yellow-400 text-[10px] bg-background/30 backdrop-blur-sm px-1.5 py-0.5 rounded">
               <Star className="w-2.5 h-2.5 fill-current" />
               <span>{movie.tmdb.vote_average}</span>
             </div>

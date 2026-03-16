@@ -18,6 +18,8 @@ export interface QueryResult {
 interface QueryResultProps extends Partial<QueryResult> {
   persistKey?: string; // Key để lưu filters vào localStorage, nếu có thì sẽ persist
   defaultFilters?: ItemQueryField[]; // Default filters khi mới vào hoặc khi clearAll
+  queryMode?: "q" | "flat"; // "q" => gộp filters vào q=..., "flat" => country=...&category=...
+  syncUrl?: boolean; // Sync filters/page lên URL + hydrate từ URL khi F5
 }
 
 const generateQueryParams = (query: QueryResult): QueryResult => {
@@ -64,6 +66,8 @@ interface PersistedQueryData {
 const useQueryResult = (props?: QueryResultProps) => {
   const persistKey = props?.persistKey;
   const defaultFilters = props?.defaultFilters || [];
+  const queryMode = props?.queryMode ?? "q";
+  const syncUrl = props?.syncUrl ?? false;
 
   // Helper: Load toàn bộ persisted data (filters + search) - Encrypted & Merged
   const loadPersistedData = (): PersistedQueryData => {
@@ -101,14 +105,62 @@ const useQueryResult = (props?: QueryResultProps) => {
   const persistedData = loadPersistedData();
 
   const [queryResult, setQueryResult] = useState<QueryResult>();
-  const [page, setpage] = useState<number>(props?.page || defaultQuery.page);
-  const [limit, setlimit] = useState<number>(
-    props?.limit || defaultQuery.limit,
-  );
-  const [searchValue, setSearchValue] = useState<string>(persistedData.search);
-  const [itemQueries, setItemQueries] = useState<ItemQueryField[]>(
-    persistedData.filters,
-  );
+  const urlInitRef = useRef<{
+    page?: number;
+    limit?: number;
+    search?: string;
+    filters?: ItemQueryField[];
+  } | null>(null);
+
+  if (urlInitRef.current === null) {
+    if (syncUrl && typeof window !== "undefined") {
+      const parsed = queryString.parse(window.location.search, {
+        arrayFormat: "comma",
+      }) as Record<string, unknown>;
+
+      const reserved = new Set(["page", "limit", "q", "s"]);
+      const urlFilters: ItemQueryField[] = [];
+
+      Object.entries(parsed).forEach(([key, value]) => {
+        if (reserved.has(key)) return;
+        if (value === undefined || value === null) return;
+        const str = Array.isArray(value) ? value.join(",") : String(value);
+        if (!str) return;
+        urlFilters.push({ key, value: str, query: `${key}=${str}` });
+      });
+
+      urlInitRef.current = {
+        page: parsed.page ? Number(parsed.page) : undefined,
+        limit: parsed.limit ? Number(parsed.limit) : undefined,
+        search: typeof parsed.s === "string" ? parsed.s : undefined,
+        filters: urlFilters.length ? urlFilters : undefined,
+      };
+    } else {
+      urlInitRef.current = {};
+    }
+  }
+
+  const [page, setpage] = useState<number>(() => {
+    const urlPage = urlInitRef.current?.page;
+    return urlPage && !Number.isNaN(urlPage)
+      ? urlPage
+      : props?.page || defaultQuery.page;
+  });
+
+  const [limit, setlimit] = useState<number>(() => {
+    const urlLimit = urlInitRef.current?.limit;
+    return urlLimit && !Number.isNaN(urlLimit)
+      ? urlLimit
+      : props?.limit || defaultQuery.limit;
+  });
+
+  const [searchValue, setSearchValue] = useState<string>(() => {
+    return urlInitRef.current?.search ?? persistedData.search;
+  });
+
+  const [itemQueries, setItemQueries] = useState<ItemQueryField[]>(() => {
+    return urlInitRef.current?.filters ?? persistedData.filters;
+  });
 
   // Debounce search value với delay 500ms
   const debouncedSearchValue = useDebounce(searchValue, 500);
@@ -118,6 +170,13 @@ const useQueryResult = (props?: QueryResultProps) => {
   const lastGeneratedRef = useRef<string>(undefined);
 
   const buildQueryResult = () => {
+    const {
+      persistKey: _pk,
+      defaultFilters: _df,
+      queryMode: _qm,
+      ...initialQuery
+    } = (initialPropsRef.current ?? {}) as QueryResultProps;
+
     let queryString = "";
 
     // Nếu có itemQueries, dùng nó
@@ -137,12 +196,26 @@ const useQueryResult = (props?: QueryResultProps) => {
     // Merge: props ban đầu + page state + query từ filters
     const finalQuery: QueryResult = {
       ...defaultQuery,
-      ...initialPropsRef.current,
+      ...initialQuery,
       page,
       limit,
-      q: queryString,
       s: debouncedSearchValue || undefined, // Thêm search value với debounce
     };
+
+    if (queryMode === "flat") {
+      // flat mode: đưa filters ra top-level query params
+      itemQueries
+        .filter((item) => item.value)
+        .forEach((item) => {
+          finalQuery[item.key] = item.value;
+        });
+
+      // không dùng q trong flat mode
+      delete finalQuery.q;
+    } else {
+      // q mode: gộp filters vào q=...
+      finalQuery.q = queryString;
+    }
 
     return finalQuery;
   };
@@ -167,6 +240,21 @@ const useQueryResult = (props?: QueryResultProps) => {
       return generatedQuery;
     });
   };
+
+  // Sync queryResult lên URL (để refresh giữ trạng thái)
+  useEffect(() => {
+    if (!syncUrl) return;
+    if (!queryResult) return;
+    if (typeof window === "undefined") return;
+
+    const next = queryString.stringify(queryResult, {
+      skipNull: true,
+      skipEmptyString: true,
+    });
+
+    const nextUrl = `${window.location.pathname}${next ? `?${next}` : ""}${window.location.hash || ""}`;
+    window.history.replaceState({}, "", nextUrl);
+  }, [queryResult, syncUrl]);
 
   // Update khi itemQueries, page, limit, hoặc debouncedSearchValue thay đổi
   useEffect(() => {

@@ -1,12 +1,18 @@
+import { Link } from "react-router-dom";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+
 export default function SiteFooter() {
   return (
     <footer className="border-t border-border/50 mt-8 py-8">
       <div className="max-w-[1400px] mx-auto px-4">
         <div className="flex items-center gap-2 mb-4">
-          <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center">
-            <span className="text-primary-foreground font-bold text-[10px]">TP</span>
-          </div>
-          <span className="text-foreground font-bold text-sm">Pinuss Flix</span>
+          <Link to={'/'} className="flex items-center gap-2">
+            <Avatar className="size-8 mb-1.5">
+              <AvatarImage src={`https://api-sandbox.vnhub.com/resource/2026/02/27/1772203272485-1000003143.png`} className="object-cover" />
+              <AvatarFallback className="bg-muted text-muted-foreground text-xs">PF</AvatarFallback>
+            </Avatar>
+            <span className="text-foreground font-bold text-lg tracking-tight">Pinuss Flix</span>
+          </Link>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs text-muted-foreground mb-6">
           <div className="space-y-2">
