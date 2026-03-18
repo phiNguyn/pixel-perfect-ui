@@ -46,7 +46,17 @@ export default function MovieDetail() {
   const [selectedServer, setSelectedServer] = useState<any>(null);
   const [commentText, setCommentText] = useState("");
 
-  const { addWatchHistory, updateWatchProgress } = useHistoryStore();
+  const { addWatchHistory, updateWatchProgress, watchHistory } = useHistoryStore();
+
+  // Get saved time for current episode from watch history
+  const savedStartTime = (() => {
+    if (!movie || !selectedEp) return 0;
+    const historyItem = watchHistory.find(h => h.slug === movie.slug);
+    if (historyItem && historyItem.currentEpSlug === selectedEp.slug && historyItem.currentTime > 0) {
+      return historyItem.currentTime;
+    }
+    return 0;
+  })();
 
   useEffect(() => {
     if (movie?.episodes?.length) {
