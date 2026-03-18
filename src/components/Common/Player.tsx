@@ -45,6 +45,7 @@ interface MoviePlayerProps {
     poster?: string
     onBack?: () => void
     selectedEp?: string
+    startTime?: number
 }
 
 const formatTime = (seconds: number): string => {
@@ -61,7 +62,8 @@ const formatTime = (seconds: number): string => {
 
 const PLAYBACK_SPEEDS = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2]
 
-export default function MoviePlayer({ src, title = "Movie", poster, onBack, selectedEp }: MoviePlayerProps) {
+export default function MoviePlayer({ src, title = "Movie", poster, onBack, selectedEp, startTime }: MoviePlayerProps) {
+    const hasResumed = useRef(false)
     const containerRef = useRef<HTMLDivElement>(null)
     const videoRef = useRef<HTMLVideoElement>(null)
     const hlsRef = useRef<Hls | null>(null)
@@ -94,6 +96,7 @@ export default function MoviePlayer({ src, title = "Movie", poster, onBack, sele
         const video = videoRef.current
 
         // Reset states when src changes
+        hasResumed.current = false
         setIsPlaying(false)
         setCurrentTime(0)
         setDuration(0)
@@ -129,6 +132,11 @@ export default function MoviePlayer({ src, title = "Movie", poster, onBack, sele
                 }))
                 setQualityLevels(levels)
                 setIsLoading(false)
+                // Resume from saved time
+                if (startTime && startTime > 0 && !hasResumed.current && video) {
+                    video.currentTime = startTime
+                    hasResumed.current = true
+                }
             })
 
             hls.on(Hls.Events.LEVEL_SWITCHED, (_, data) => {
