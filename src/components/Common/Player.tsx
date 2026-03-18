@@ -95,6 +95,7 @@ export default function MoviePlayer({ src, title = "Movie", poster, onBack, sele
         const video = videoRef.current
 
         // Reset states when src changes
+        hasResumed.current = false
         setIsPlaying(false)
         setCurrentTime(0)
         setDuration(0)

@@ -184,7 +184,7 @@ export default function MovieDetail() {
 
               {selectedEp && (
                 <div className="mb-4">
-                  <MoviePlayer src={selectedEp.link_m3u8} key={selectedEp?.slug + selectedServer?.server_name} title={movie.name} selectedEp={selectedEp.name} poster={movie.poster_url} />
+                  <MoviePlayer src={selectedEp.link_m3u8} key={selectedEp?.slug + selectedServer?.server_name} title={movie.name} selectedEp={selectedEp.name} poster={movie.poster_url} startTime={savedStartTime} />
                 </div>
               )}
 
