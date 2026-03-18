@@ -61,7 +61,8 @@ const formatTime = (seconds: number): string => {
 
 const PLAYBACK_SPEEDS = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2]
 
-export default function MoviePlayer({ src, title = "Movie", poster, onBack, selectedEp }: MoviePlayerProps) {
+export default function MoviePlayer({ src, title = "Movie", poster, onBack, selectedEp, startTime }: MoviePlayerProps) {
+    const hasResumed = useRef(false)
     const containerRef = useRef<HTMLDivElement>(null)
     const videoRef = useRef<HTMLVideoElement>(null)
     const hlsRef = useRef<Hls | null>(null)
