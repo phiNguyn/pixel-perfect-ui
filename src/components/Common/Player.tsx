@@ -173,7 +173,15 @@ export default function MoviePlayer({ src, title = "Movie", poster, onBack, sele
 
         const handlePlay = () => setIsPlaying(true)
         const handlePause = () => setIsPlaying(false)
-        const handleTimeUpdate = () => setCurrentTime(video.currentTime)
+        const handleTimeUpdate = () => {
+            setCurrentTime(video.currentTime)
+            // Dispatch time update for watch history tracking (throttled to every 5s)
+            if (Math.floor(video.currentTime) % 5 === 0 && video.duration > 0) {
+                window.dispatchEvent(new CustomEvent('player-time-update', {
+                    detail: { currentTime: video.currentTime, duration: video.duration }
+                }))
+            }
+        }
         const handleDurationChange = () => setDuration(video.duration)
         const handleVolumeChange = () => {
             setVolume(video.volume)

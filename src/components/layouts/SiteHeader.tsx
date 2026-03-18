@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import BadgeSkeleton from "../features/Movies/Skeletons/BadgeSkeleton";
+import SearchHistoryList from "../features/Home/SearchHistoryList";
 
 export default function SiteHeader() {
   const { slug } = useParams()
@@ -123,16 +124,20 @@ export default function SiteHeader() {
           </div>
         </div>
       </div>
-      {search && searchOpen && (
-        <div className="absolute top-14 right-5 flex flex-col gap-4 max-h-[80dvh] overflow-auto w-[300px] bg-background p-6 rounded-lg " onClick={(e) => e.stopPropagation()}>
-          {searchLoaing || searchFetching ? (
-            <div>Đang tìm...</div>
-          ) : searchMovie?.data?.items?.length > 0 ? (
-            searchMovie.data.items.map(item => (
-              <MovieCardSeach movie={item} key={item._id} />
-            ))
+      {searchOpen && (
+        <div className="absolute top-14 right-5 flex flex-col gap-4 max-h-[80dvh] overflow-auto w-[300px] bg-background p-6 rounded-lg border border-border/50 shadow-lg" onClick={(e) => e.stopPropagation()}>
+          {search && value ? (
+            searchLoaing || searchFetching ? (
+              <div>Đang tìm...</div>
+            ) : searchMovie?.data?.items?.length > 0 ? (
+              searchMovie.data.items.map(item => (
+                <MovieCardSeach movie={item} key={item._id} onSelect={() => { setSearch(''); setSearchOpen(false); }} />
+              ))
+            ) : (
+              <div>Không có dữ liệu</div>
+            )
           ) : (
-            <div>Không có dữ liệu</div>
+            <SearchHistoryList onSelect={() => { setSearch(''); setSearchOpen(false); }} />
           )}
         </div>
       )}
@@ -171,7 +176,7 @@ export default function SiteHeader() {
             </div>
 
             {/* Mobile Search Results */}
-            {mobileSearch && (
+            {mobileSearch ? (
               <div className="flex flex-col gap-3 max-h-[320px] overflow-y-auto bg-secondary/50 rounded-lg p-3">
                 {mobileSearchLoading || mobileSearchFetching ? (
                   <div className="flex w-full max-w-xs flex-col gap-2">
@@ -184,16 +189,17 @@ export default function SiteHeader() {
                     setMobileSearch('')
                     setMobileMenuOpen(false)
                   }}>
-                    {
-                      mobileSearchMovie.data.items.map(item => (
-                        <MovieCardSeach movie={item} key={item.slug} />
-                      ))
-
-                    }
+                    {mobileSearchMovie.data.items.map(item => (
+                      <MovieCardSeach movie={item} key={item.slug} onSelect={() => { setMobileSearch(''); setMobileMenuOpen(false); }} />
+                    ))}
                   </div>
                 ) : (
                   <div className="text-sm text-muted-foreground">Không có kết quả</div>
                 )}
+              </div>
+            ) : (
+              <div className="bg-secondary/50 rounded-lg p-3">
+                <SearchHistoryList onSelect={() => { setMobileSearch(''); setMobileMenuOpen(false); }} />
               </div>
             )}
 
