@@ -124,16 +124,20 @@ export default function SiteHeader() {
           </div>
         </div>
       </div>
-      {search && searchOpen && (
-        <div className="absolute top-14 right-5 flex flex-col gap-4 max-h-[80dvh] overflow-auto w-[300px] bg-background p-6 rounded-lg " onClick={(e) => e.stopPropagation()}>
-          {searchLoaing || searchFetching ? (
-            <div>Đang tìm...</div>
-          ) : searchMovie?.data?.items?.length > 0 ? (
-            searchMovie.data.items.map(item => (
-              <MovieCardSeach movie={item} key={item._id} />
-            ))
+      {searchOpen && (
+        <div className="absolute top-14 right-5 flex flex-col gap-4 max-h-[80dvh] overflow-auto w-[300px] bg-background p-6 rounded-lg border border-border/50 shadow-lg" onClick={(e) => e.stopPropagation()}>
+          {search && value ? (
+            searchLoaing || searchFetching ? (
+              <div>Đang tìm...</div>
+            ) : searchMovie?.data?.items?.length > 0 ? (
+              searchMovie.data.items.map(item => (
+                <MovieCardSeach movie={item} key={item._id} onSelect={() => { setSearch(''); setSearchOpen(false); }} />
+              ))
+            ) : (
+              <div>Không có dữ liệu</div>
+            )
           ) : (
-            <div>Không có dữ liệu</div>
+            <SearchHistoryList onSelect={() => { setSearch(''); setSearchOpen(false); }} />
           )}
         </div>
       )}
