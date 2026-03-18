@@ -45,6 +45,7 @@ interface MoviePlayerProps {
     poster?: string
     onBack?: () => void
     selectedEp?: string
+    startTime?: number
 }
 
 const formatTime = (seconds: number): string => {
