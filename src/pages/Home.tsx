@@ -2,6 +2,7 @@
 import HeroBanner from "@/components/features/Home/HeroBanner";
 import MoodSection from "@/components/features/Home/MoodSection";
 import MovieRow from "@/components/features/Movies/MovieRow";
+import WatchHistoryRow from "@/components/features/Home/WatchHistoryRow";
 
 import { useQueryMovies } from "@/lib/api/movies/movieQuery";
 import useQueryResult from "@/hooks/useQueryResult";
@@ -17,6 +18,10 @@ const Home = () => {
   const { data: japanMovies, isLoading: japanMoviesLoading } = useQueryMovies(queryResult, isLoad, 'quoc-gia/nhat-ban', 'quoc-gia/nhat-ban')
   const { data: usMovies, isLoading: usMoviesLoading } = useQueryMovies(queryResult, isLoad, 'quoc-gia/au-my', 'quoc-gia/au-my')
   const { data: animeMovies, isLoading: animeMoviesLoading } = useQueryMovies(queryResult, isLoad, 'danh-sach/hoat-hinh', 'danh-sach/hoat-hinh')
+  const koreanData = koreanMovies as any;
+  const japanData = japanMovies as any;
+  const usData = usMovies as any;
+  const animeData = animeMovies as any;
 
   return (
     <>
@@ -25,12 +30,12 @@ const Home = () => {
       </Helmet>
       <HeroBanner />
       <MoodSection />
+      <WatchHistoryRow />
       <MovieRow title="Phim Mới Cập Nhật" movies={movieData?.data?.items} loading={isLoading} type={`danh-sach`} type_list={movieData?.data?.type_list} />
-      <MovieRow title="Phim Hàn Quốc Mới" movies={koreanMovies?.data?.items as any} loading={koreanMoviesLoading} type_list={koreanMovies?.data?.type_list} />
-      <MovieRow title="Phim Nhật Bản mới" movies={japanMovies?.data?.items} loading={japanMoviesLoading} type_list={japanMovies?.data?.type_list} />
-      <MovieRow title="Phim Mỹ, Âu Mới" movies={usMovies?.data?.items} loading={usMoviesLoading} type_list={usMovies?.data?.type_list} />
-      <MovieRow title="Phim Hoạt Hình" type={`danh-sach`} movies={animeMovies?.data?.items} loading={animeMoviesLoading} type_list={animeMovies?.data?.type_list} />
-      {/* <MovieRow title="Top 10 Phim Kế Bên Nay" movies={topMovies} showRank /> */}
+      <MovieRow title="Phim Hàn Quốc Mới" movies={koreanData?.data?.items} loading={koreanMoviesLoading} type_list={koreanData?.data?.type_list} />
+      <MovieRow title="Phim Nhật Bản mới" movies={japanData?.data?.items} loading={japanMoviesLoading} type_list={japanData?.data?.type_list} />
+      <MovieRow title="Phim Mỹ, Âu Mới" movies={usData?.data?.items} loading={usMoviesLoading} type_list={usData?.data?.type_list} />
+      <MovieRow title="Phim Hoạt Hình" type={`danh-sach`} movies={animeData?.data?.items} loading={animeMoviesLoading} type_list={animeData?.data?.type_list} />
     </>
   );
 };
