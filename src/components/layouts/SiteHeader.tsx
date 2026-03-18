@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import BadgeSkeleton from "../features/Movies/Skeletons/BadgeSkeleton";
+import SearchHistoryList from "../features/Home/SearchHistoryList";
 
 export default function SiteHeader() {
   const { slug } = useParams()
