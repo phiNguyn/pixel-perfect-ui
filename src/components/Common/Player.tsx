@@ -130,6 +130,11 @@ export default function MoviePlayer({ src, title = "Movie", poster, onBack, sele
                 }))
                 setQualityLevels(levels)
                 setIsLoading(false)
+                // Resume from saved time
+                if (startTime && startTime > 0 && !hasResumed.current && video) {
+                    video.currentTime = startTime
+                    hasResumed.current = true
+                }
             })
 
             hls.on(Hls.Events.LEVEL_SWITCHED, (_, data) => {
