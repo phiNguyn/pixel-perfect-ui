@@ -176,7 +176,7 @@ export default function SiteHeader() {
             </div>
 
             {/* Mobile Search Results */}
-            {mobileSearch && (
+            {mobileSearch ? (
               <div className="flex flex-col gap-3 max-h-[320px] overflow-y-auto bg-secondary/50 rounded-lg p-3">
                 {mobileSearchLoading || mobileSearchFetching ? (
                   <div className="flex w-full max-w-xs flex-col gap-2">
@@ -189,16 +189,17 @@ export default function SiteHeader() {
                     setMobileSearch('')
                     setMobileMenuOpen(false)
                   }}>
-                    {
-                      mobileSearchMovie.data.items.map(item => (
-                        <MovieCardSeach movie={item} key={item.slug} />
-                      ))
-
-                    }
+                    {mobileSearchMovie.data.items.map(item => (
+                      <MovieCardSeach movie={item} key={item.slug} onSelect={() => { setMobileSearch(''); setMobileMenuOpen(false); }} />
+                    ))}
                   </div>
                 ) : (
                   <div className="text-sm text-muted-foreground">Không có kết quả</div>
                 )}
+              </div>
+            ) : (
+              <div className="bg-secondary/50 rounded-lg p-3">
+                <SearchHistoryList onSelect={() => { setMobileSearch(''); setMobileMenuOpen(false); }} />
               </div>
             )}
 
