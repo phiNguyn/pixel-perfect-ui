@@ -1,12 +1,29 @@
 import { Movie } from '@/lib/api/movies/movieInterface'
 import { FC } from 'react'
 import { Link } from 'react-router-dom'
+import { useHistoryStore } from '@/stores/useHistoryStore'
+
 interface MovieCardSeachProps {
     movie: Movie
+    onSelect?: () => void
 }
-const MovieCardSeach: FC<MovieCardSeachProps> = ({ movie }) => {
+const MovieCardSeach: FC<MovieCardSeachProps> = ({ movie, onSelect }) => {
+    const { addSearchHistory } = useHistoryStore();
+
+    const handleClick = () => {
+        addSearchHistory({
+            slug: movie.slug,
+            name: movie.name,
+            thumb_url: movie.thumb_url,
+            year: movie.year,
+            episode_current: movie.episode_current,
+            searchedAt: Date.now(),
+        });
+        onSelect?.();
+    };
+
     return (
-        <Link to={`/phim/${movie.slug}`} className="flex items-center gap-3 group cursor-pointer">
+        <Link to={`/phim/${movie.slug}`} onClick={handleClick} className="flex items-center gap-3 group cursor-pointer">
             <img
                 src={`https://img.ophim.live/uploads/movies/${movie.thumb_url}`}
                 alt={movie.name}
