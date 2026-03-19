@@ -60,7 +60,14 @@ const Movies = () => {
     return (
         <div className="px-4 my-0 mx-auto max-w-[1400px]">
             <Helmet>
-                <title>{titlePage}</title>
+                <title>{titlePage ? `${titlePage} - Pinuss Flix` : 'Pinuss Flix'}</title>
+                <meta name="description" content={`Danh sách ${titlePage ?? 'phim'} mới nhất, Vietsub chất lượng cao tại Pinuss Flix.`} />
+                <link rel="canonical" href={`https://pinuss-flix.vercel.app/${type}/${slug}`} />
+                <meta property="og:title" content={`${titlePage} - Pinuss Flix`} />
+                <meta property="og:description" content={`Danh sách ${titlePage ?? 'phim'} mới nhất tại Pinuss Flix.`} />
+                <meta property="og:type" content="website" />
+                <meta property="og:url" content={`https://pinuss-flix.vercel.app/${type}/${slug}`} />
+                <meta name="prerender-status-code" content="200" />
             </Helmet>
 
             <BreadCrumb breadCrumb={breadCrumb} />

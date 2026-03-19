@@ -26,7 +26,14 @@ const Home = () => {
   return (
     <>
       <Helmet>
-        <title>Trang chủ - Pinuss Flix</title>
+        <title>Xem phim HD miễn phí - Pinuss Flix | Phim mới, Vietsub chất lượng cao</title>
+        <meta name="description" content="Xem phim HD miễn phí tại Pinuss Flix. Kho phim Hàn Quốc, Nhật Bản, Âu Mỹ, Hoạt Hình Vietsub cập nhật liên tục. Xem ngay!" />
+        <link rel="canonical" href="https://pinuss-flix.vercel.app/" />
+        <meta property="og:title" content="Xem phim HD miễn phí - Pinuss Flix" />
+        <meta property="og:description" content="Kho phim HD Vietsub chất lượng cao, cập nhật liên tục." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://pinuss-flix.vercel.app/" />
+        <meta name="prerender-status-code" content="200" />
       </Helmet>
       <HeroBanner />
       <MoodSection />
