@@ -117,10 +117,54 @@ export default function MovieDetail() {
   return (
     <>
       <Helmet>
-        <title>{movie.name} - Pinuss Flix</title>
-        <meta property="og:title" content={movie.name} />
-        <meta property="og:image" content={`https://img.ophim.live/uploads/movies/${movie?.poster_url ?? movie.thumb_url}`} />
-        <meta property="og:description" content={seoOnPage?.descriptionHead} />
+        {/* ===== TITLE ===== */}
+        <title>{seoOnPage?.titleHead || `${movie.name} - Pinuss Flix`}</title>
+
+        {/* ===== BASIC SEO ===== */}
+        <meta
+          name="description"
+          content={seoOnPage?.descriptionHead || movie?.content?.slice(0, 160)}
+        />
+        <meta name="robots" content="index, follow" />
+
+        {/* ===== CANONICAL ===== */}
+        <link
+          rel="canonical"
+          href={`https://pinuss-flix.vercel.app/phim/${movie.slug}`}
+        />
+
+        {/* ===== OPEN GRAPH ===== */}
+        <meta property="og:type" content="video.movie" />
+        <meta property="og:title" content={seoOnPage?.titleHead || movie.name} />
+        <meta
+          property="og:description"
+          content={seoOnPage?.descriptionHead}
+        />
+        <meta
+          property="og:image"
+          content={`https://img.ophim.live/uploads/movies/${movie?.poster_url ?? movie.thumb_url}`}
+        />
+        <meta
+          property="og:url"
+          content={`https://pinuss-flix.vercel.app/phim/${movie.slug}`}
+        />
+        <meta property="og:site_name" content="Pinuss Flix" />
+
+        {/* ===== TWITTER ===== */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={movie.name} />
+        <meta name="twitter:description" content={seoOnPage?.descriptionHead} />
+        <meta
+          name="twitter:image"
+          content={`https://img.ophim.live/uploads/movies/${movie?.poster_url ?? movie.thumb_url}`}
+        />
+
+        {/* ===== SCHEMA ===== */}
+        {seoOnPage?.seoSchema && (
+          <script type="application/ld+json">
+            {JSON.stringify(seoOnPage.seoSchema)}
+          </script>
+        )}
       </Helmet>
       <div className="py-2 px-4 max-w-[1400px] mx-auto"><BreadCrumb breadCrumb={breadCrumb} /></div>
       <div className="my-4">
