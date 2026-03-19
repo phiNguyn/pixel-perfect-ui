@@ -1,26 +1,19 @@
 {
-  "routes": [
-    {
-      "src": "/(.*)",
-      "has": [
-        {
-          "type": "header",
-          "key": "user-agent",
-          "value": "(?i)(googlebot|bingbot|facebookexternalhit|twitterbot|zalo)"
-        }
-      ],
-      "dest": "https://service.prerender.io/https://pinuss-flix.vercel.app/$1"
-    }
-  ],
   "headers": [
     {
       "source": "/(.*)",
       "headers": [
         {
-          "key": "X-Prerender-Token",
-          "value": "YpAGcP1d1pfn2h01210x"
+          "key": "X-Robots-Tag",
+          "value": "index, follow"
         }
       ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/"
     }
   ]
 }
