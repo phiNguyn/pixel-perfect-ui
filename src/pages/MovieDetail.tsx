@@ -29,6 +29,7 @@ const sampleComments = [
 
 export default function MovieDetail() {
   const { id } = useParams();
+
   const { data: rawData, isLoading } = useQueryMovie(id);
   const movieData = rawData as any;
   const movie = movieData?.data?.item as IMovieDetail;

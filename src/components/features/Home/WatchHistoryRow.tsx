@@ -73,16 +73,19 @@ function WatchHistoryCard({ item, onRemove }: { item: WatchHistoryItem; onRemove
       className="relative flex-shrink-0 w-[140px] md:w-[170px] group"
     >
       {/* Remove button */}
-      <button
+      <Button
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
           onRemove(item.slug);
         }}
-        className="absolute -top-1.5 -right-1.5 z-20 w-5 h-5 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md hover:scale-110"
+        size='icon'
+        variant='outline'
+        className="absolute top-1.5 size-10 right-1.5 z-20 bg-gray-500/90   flex items-center justify-center shadow-md "
+
       >
         <X className="w-3 h-3" />
-      </button>
+      </Button>
 
       <Link to={`/phim/${item.slug}?ep=${item.currentEpSlug}`}>
         <div className="relative aspect-[2/3] rounded-lg overflow-hidden shadow-[var(--shadow-card)]">
@@ -102,7 +105,7 @@ function WatchHistoryCard({ item, onRemove }: { item: WatchHistoryItem; onRemove
           </div>
 
           {/* Episode badge */}
-          <span className="absolute top-2 right-2 bg-primary/90 backdrop-blur-sm text-primary-foreground text-[10px] font-medium px-1.5 py-0.5 rounded">
+          <span className="absolute top-2 left-2 bg-primary/90 backdrop-blur-sm text-primary-foreground text-[10px] font-medium px-1.5 py-0.5 rounded">
             Tập {item.currentEpName}
           </span>
 

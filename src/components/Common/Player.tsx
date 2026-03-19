@@ -84,7 +84,6 @@ export default function MoviePlayer({ src, title = "Movie", poster, onBack, sele
     const [currentQuality, setCurrentQuality] = useState(-1) // -1 = Auto
     const [isPiPSupported, setIsPiPSupported] = useState(false)
     const [isHovering, setIsHovering] = useState(false)
-    console.log(isHovering);
 
     const [previewTime, setPreviewTime] = useState<number | null>(null)
     const [previewPosition, setPreviewPosition] = useState(0)

@@ -27,10 +27,10 @@ export default function SearchHistoryList({ onSelect }: SearchHistoryListProps) 
     <div className="flex flex-col gap-1">
       <div className="flex items-center justify-between px-1 mb-1">
         <span className="text-xs font-medium text-muted-foreground flex items-center gap-1">
-          <Clock className="w-3 h-3" /> Tìm kiếm gần đây
+          <Clock className="w-3 h-3" />Tìm kiếm gần đây
         </span>
         <Button
-          variant="ghost"
+          variant="outline"
           size="sm"
           className="text-[10px] text-muted-foreground hover:text-destructive h-6 px-2"
           onClick={clearSearchHistory}
@@ -56,12 +56,14 @@ export default function SearchHistoryList({ onSelect }: SearchHistoryListProps) 
             </div>
             <span className="text-[9px] text-muted-foreground whitespace-nowrap">{formatTimeAgo(item.searchedAt)}</span>
           </Link>
-          <button
+          <Button
+            size='icon'
+            variant='secondary'
             onClick={() => removeSearchHistory(item.slug)}
-            className="p-1 rounded-full text-muted-foreground hover:text-destructive hover:bg-destructive/10 opacity-0 group-hover:opacity-100 transition-all"
+            className="rounded-md text-muted-foreground transition-all"
           >
             <X className="w-3 h-3" />
-          </button>
+          </Button>
         </div>
       ))}
     </div>

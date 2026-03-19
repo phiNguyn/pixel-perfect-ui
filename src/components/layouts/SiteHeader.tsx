@@ -53,9 +53,9 @@ export default function SiteHeader() {
             </Link>
           </div>
           {/* search */}
-          <div className="hidden md:flex items-center gap-1 relative">
+          <div className="hidden md:flex items-center gap-1">
             {searchOpen ? (
-              <div >
+              <div className="relative">
                 <input
                   type="text"
                   placeholder="Tìm phim, diễn viên..."
@@ -68,6 +68,23 @@ export default function SiteHeader() {
                   onChange={(e) => setSearch(e.target.value)}
                 />
                 <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                {searchOpen && (
+                  <div className="absolute top-14 left-0 flex flex-col gap-4 max-h-[80dvh] overflow-auto w-[300px] bg-background p-6 rounded-lg border border-border/50 shadow-lg" onClick={(e) => e.stopPropagation()}>
+                    {search && value ? (
+                      searchLoaing || searchFetching ? (
+                        <div>Đang tìm...</div>
+                      ) : searchMovie?.data?.items?.length > 0 ? (
+                        searchMovie.data.items.map(item => (
+                          <MovieCardSeach movie={item} key={item._id} onSelect={() => { setSearch(''); setSearchOpen(false); }} />
+                        ))
+                      ) : (
+                        <div>Không có dữ liệu</div>
+                      )
+                    ) : (
+                      <SearchHistoryList onSelect={() => { setSearch(''); setSearchOpen(false); }} />
+                    )}
+                  </div>
+                )}
               </div>
             ) : (
               <button onClick={() => setSearchOpen(true)} className="p-2 text-muted-foreground hover:text-foreground transition-colors">
@@ -124,23 +141,7 @@ export default function SiteHeader() {
           </div>
         </div>
       </div>
-      {searchOpen && (
-        <div className="absolute top-14 right-5 flex flex-col gap-4 max-h-[80dvh] overflow-auto w-[300px] bg-background p-6 rounded-lg border border-border/50 shadow-lg" onClick={(e) => e.stopPropagation()}>
-          {search && value ? (
-            searchLoaing || searchFetching ? (
-              <div>Đang tìm...</div>
-            ) : searchMovie?.data?.items?.length > 0 ? (
-              searchMovie.data.items.map(item => (
-                <MovieCardSeach movie={item} key={item._id} onSelect={() => { setSearch(''); setSearchOpen(false); }} />
-              ))
-            ) : (
-              <div>Không có dữ liệu</div>
-            )
-          ) : (
-            <SearchHistoryList onSelect={() => { setSearch(''); setSearchOpen(false); }} />
-          )}
-        </div>
-      )}
+
 
       {/* Mobile Menu */}
       <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen} >
@@ -201,7 +202,9 @@ export default function SiteHeader() {
               <div className="bg-secondary/50 rounded-lg p-3">
                 <SearchHistoryList onSelect={() => { setMobileSearch(''); setMobileMenuOpen(false); }} />
               </div>
-            )}
+            )
+
+            }
 
             {/* User Actions */}
             {/* <div className="flex items-center gap-2 py-2 border-b border-border/50">
