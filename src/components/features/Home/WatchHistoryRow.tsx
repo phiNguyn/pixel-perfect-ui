@@ -50,7 +50,7 @@ export default function WatchHistoryRow() {
       <ScrollArea className="w-full px-4 max-w-[1400px] mx-auto">
         <div className="flex gap-3 pb-4">
           <AnimatePresence>
-            {watchHistory.map((item) => (
+            {watchHistory.sort((a, b) => b.watchedAt - a.watchedAt).map((item) => (
               <WatchHistoryCard key={item.slug} item={item} onRemove={removeWatchHistory} />
             ))}
           </AnimatePresence>

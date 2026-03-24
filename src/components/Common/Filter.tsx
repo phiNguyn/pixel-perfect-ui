@@ -1,16 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { FC, useState } from "react"
-import { Link, useParams } from "react-router-dom"
-import { Filter as FilterIcon, Loader } from "lucide-react"
+import { Filter as FilterIcon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Drawer, DrawerClose, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer"
 import { Skeleton } from "@/components/ui/skeleton"
-import { Sheet, SheetClose, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
+import { Sheet, SheetClose, SheetContent, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { useQueryCategories } from "@/lib/api/categories/categorieQuery"
 import { useQueryMovies } from "@/lib/api/movies/movieQuery"
-import type { Country } from "@/lib/api/movies/movieInterface"
 import { ItemQueryField } from "@/hooks/useQueryResult"
 
 interface OrderFilterProps {
@@ -19,218 +17,200 @@ interface OrderFilterProps {
     clearAll: () => void
 }
 
+// ---------- helpers ----------
 
+type FilterKey = 'category' | 'country' | 'year'
 
-export const Filter: FC<OrderFilterProps> = ({
-    addQuery,
-    getFilterValue,
-    clearAll
+const btnClass = (active: boolean) =>
+    `px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${active
+        ? "bg-primary text-primary-foreground"
+        : "bg-secondary text-secondary-foreground hover:bg-muted"
+    }`
+
+const buildToggle = (selected: string[], addQuery: (p: ItemQueryField) => void, key: FilterKey) => (value: string) => {
+    const next = selected.includes(value)
+        ? selected.filter((s) => s !== value)
+        : [...selected, value]
+    addQuery({ key, value: next.join(","), query: next.length ? `${key}=${next.join(",")}` : "" })
+}
+
+// ---------- SkeletonLoading ----------
+
+const SkeletonGroup = ({ count = 4 }: { count?: number }) => (
+    <>
+        {Array.from({ length: count }).map((_, i) => (
+            <Skeleton key={i} className="h-6 w-20" />
+        ))}
+    </>
+)
+
+// ---------- FilterChipRow ----------
+
+interface FilterChipRowProps {
+    label: string
+    isLoading: boolean
+    items?: any[]
+    selected: string[]
+    onToggle: (value: string) => void
+    getValue: (item: any) => string
+    getLabel: (item: any) => React.ReactNode
+    isActive?: (item: any) => boolean
+}
+
+const FilterChipRow: FC<FilterChipRowProps> = ({ label, isLoading, items, selected, onToggle, getValue, getLabel, isActive }) => (
+    <div className="flex flex-col gap-2">
+        <h3 className="text-sm font-semibold text-foreground">{label}</h3>
+        <div className="flex flex-wrap gap-2">
+            {isLoading ? (
+                <SkeletonGroup />
+            ) : (
+                items?.map((item, i) => {
+                    const value = getValue(item)
+                    const active = (isActive ? isActive(item) : false) || selected.includes(value)
+                    return (
+                        <button
+                            key={item._id ?? item.slug ?? item.year ?? i}
+                            type="button"
+                            onClick={() => onToggle(value)}
+                            className={btnClass(active)}
+                        >
+                            {getLabel(item)}
+                        </button>
+                    )
+                })
+            )}
+        </div>
+    </div>
+)
+
+// ---------- FilterContent ----------
+
+interface FilterContentProps {
+    categoriesData: ReturnType<typeof useQueryCategories>['data']
+    categoriesLoading: boolean
+    countriesData: any
+    countriesLoading: boolean
+    yearsData: any
+    yearsLoading: boolean
+    selectedCategories: string[]
+    selectedCountries: string[]
+    selectedYears: string[]
+    onToggleCategory: ReturnType<typeof buildToggle>
+    onToggleCountry: ReturnType<typeof buildToggle>
+    onToggleYear: ReturnType<typeof buildToggle>
+}
+
+const FilterContent: FC<FilterContentProps> = ({
+    categoriesData, categoriesLoading, countriesData, countriesLoading,
+    yearsData, yearsLoading, selectedCategories, selectedCountries, selectedYears,
+    onToggleCategory, onToggleCountry, onToggleYear,
 }) => {
-    const { slug, type } = useParams()
-    const [open, setOpen] = useState(false)
-    const isMobile = useIsMobile()
-
-    const { data, isLoading } = useQueryCategories()
-    const categories = data?.data?.items ?? []
-
-    const { data: countries, isLoading: countryLoading } = useQueryMovies<{ data: { items: Country[] } }>(
-        {},
-        true,
-        "quoc-gia",
-        "quoc-gia",
-    )
-
-    const selectedCategories = (typeof getFilterValue === "function"
-        ? (getFilterValue("category", "array") as string[])
-        : []) ?? []
-
-    const selectedCountries = (typeof getFilterValue === "function"
-        ? (getFilterValue("country", "array") as string[])
-        : []) ?? []
-
-    const toggleCategory = (categorySlug: string) => {
-        const next = selectedCategories.includes(categorySlug)
-            ? selectedCategories.filter((s) => s !== categorySlug)
-            : [...selectedCategories, categorySlug]
-
-        addQuery({
-            key: "category",
-            value: next.join(","),
-            query: next.length ? `category=${next.join(",")}` : "",
-        })
-    }
-
-    const toggleCountry = (countrySlug: string) => {
-        const next = selectedCountries.includes(countrySlug)
-            ? selectedCountries.filter((s) => s !== countrySlug)
-            : [...selectedCountries, countrySlug]
-
-        addQuery({
-            key: "country",
-            value: next.join(","),
-            query: next.length ? `country=${next.join(",")}` : "",
-        })
-    }
-
-    const handleClearAll = () => {
-        clearAll()
-        setOpen(false)
-    }
+    const categories = categoriesData?.data?.items?.filter((c: any) => c.slug !== "phim-18") ?? []
 
     return (
-        isMobile ? (
-            <Drawer open={open} onOpenChange={setOpen}>
-                <DrawerTrigger asChild>
-                    <Button size="sm" className="my-2">
-                        <FilterIcon />
-                        Bộ lọc
-                    </Button>
-                </DrawerTrigger>
+        <>
+            <FilterChipRow
+                label="Thể loại"
+                isLoading={categoriesLoading}
+                items={categories}
+                selected={selectedCategories}
+                onToggle={onToggleCategory}
+                getValue={(item) => item.slug}
+                getLabel={(item) => item.name}
+            />
 
-                <DrawerContent className="p-0 max-h-[70dvh] overflow-hidden">
-                    <DrawerHeader className="border-b border-border/50 p-4">
-                        <div className="flex items-center justify-between gap-3">
-                            <DrawerTitle className="text-foreground font-bold text-lg tracking-tight">Bộ lọc</DrawerTitle>
-                            <Button size="sm" variant="ghost" onClick={handleClearAll}>
-                                Xóa bộ lọc
-                            </Button>
-                        </div>
-                    </DrawerHeader>
+            <FilterChipRow
+                label="Quốc gia"
+                isLoading={countriesLoading}
+                items={countriesData?.data?.items}
+                selected={selectedCountries}
+                onToggle={onToggleCountry}
+                getValue={(item) => item.slug}
+                getLabel={(item) => item.name}
+            />
 
-                    <div className="p-4 flex flex-col gap-4 overflow-y-auto">
-                        {/* Categories */}
-                        <div className="flex flex-col gap-2">
-                            <h3 className="text-sm font-semibold text-foreground">Thể loại</h3>
-                            <div className="flex flex-wrap gap-2">
-                                {isLoading ? (
-                                    <Loader className="w-4 h-4 animate-spin" />
-                                ) : (
-                                    categories
-                                        ?.filter((cat: { slug: string }) => cat.slug !== "phim-18")
-                                        .map((cat: { _id: string; name: string; slug: string }) => (
-                                            <DrawerClose asChild key={cat._id}>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => toggleCategory(cat.slug)}
-                                                    className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors 
-                            ${selectedCategories.includes(cat.slug) || (type === "the-loai" && slug === cat.slug)
-                                                            ? "bg-primary text-primary-foreground"
-                                                            : "bg-secondary text-secondary-foreground hover:bg-muted"
-                                                        }`}
-                                                >
-                                                    {cat.name}
-                                                </button>
-                                            </DrawerClose>
-                                        ))
-                                )}
-                            </div>
-                        </div>
-
-                        {/* Countries */}
-                        <div className="flex flex-col gap-2">
-                            <h3 className="text-sm font-semibold text-foreground">Quốc gia</h3>
-                            <div className="flex flex-wrap gap-2">
-                                {countryLoading ? (
-                                    <Skeleton className="h-6 w-20" />
-                                ) : (
-                                    countries?.data?.items?.map((c) => (
-                                        <DrawerClose asChild key={c.slug}>
-                                            <button
-                                                type="button"
-                                                onClick={() => toggleCountry(c.slug)}
-                                                className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors 
-                          ${selectedCountries.includes(c.slug) || (type === "quoc-gia" && slug === c.slug)
-                                                        ? "bg-primary text-primary-foreground"
-                                                        : "bg-secondary text-secondary-foreground hover:bg-muted"
-                                                    }`}
-                                            >
-                                                {c.name}
-                                            </button>
-                                        </DrawerClose>
-                                    ))
-                                )}
-                            </div>
-                        </div>
-                    </div>
-                </DrawerContent>
-            </Drawer>
-        ) : (
-            <Sheet open={open} onOpenChange={setOpen}>
-                <SheetTrigger asChild>
-                    <Button size="sm" className="my-2">
-                        <FilterIcon />
-                        Bộ lọc
-                    </Button>
-                </SheetTrigger>
-
-                <SheetContent side="right" className="w-full sm:w-[350px] p-0">
-                    <SheetHeader className="border-b border-border/50 p-4">
-                        <div className="flex items-center  gap-3">
-                            <SheetTitle className="text-foreground font-bold text-lg tracking-tight">Bộ lọc</SheetTitle>
-                            <Button size="sm" variant="secondary" onClick={handleClearAll}>
-                                Xóa bộ lọc
-                            </Button>
-                        </div>
-                    </SheetHeader>
-
-                    <div style={{ maxHeight: 'calc(100vh - 70px)' }} className="p-4 flex flex-col gap-4 overflow-y-auto scrollbar">
-                        {/* Categories */}
-                        <div className="flex flex-col gap-2">
-                            <h3 className="text-sm font-semibold text-foreground">Thể loại</h3>
-                            <div className="flex flex-wrap gap-2">
-                                {isLoading ? (
-                                    <Loader className="w-4 h-4 animate-spin" />
-                                ) : (
-                                    categories
-                                        ?.filter((cat: { slug: string }) => cat.slug !== "phim-18")
-                                        .map((cat: { _id: string; name: string; slug: string }) => (
-                                            <SheetClose asChild key={cat._id}>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => toggleCategory(cat.slug)}
-                                                    className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors 
-                            ${selectedCategories.includes(cat.slug) || (type === "the-loai" && slug === cat.slug)
-                                                            ? "bg-primary text-primary-foreground"
-                                                            : "bg-secondary text-secondary-foreground hover:bg-muted"
-                                                        }`}
-                                                >
-                                                    {cat.name}
-                                                </button>
-                                            </SheetClose>
-                                        ))
-                                )}
-                            </div>
-                        </div>
-
-                        {/* Countries */}
-                        <div className="flex flex-col gap-2">
-                            <h3 className="text-sm font-semibold text-foreground">Quốc gia</h3>
-                            <div className="flex flex-wrap gap-2">
-                                {countryLoading ? (
-                                    <Skeleton className="h-6 w-20" />
-                                ) : (
-                                    countries?.data?.items?.map((c) => (
-                                        <SheetClose asChild key={c.slug}>
-                                            <button
-                                                type="button"
-                                                onClick={() => toggleCountry(c.slug)}
-                                                className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors 
-                          ${selectedCountries.includes(c.slug) || (type === "quoc-gia" && slug === c.slug)
-                                                        ? "bg-primary text-primary-foreground"
-                                                        : "bg-secondary text-secondary-foreground hover:bg-muted"
-                                                    }`}
-                                            >
-                                                {c.name}
-                                            </button>
-                                        </SheetClose>
-                                    ))
-                                )}
-                            </div>
-                        </div>
-                    </div>
-                </SheetContent>
-            </Sheet>
-        )
+            <FilterChipRow
+                label="Năm phát hành"
+                isLoading={yearsLoading}
+                items={yearsData?.data?.items?.slice(0, 24)}
+                selected={selectedYears}
+                onToggle={onToggleYear}
+                getValue={(item) => item.year?.toString()}
+                getLabel={(item) => item.year}
+            />
+        </>
     )
 }
 
+// ---------- Filter ----------
+
+export const Filter: FC<OrderFilterProps> = ({ addQuery, getFilterValue, clearAll }) => {
+    const [open, setOpen] = useState(false)
+    const isMobile = useIsMobile()
+
+    const { data: categoriesData, isLoading: categoriesLoading } = useQueryCategories()
+    const { data: countriesData, isLoading: countriesLoading } = useQueryMovies(
+        {}, true, "quoc-gia", "quoc-gia"
+    )
+    const { data: yearsData, isLoading: yearsLoading } = useQueryMovies(
+        { limit: 10 }, true, "nam-phat-hanh", "nam-phat-hanh"
+    )
+
+    const selectedCategories = (getFilterValue("category", "array") as string[]) ?? []
+    const selectedCountries = (getFilterValue("country", "array") as string[]) ?? []
+    const selectedYears = (getFilterValue("year", "array") as string[]) ?? []
+
+    const onToggleCategory = buildToggle(selectedCategories, addQuery, 'category')
+    const onToggleCountry = buildToggle(selectedCountries, addQuery, 'country')
+    const onToggleYear = buildToggle(selectedYears, addQuery, 'year')
+
+    const handleClearAll = () => { clearAll(); setOpen(false) }
+
+    const contentProps = {
+        categoriesData, categoriesLoading,
+        countriesData, countriesLoading,
+        yearsData, yearsLoading,
+        selectedCategories, selectedCountries, selectedYears,
+        onToggleCategory, onToggleCountry, onToggleYear,
+    }
+
+    if (isMobile) {
+        return (
+            <Drawer open={open} onOpenChange={setOpen}>
+                <DrawerTrigger asChild>
+                    <Button size="sm" className="my-2"><FilterIcon />Bộ lọc</Button>
+                </DrawerTrigger>
+                <DrawerContent className="p-0 max-h-[90dvh] overflow-hidden">
+                    <DrawerHeader className="border-b border-border/50 !py-0">
+                        <div className="flex items-center justify-between gap-3">
+                            <DrawerTitle className="text-foreground font-bold text-lg tracking-tight">Bộ lọc</DrawerTitle>
+                            <Button size="sm" variant="ghost" onClick={handleClearAll}>Xóa bộ lọc</Button>
+                        </div>
+                    </DrawerHeader>
+                    <div className="p-4 flex flex-col gap-4 overflow-y-auto scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent">
+                        <FilterContent {...contentProps} />
+                    </div>
+                </DrawerContent>
+            </Drawer>
+        )
+    }
+
+    return (
+        <Sheet open={open} onOpenChange={setOpen}>
+            <SheetTrigger asChild>
+                <Button size="sm" className="my-2"><FilterIcon />Bộ lọc</Button>
+            </SheetTrigger>
+            <SheetContent side="top" className="w-full p-0">
+                <div style={{ maxHeight: 'calc(100vh - 70px)' }} className="p-4 flex flex-col gap-4 overflow-y-auto scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent">
+                    <FilterContent {...contentProps} />
+                </div>
+                <SheetFooter className="p-4">
+                    <div className="flex items-center gap-3">
+                        <Button size="sm" variant="link" onClick={() => setOpen(false)}>Đóng</Button>
+                        <Button size="sm" variant="outline" onClick={handleClearAll}>Xóa bộ lọc</Button>
+                    </div>
+                </SheetFooter>
+            </SheetContent>
+        </Sheet>
+    )
+}

@@ -1,4 +1,4 @@
-import { Search, Bell, User, Menu, Loader, XIcon } from "lucide-react";
+import { Search, Bell, User, Menu, Loader, XIcon, ChevronDown } from "lucide-react";
 import { useState } from "react";
 import { useQueryCategories } from "@/lib/api/categories/categorieQuery";
 import { Link, useParams } from "react-router-dom";
@@ -13,9 +13,18 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import BadgeSkeleton from "../features/Movies/Skeletons/BadgeSkeleton";
 import SearchHistoryList from "../features/Home/SearchHistoryList";
+import AvatarComponent from "../Common/Avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "../ui/button";
+import Empty from "../Common/Empty";
 
 export default function SiteHeader() {
   const { slug } = useParams()
@@ -39,18 +48,76 @@ export default function SiteHeader() {
   )
 
   return (
-    <header className="sticky top-0 z-50 bg-background/90 backdrop-blur-md border-b border-border/50">
+    <header className="py-2 sticky top-0 z-50 bg-background/90 backdrop-blur-md border-b border-border/50">
       <div className="max-w-[1400px] mx-auto px-4">
         {/* Top bar */}
         <div className="flex items-center justify-between h-14">
-          <div className="flex items-center gap-3">
-            <Link to={'/'} className="flex items-center gap-2">
-              <Avatar className="size-8 mb-1.5">
-                <AvatarImage src={`https://api-sandbox.vnhub.com/resource/2026/02/27/1772203272485-1000003143.png`} className="object-cover" />
-                <AvatarFallback className="bg-muted text-muted-foreground text-xs">PF</AvatarFallback>
-              </Avatar>
-              <span className="text-foreground font-bold text-lg tracking-tight">Pinuss Flix</span>
-            </Link>
+          <div className="flex items-center gap-6">
+            <AvatarComponent />
+            <div className="hidden md:flex items-center gap-2 ">
+              {/* Thể loại dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button size="sm" variant="secondary">
+                    Thể loại
+                    <ChevronDown className="w-3 h-3" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start">
+                  {isLoading ? (
+                    <div className="p-2 grid grid-cols-4 gap-2">
+                      <BadgeSkeleton count={4} />
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-4 gap-4 p-2">
+                      {items?.filter((cat) => cat.slug !== 'phim-18').map((cat) => (
+                        <DropdownMenuItem key={cat._id} asChild>
+                          <Link
+                            to={`/the-loai/${cat.slug}`}
+                            className={`cursor-pointer text-xs px-2 py-1.5 rounded text-center ${cat.slug === slug ? "bg-primary text-accent-foreground" : "hover:bg-primary"}`}
+                          >
+                            {cat.name}
+                          </Link>
+                        </DropdownMenuItem>
+                      ))}
+                    </div>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              {/* Quốc gia dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button size="sm" variant="secondary">
+                    Quốc gia
+                    <ChevronDown className="w-3  h-3" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="w-[480px]">
+                  {countryLoading ? (
+                    <div className="p-2 grid grid-cols-4 gap-2">
+                      <Skeleton className="h-7 w-full" />
+                      <Skeleton className="h-7 w-full" />
+                      <Skeleton className="h-7 w-full" />
+                      <Skeleton className="h-7 w-full" />
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-4 gap-1 p-2">
+                      {countries?.data?.items?.map((c: Country) => (
+                        <DropdownMenuItem key={c.slug} asChild >
+                          <Link
+                            to={`/quoc-gia/${c.slug}`}
+                            className={`cursor-pointer text-xs px-2 py-1.5 rounded text-center ${c.slug === slug ? "bg-accent text-accent-foreground" : "hover:bg-accent"}`}
+                          >
+                            {c.name}
+                          </Link>
+                        </DropdownMenuItem>
+                      ))}
+                    </div>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
           {/* search */}
           <div className="hidden md:flex items-center gap-1">
@@ -69,16 +136,20 @@ export default function SiteHeader() {
                 />
                 <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 {searchOpen && (
-                  <div className="absolute top-14 left-0 flex flex-col gap-4 max-h-[80dvh] overflow-auto w-[300px] bg-background p-6 rounded-lg border border-border/50 shadow-lg" onClick={(e) => e.stopPropagation()}>
+                  <div className="absolute top-14 left-0 flex flex-col gap-4 max-h-[80dvh] w-[300px] bg-background p-4 rounded-lg border border-border/50 shadow-lg overflow-y-auto scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent" onClick={(e) => e.stopPropagation()}>
                     {search && value ? (
                       searchLoaing || searchFetching ? (
-                        <div>Đang tìm...</div>
+                        <div className="flex items-center justify-center py-8">
+                          <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                        </div>
                       ) : searchMovie?.data?.items?.length > 0 ? (
-                        searchMovie.data.items.map(item => (
-                          <MovieCardSeach movie={item} key={item._id} onSelect={() => { setSearch(''); setSearchOpen(false); }} />
-                        ))
+                        <div className="flex flex-col gap-3">
+                          {searchMovie.data.items.map(item => (
+                            <MovieCardSeach movie={item} key={item._id} onSelect={() => { setSearch(''); setSearchOpen(false); }} />
+                          ))}
+                        </div>
                       ) : (
-                        <div>Không có dữ liệu</div>
+                        <Empty icon={Search} title="Không tìm thấy" description={`Không có kết quả cho "${value}"`} />
                       )
                     ) : (
                       <SearchHistoryList onSelect={() => { setSearch(''); setSearchOpen(false); }} />
@@ -110,42 +181,13 @@ export default function SiteHeader() {
         </div>
 
         {/* Navigation */}
-        <nav className="hidden md:flex items-center gap-1 pb-2 overflow-x-auto scrollbar-hide">
-          <span className="text-sm text-muted-foreground mr-2 whitespace-nowrap">Tìm đang xem gì?</span>
-          {isLoading ? <BadgeSkeleton count={10} /> :
-            items?.filter((cat) => cat.slug !== 'phim-18').map((cat, i) => (
-              <Link to={`/the-loai/${cat.slug}`}
-                key={cat._id}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors 
-                ${cat.slug === slug
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-secondary text-secondary-foreground hover:bg-muted"
-                  }
-                `}
-              >
-                {cat.name}
-              </Link>
-            ))
-          }
-        </nav>
 
-        {/* Sub navigation */}
-        <div className="hidden md:flex items-center gap-4 pb-2 text-xs">
-          <span className="text-sm text-muted-foreground mr-2 whitespace-nowrap">Quốc gia:</span>
-          <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
-            {countryLoading ? <Skeleton className="h-4 w-full" /> : countries?.data?.items.map((c: Country) => (
-              <Link
-                to={`/quoc-gia/${c.slug}`} key={c.slug}
-                className={`text-secondary-foreground hover:text-primary transition-colors whitespace-nowrap `}>{c.name}</Link>
-            ))}
-          </div>
-        </div>
       </div>
 
 
       {/* Mobile Menu */}
       <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen} >
-        <SheetContent side="right" className="w-full sm:w-[350px] p-0 overflow-y-auto">
+        <SheetContent side="right" className="w-full sm:w-[350px] p-0 ">
           <SheetHeader className="border-b border-border/50 p-4">
             <div className="flex items-center justify-between">
               <Link onClick={() => {
@@ -163,7 +205,7 @@ export default function SiteHeader() {
             </div>
           </SheetHeader>
 
-          <div className="p-4 flex flex-col gap-4">
+          <div className="p-4 flex flex-col gap-4 overflow-y-auto" style={{ height: 'calc(100dvh - 72px)' }}>
             {/* Mobile Search */}
             <div className="relative">
               <input

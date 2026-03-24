@@ -1,7 +1,8 @@
 import { useHistoryStore } from '@/stores/useHistoryStore';
-import { X, Clock, Trash2 } from 'lucide-react';
+import { X, Clock, Trash2, SearchX } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import Empty from '@/components/Common/Empty';
 
 interface SearchHistoryListProps {
   onSelect?: () => void;
@@ -21,7 +22,13 @@ function formatTimeAgo(timestamp: number) {
 export default function SearchHistoryList({ onSelect }: SearchHistoryListProps) {
   const { searchHistory, removeSearchHistory, clearSearchHistory } = useHistoryStore();
 
-  if (searchHistory.length === 0) return null;
+  if (searchHistory.length === 0) return (
+    <Empty
+      icon={SearchX}
+      title="Không có lịch sử tìm kiếm"
+      description="Những phim bạn tìm kiếm sẽ hiển thị tại đây."
+    />
+  );
 
   return (
     <div className="flex flex-col gap-1">

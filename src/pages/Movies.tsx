@@ -42,9 +42,9 @@ const Movies = () => {
     }, [slug, navigate]);
     const { queryResult, setPage, addQuery, getFilterValue, clearAll } = useQueryResult({
         limit: 24,
-        sort_field: 'year',
         queryMode: "flat",
         syncUrl: true,
+        sort_field: 'year'
     })
     const { data, isLoading, isFetching } = useQueryMovies<{
         data: {

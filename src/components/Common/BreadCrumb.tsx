@@ -11,6 +11,7 @@ const BreadCrumb = ({ breadCrumb }) => {
                             <Link to={'/'}>Trang chủ</Link>
                         </BreadcrumbLink>
                     </BreadcrumbItem>
+                    <BreadcrumbSeparator />
                     {breadCrumb
                         .slice()
                         .sort((a, b) => a.position - b.position)
