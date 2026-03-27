@@ -6,6 +6,9 @@ interface Props {
   params: Promise<{ id: string }>;
 }
 
+// Prevent generating routes that don't match static params
+export const dynamicParams = false;
+
 // Generate dynamic metadata for SEO - This runs on server
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;

@@ -7,6 +7,9 @@ interface Props {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
+// Prevent generating routes that don't match static params
+export const dynamicParams = false;
+
 // Type mapping for SEO
 const typeMapping: Record<string, string> = {
   "the-loai": "Thể loại",
