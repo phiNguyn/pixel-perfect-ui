@@ -5,6 +5,9 @@ import SiteHeader from "@/components/layouts/SiteHeader";
 import SiteFooter from "@/components/layouts/SiteFooter";
 import "./globals.css";
 
+// Force dynamic rendering to prevent prerendering issues with /_not-found
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: {
     default: "Xem phim HD miễn phí - Pinuss Flix",

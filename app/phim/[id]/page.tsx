@@ -6,8 +6,8 @@ interface Props {
   params: Promise<{ id: string }>;
 }
 
-// Prevent generating routes that don't match static params
-export const dynamicParams = false;
+// Use dynamic rendering for this route
+export const dynamic = "force-dynamic";
 
 // Generate dynamic metadata for SEO - This runs on server
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

@@ -7,8 +7,8 @@ interface Props {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
-// Prevent generating routes that don't match static params
-export const dynamicParams = false;
+// Use dynamic rendering for this route
+export const dynamic = "force-dynamic";
 
 // Type mapping for SEO
 const typeMapping: Record<string, string> = {
