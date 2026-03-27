@@ -101,3 +101,56 @@ export async function fetchMoviesList(
 
   return res.json();
 }
+
+export async function fetchMoviesByCategory(
+  type: string,
+  slug: string,
+  page: number = 1
+): Promise<{
+  items?: Array<{
+    _id: string;
+    name: string;
+    slug: string;
+    origin_name: string;
+    thumb_url: string;
+    poster_url: string;
+    year: number;
+    quality: string;
+    lang: string;
+    episode_current: string;
+    category: Array<{ id: string; name: string; slug: string }>;
+    country: Array<{ id: string; name: string; slug: string }>;
+    tmdb: { vote_average: number };
+  }>;
+  params?: {
+    pagination: {
+      currentPage: number;
+      totalItems: number;
+      totalItemsPerPage: number;
+    };
+  };
+  titlePage?: string;
+  breadCrumb?: Array<{
+    name: string;
+    slug?: string;
+    isCurrent: boolean;
+    position: number;
+  }>;
+} | null> {
+  try {
+    const url = `${BASE_URL}/${type}/${slug}?page=${page}`;
+    const res = await fetch(url, {
+      next: { revalidate: 60 }, // Cache for 1 minute
+    });
+
+    if (!res.ok) {
+      return null;
+    }
+
+    const data = await res.json();
+    return data?.data || null;
+  } catch (error) {
+    console.error("Error fetching movies by category:", error);
+    return null;
+  }
+}

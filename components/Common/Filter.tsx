@@ -1,4 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+"use client";
+
 import { FC, useState } from "react"
 import { Filter as FilterIcon } from "lucide-react"
 

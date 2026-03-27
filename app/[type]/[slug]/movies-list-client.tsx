@@ -1,0 +1,155 @@
+"use client";
+
+import { useEffect, useState, useCallback } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import MovieCard from "@/components/features/Movies/MovieCard";
+import { PaginationBase } from "@/components/layouts/Pagination";
+import { SkeletonCard } from "@/components/features/Movies/Skeletons/SkeletonCard";
+import BreadCrumb from "@/components/Common/BreadCrumb";
+import { Filter } from "@/components/Common/Filter";
+import { Movie } from "@/lib/api/movies/movieInterface";
+
+type BreadCrumbItem = {
+  name: string;
+  slug?: string;
+  isCurrent: boolean;
+  position: number;
+};
+
+type MoviesPagination = {
+  currentPage: number;
+  totalItemsPerPage: number;
+  totalItems: number;
+};
+
+interface MoviesListClientProps {
+  type: string;
+  slug: string;
+  initialData: {
+    items?: Movie[];
+    params?: { pagination?: MoviesPagination };
+    titlePage?: string;
+    breadCrumb?: BreadCrumbItem[];
+  } | null;
+  initialPage: number;
+}
+
+export default function MoviesListClient({
+  type,
+  slug,
+  initialData,
+  initialPage,
+}: MoviesListClientProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const [data, setData] = useState(initialData);
+  const [isLoading, setIsLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(initialPage);
+  const [filters, setFilters] = useState<Record<string, string>>({});
+
+  // Redirect if trying to access restricted content
+  useEffect(() => {
+    if (slug === "phim-18") {
+      router.push("/");
+    }
+  }, [slug, router]);
+
+  // Fetch data when page or filters change
+  const fetchData = useCallback(async (page: number, filterParams: Record<string, string> = {}) => {
+    setIsLoading(true);
+    try {
+      const queryString = new URLSearchParams({
+        page: page.toString(),
+        ...filterParams,
+      }).toString();
+
+      const response = await fetch(`/api/movies/${type}/${slug}?${queryString}`);
+      const result = await response.json();
+      setData(result);
+    } catch (error) {
+      console.error("Error fetching movies:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [type, slug]);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    
+    // Update URL with new page
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("page", page.toString());
+    router.push(`/${type}/${slug}?${params.toString()}`, { scroll: false });
+    
+    fetchData(page, filters);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const addQuery = (key: string, value: string) => {
+    const newFilters = { ...filters, [key]: value };
+    setFilters(newFilters);
+    setCurrentPage(1);
+    
+    const params = new URLSearchParams(searchParams.toString());
+    params.set(key, value);
+    params.set("page", "1");
+    router.push(`/${type}/${slug}?${params.toString()}`, { scroll: false });
+    
+    fetchData(1, newFilters);
+  };
+
+  const getFilterValue = (key: string) => {
+    return filters[key] || searchParams.get(key) || "";
+  };
+
+  const clearAll = () => {
+    setFilters({});
+    setCurrentPage(1);
+    router.push(`/${type}/${slug}`, { scroll: false });
+    fetchData(1, {});
+  };
+
+  const { items = [], params, breadCrumb } = data ?? {};
+  const { pagination } = params ?? {};
+
+  return (
+    <div className="px-4 my-0 mx-auto max-w-[1400px] py-6">
+      <BreadCrumb breadCrumb={breadCrumb} />
+
+      <div className="w-full flex justify-end mt-4">
+        <Filter
+          clearAll={clearAll}
+          addQuery={addQuery}
+          getFilterValue={getFilterValue}
+        />
+      </div>
+
+      <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6 items-stretch">
+        {isLoading ? (
+          <SkeletonCard className="w-full h-[320px]" count={24} />
+        ) : items.length > 0 ? (
+          items.map((item) => (
+            <MovieCard movie={item} key={item._id} className="w-full" />
+          ))
+        ) : (
+          <div className="col-span-full text-center py-12 text-muted-foreground">
+            Không tìm thấy phim nào
+          </div>
+        )}
+      </div>
+
+      {pagination && pagination.totalItems > 0 && (
+        <div className="mt-8">
+          <PaginationBase
+            current={pagination.currentPage}
+            pageSize={pagination.totalItemsPerPage}
+            total={pagination.totalItems}
+            pageRanges={4}
+            onChange={handlePageChange}
+          />
+        </div>
+      )}
+    </div>
+  );
+}

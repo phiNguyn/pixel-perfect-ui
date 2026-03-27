@@ -1,26 +1,36 @@
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Skeleton } from '@/components/ui/skeleton'
+"use client";
 
-const Cast = ({ loading, peoples, profile_sizes }) => {
-    return (
-        <div className="mb-8">
-            <h3 className="text-base font-semibold text-foreground mb-4">Diễn viên</h3>
-            <div className="grid grid-cols-3 sm:grid-cols-8 gap-3">
-                {loading ? <Skeleton /> : peoples.map((cast, i) => (
-                    <div key={cast.tmdb_people_id} className="flex flex-col items-center text-center">
-                        <Avatar className="w-14 h-14 mb-1.5">
-                            <AvatarImage src={`${profile_sizes.w185
-                                }/${cast.profile_path
-                                }`} className="object-cover" />
-                            <AvatarFallback className="bg-muted text-muted-foreground text-xs">{cast.name[0]}</AvatarFallback>
-                        </Avatar>
-                        <span className="text-xs text-foreground font-medium line-clamp-1">{cast.name}</span>
-                        <span className="text-[10px] text-muted-foreground">{cast?.character}</span>
-                    </div>
-                ))}
-            </div>
-        </div>
-    )
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+
+interface CastProps {
+  actors: string[];
 }
 
-export default Cast
+export function Cast({ actors }: CastProps) {
+  if (!actors || actors.length === 0) {
+    return (
+      <div className="text-sm text-muted-foreground">
+        Chưa có thông tin diễn viên
+      </div>
+    );
+  }
+
+  return (
+    <div className="mb-8">
+      <div className="grid grid-cols-3 sm:grid-cols-6 md:grid-cols-8 gap-4">
+        {actors.slice(0, 16).map((actor, i) => (
+          <div key={`${actor}-${i}`} className="flex flex-col items-center text-center">
+            <Avatar className="w-14 h-14 mb-2">
+              <AvatarFallback className="bg-muted text-muted-foreground text-sm font-medium">
+                {actor.charAt(0).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            <span className="text-xs text-foreground font-medium line-clamp-2">{actor}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export default Cast;
