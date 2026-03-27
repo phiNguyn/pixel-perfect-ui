@@ -1,4 +1,6 @@
 {
+  "buildCommand": "next build",
+  "outputDirectory": ".next/standalone",
   "headers": [
     {
       "source": "/(.*)",
@@ -8,12 +10,6 @@
           "value": "index, follow"
         }
       ]
-    }
-  ],
-  "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/"
     }
   ]
 }
