@@ -1,0 +1,72 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 240 10% 8%;
+    --foreground: 0 0% 95%;
+    --card: 240 10% 12%;
+    --card-foreground: 0 0% 95%;
+    --popover: 240 10% 12%;
+    --popover-foreground: 0 0% 95%;
+    --primary: 340 82% 52%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 240 8% 18%;
+    --secondary-foreground: 0 0% 85%;
+    --muted: 240 6% 20%;
+    --muted-foreground: 240 5% 55%;
+    --accent: 210 100% 52%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 240 6% 20%;
+    --input: 240 6% 20%;
+    --ring: 340 82% 52%;
+    --radius: 0.75rem;
+
+    --surface-elevated: 240 10% 14%;
+    --surface-overlay: 240 10% 10%;
+    --gradient-hero: linear-gradient(180deg, transparent 0%, hsl(240 10% 8%) 100%);
+    --gradient-card: linear-gradient(135deg, hsl(240 10% 14%) 0%, hsl(240 10% 10%) 100%);
+    --shadow-card: 0 4px 24px -4px rgba(0, 0, 0, 0.5);
+    --shadow-hover: 0 8px 32px -4px rgba(0, 0, 0, 0.6);
+
+    --sidebar-background: 240 10% 6%;
+    --sidebar-foreground: 0 0% 85%;
+    --sidebar-primary: 340 82% 52%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 8% 18%;
+    --sidebar-accent-foreground: 0 0% 95%;
+    --sidebar-border: 240 6% 16%;
+    --sidebar-ring: 340 82% 52%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+}
+
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .text-shadow-sm {
+    text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+  }
+  .text-shadow-lg {
+    text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+  }
+}
