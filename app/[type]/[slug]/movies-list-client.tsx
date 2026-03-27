@@ -8,6 +8,7 @@ import { SkeletonCard } from "@/components/features/Movies/Skeletons/SkeletonCar
 import BreadCrumb from "@/components/Common/BreadCrumb";
 import { Filter } from "@/components/Common/Filter";
 import { Movie } from "@/lib/api/movies/movieInterface";
+import { ItemQueryField } from "@/hooks/useQueryResult";
 
 type BreadCrumbItem = {
   name: string;
@@ -86,21 +87,30 @@ export default function MoviesListClient({
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const addQuery = (key: string, value: string) => {
+  const addQuery = (params: ItemQueryField) => {
+    const { key, value } = params;
     const newFilters = { ...filters, [key]: value };
     setFilters(newFilters);
     setCurrentPage(1);
     
-    const params = new URLSearchParams(searchParams.toString());
-    params.set(key, value);
-    params.set("page", "1");
-    router.push(`/${type}/${slug}?${params.toString()}`, { scroll: false });
+    const urlParams = new URLSearchParams(searchParams.toString());
+    if (value) {
+      urlParams.set(key, value);
+    } else {
+      urlParams.delete(key);
+    }
+    urlParams.set("page", "1");
+    router.push(`/${type}/${slug}?${urlParams.toString()}`, { scroll: false });
     
     fetchData(1, newFilters);
   };
 
-  const getFilterValue = (key: string) => {
-    return filters[key] || searchParams.get(key) || "";
+  const getFilterValue = (key: string, filterType?: 'string' | 'array') => {
+    const value = filters[key] || searchParams.get(key) || "";
+    if (filterType === 'array' && value) {
+      return value.split(',');
+    }
+    return value;
   };
 
   const clearAll = () => {

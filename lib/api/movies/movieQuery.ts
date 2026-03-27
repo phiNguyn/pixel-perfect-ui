@@ -39,3 +39,18 @@ export const useQuerySearchMovie = <TData = unknown>(q: string) => {
     staleTime: 5 * 60 * 1000,
   });
 };
+
+export const useMovieRecommendations = (categorySlug: string) => {
+  return useQuery({
+    queryKey: ["recommendations", categorySlug],
+    enabled: !!categorySlug,
+    queryFn: async () => {
+      const res = await fetch(`https://ophim1.com/v1/api/the-loai/${categorySlug}?limit=12`);
+      if (!res.ok) throw new Error("Failed to fetch recommendations");
+      const data = await res.json();
+      return data?.data || { items: [] };
+    },
+    retry: false,
+    staleTime: 5 * 60 * 1000,
+  });
+};
