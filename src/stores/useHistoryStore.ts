@@ -1,5 +1,5 @@
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
 export interface WatchHistoryItem {
   slug: string;
@@ -11,7 +11,6 @@ export interface WatchHistoryItem {
   quality: string;
   currentEpSlug: string;
   currentEpName: string;
-  currentServerName: string;
   currentTime: number;
   duration: number;
   watchedAt: number; // timestamp
@@ -30,16 +29,17 @@ interface HistoryState {
   watchHistory: WatchHistoryItem[];
   searchHistory: SearchHistoryItem[];
   addWatchHistory: (item: WatchHistoryItem) => void;
-  updateWatchProgress: (slug: string, currentTime: number, duration: number) => void;
+  updateWatchProgress: (
+    slug: string,
+    currentTime: number,
+    duration: number,
+  ) => void;
   removeWatchHistory: (slug: string) => void;
   clearWatchHistory: () => void;
   addSearchHistory: (item: SearchHistoryItem) => void;
   removeSearchHistory: (slug: string) => void;
   clearSearchHistory: () => void;
 }
-
-// Read fresh store state synchronously — bypasses React stale closure issues
-export const getWatchHistory = () => useHistoryStore.getState().watchHistory;
 
 export const useHistoryStore = create<HistoryState>()(
   persist(
@@ -49,19 +49,22 @@ export const useHistoryStore = create<HistoryState>()(
 
       addWatchHistory: (item) =>
         set((state) => {
-          // One entry per movie — switching server updates in-place, preserves currentTime
-          const filtered = state.watchHistory.filter((h) => h.slug !== item.slug);
+          const filtered = state.watchHistory.filter(
+            (h) => h.slug !== item.slug,
+          );
           return { watchHistory: [item, ...filtered].slice(0, 50) };
         }),
 
       updateWatchProgress: (slug, currentTime, duration) =>
         set((state) => ({
           watchHistory: state.watchHistory.map((h) =>
-            h.slug === slug ? { ...h, currentTime, duration, watchedAt: Date.now() } : h
+            h.slug === slug
+              ? { ...h, currentTime, duration, watchedAt: Date.now() }
+              : h,
           ),
         })),
 
-      removeWatchHistory: (slug: string) =>
+      removeWatchHistory: (slug) =>
         set((state) => ({
           watchHistory: state.watchHistory.filter((h) => h.slug !== slug),
         })),
@@ -70,7 +73,9 @@ export const useHistoryStore = create<HistoryState>()(
 
       addSearchHistory: (item) =>
         set((state) => {
-          const filtered = state.searchHistory.filter((h) => h.slug !== item.slug);
+          const filtered = state.searchHistory.filter(
+            (h) => h.slug !== item.slug,
+          );
           return { searchHistory: [item, ...filtered].slice(0, 20) };
         }),
 
@@ -82,7 +87,7 @@ export const useHistoryStore = create<HistoryState>()(
       clearSearchHistory: () => set({ searchHistory: [] }),
     }),
     {
-      name: 'pinuss-flix-history',
-    }
-  )
+      name: "pinuss-flix-history",
+    },
+  ),
 );
