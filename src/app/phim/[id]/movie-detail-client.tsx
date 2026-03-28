@@ -12,9 +12,9 @@ import { useQueryMovie } from "@/lib/api/movies/movieQuery";
 import { Episode, IMovieDetail } from "@/lib/api/movies/movieInterface";
 import MoviePlayer from "@/components/Common/Player";
 import Cast from "@/components/features/Movies/Cast";
-import Comment from "@/components/features/Movies/Comment";
 import BreadCrumb from "@/components/Common/BreadCrumb";
 import { useHistoryStore } from "@/stores/useHistoryStore";
+import { toast } from "@/hooks/use-toast";
 
 const sampleComments = [
   { user: "khanhchi1", time: "3 ngày trước", text: "Phim hay quá, xem mãi không chán 😍", likes: 12 },
@@ -146,7 +146,17 @@ export default function MovieDetail({ movieDetail }: { movieDetail: IMovieDetail
                       <button className="p-2 rounded-full bg-secondary text-secondary-foreground hover:bg-muted transition-colors">
                         <Heart className="w-4 h-4" />
                       </button>
-                      <button className="p-2 rounded-full bg-secondary text-secondary-foreground hover:bg-muted transition-colors">
+                      <button
+                        onClick={() => {
+                          navigator.share({
+                            title: movie.name,
+                            text: movie.name,
+                            url: window.location.href,
+                          });
+                          toast({ title: "Đã sao chép link phim!" });
+                        }}
+                        className="p-2 rounded-full bg-secondary text-secondary-foreground hover:bg-muted transition-colors"
+                      >
                         <Share2 className="w-4 h-4" />
                       </button>
                       <button className="p-2 rounded-full bg-secondary text-secondary-foreground hover:bg-muted transition-colors">

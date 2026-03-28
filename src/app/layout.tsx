@@ -4,6 +4,7 @@ import SiteHeader from "@/components/layouts/SiteHeader";
 import SiteFooter from "@/components/layouts/SiteFooter";
 import "./globals.css";
 import { Providers } from "@/components/Providers";
+import { Toaster } from "@/components/ui/toaster";
 
 // Force dynamic rendering to prevent prerendering issues with /_not-found
 export const dynamic = "force-dynamic";
@@ -66,6 +67,7 @@ export default function RootLayout({
           <main className="flex-1">{children}</main>
           <SiteFooter />
         </Providers>
+        <Toaster />
         <Analytics />
       </body>
     </html>
