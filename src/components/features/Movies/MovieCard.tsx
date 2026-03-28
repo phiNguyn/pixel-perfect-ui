@@ -1,8 +1,11 @@
+"use client";
+
 import { Play, Star } from "lucide-react";
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { Movie } from "@/lib/api/movies/movieInterface";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 
 interface MovieCardProps {
   movie: Movie;
@@ -12,7 +15,7 @@ interface MovieCardProps {
 
 export default function MovieCard({ movie, rank, className }: MovieCardProps) {
   return (
-    <Link to={`/phim/${movie.slug}`}>
+    <Link href={`/phim/${movie.slug}`}>
       <motion.div
         whileHover={{ scale: 1.05 }}
         transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
@@ -24,7 +27,9 @@ export default function MovieCard({ movie, rank, className }: MovieCardProps) {
           </div>
         )}
         <div className="relative aspect-[2/3] rounded-lg overflow-hidden shadow-[var(--shadow-card)]">
-          <img
+          <Image
+            width={1920}
+            height={1080}
             src={`https://img.ophim.live/uploads/movies/${movie.thumb_url}?w=1920&q=75`}
             alt={movie.name}
             className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"

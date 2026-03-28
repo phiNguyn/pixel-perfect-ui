@@ -1,5 +1,5 @@
 import { categories } from "@/data/movies";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 
 export default function MoodSection() {
   return (
@@ -10,7 +10,7 @@ export default function MoodSection() {
         </h2>
         <div className="flex gap-3 overflow-x-auto scrollbar-hide">
           {categories.map((mood) => (
-            <Link to={`/danh-sach/${mood.key}`}
+            <Link href={`/danh-sach/${mood.key}`}
               key={mood.key}
               className={`bg-secondary/80 backdrop-blur-sm" px-5 py-2.5 rounded-full text-sm font-semibold whitespace-nowrap transition-all `}
             >

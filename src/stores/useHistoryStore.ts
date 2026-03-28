@@ -1,5 +1,5 @@
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
 export interface WatchHistoryItem {
   slug: string;
@@ -29,7 +29,11 @@ interface HistoryState {
   watchHistory: WatchHistoryItem[];
   searchHistory: SearchHistoryItem[];
   addWatchHistory: (item: WatchHistoryItem) => void;
-  updateWatchProgress: (slug: string, currentTime: number, duration: number) => void;
+  updateWatchProgress: (
+    slug: string,
+    currentTime: number,
+    duration: number,
+  ) => void;
   removeWatchHistory: (slug: string) => void;
   clearWatchHistory: () => void;
   addSearchHistory: (item: SearchHistoryItem) => void;
@@ -45,14 +49,18 @@ export const useHistoryStore = create<HistoryState>()(
 
       addWatchHistory: (item) =>
         set((state) => {
-          const filtered = state.watchHistory.filter((h) => h.slug !== item.slug);
+          const filtered = state.watchHistory.filter(
+            (h) => h.slug !== item.slug,
+          );
           return { watchHistory: [item, ...filtered].slice(0, 50) };
         }),
 
       updateWatchProgress: (slug, currentTime, duration) =>
         set((state) => ({
           watchHistory: state.watchHistory.map((h) =>
-            h.slug === slug ? { ...h, currentTime, duration, watchedAt: Date.now() } : h
+            h.slug === slug
+              ? { ...h, currentTime, duration, watchedAt: Date.now() }
+              : h,
           ),
         })),
 
@@ -65,7 +73,9 @@ export const useHistoryStore = create<HistoryState>()(
 
       addSearchHistory: (item) =>
         set((state) => {
-          const filtered = state.searchHistory.filter((h) => h.slug !== item.slug);
+          const filtered = state.searchHistory.filter(
+            (h) => h.slug !== item.slug,
+          );
           return { searchHistory: [item, ...filtered].slice(0, 20) };
         }),
 
@@ -77,7 +87,7 @@ export const useHistoryStore = create<HistoryState>()(
       clearSearchHistory: () => set({ searchHistory: [] }),
     }),
     {
-      name: 'pinuss-flix-history',
-    }
-  )
+      name: "pinuss-flix-history",
+    },
+  ),
 );

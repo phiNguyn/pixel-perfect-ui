@@ -1,6 +1,8 @@
+"use client";
+
 import { Movie } from '@/lib/api/movies/movieInterface'
 import { FC } from 'react'
-import { Link } from 'react-router-dom'
+import Link from 'next/link'
 import { useHistoryStore } from '@/stores/useHistoryStore'
 
 interface MovieCardSeachProps {
@@ -23,7 +25,7 @@ const MovieCardSeach: FC<MovieCardSeachProps> = ({ movie, onSelect }) => {
     };
 
     return (
-        <Link to={`/phim/${movie.slug}`} onClick={handleClick} className="flex items-center gap-3 group cursor-pointer">
+        <Link href={`/phim/${movie.slug}`} onClick={handleClick} className="flex items-center gap-3 group cursor-pointer">
             <img
                 src={`https://img.ophim.live/uploads/movies/${movie.thumb_url}`}
                 alt={movie.name}

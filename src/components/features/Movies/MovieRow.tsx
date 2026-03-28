@@ -1,8 +1,10 @@
+"use client";
+
 import { ChevronRight } from "lucide-react";
 import { useRef } from "react";
 import MovieCard from "./MovieCard";
 import { Movie } from "@/lib/api/movies/movieInterface";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { SkeletonCard } from "./Skeletons/SkeletonCard";
 
 interface MovieRowProps {
@@ -30,7 +32,7 @@ export default function MovieRow({ title, movies, showRank, type_list, type = 'q
         <div className="max-w-[1400px] mx-auto px-4">
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-lg font-semibold text-foreground tracking-tight">{title}</h2>
-            <Link to={`/${type}/${type_list}`} className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors font-medium">
+            <Link href={`/${type}/${type_list}`} className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors font-medium">
               Xem thêm <ChevronRight className="w-3.5 h-3.5" />
             </Link>
           </div>

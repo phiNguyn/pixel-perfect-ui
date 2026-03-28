@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useParams, Link, useSearchParams } from "react-router-dom";
+"use client";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { Play, Heart, Share2, BookmarkPlus, Star, Loader } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -11,10 +12,9 @@ import { useQueryMovie } from "@/lib/api/movies/movieQuery";
 import { Episode, IMovieDetail } from "@/lib/api/movies/movieInterface";
 import MoviePlayer from "@/components/Common/Player";
 import Cast from "@/components/features/Movies/Cast";
-import Comment from "@/components/features/Movies/Comment";
-import { Helmet } from "react-helmet-async";
 import BreadCrumb from "@/components/Common/BreadCrumb";
 import { useHistoryStore } from "@/stores/useHistoryStore";
+import { toast } from "@/hooks/use-toast";
 
 const sampleComments = [
   { user: "khanhchi1", time: "3 ngày trước", text: "Phim hay quá, xem mãi không chán 😍", likes: 12 },
@@ -27,16 +27,15 @@ const sampleComments = [
   { user: "my", time: "2 tháng trước", text: "Coi là bị lọt 'hole' luôn!", likes: 31 },
 ];
 
-export default function MovieDetail() {
+export default function MovieDetail({ movieDetail }: { movieDetail: IMovieDetail }) {
   const { id } = useParams();
 
-  const { data: rawData, isLoading } = useQueryMovie(id);
+  const { data: rawData, isLoading } = useQueryMovie(id as string);
   const movieData = rawData as any;
   const movie = movieData?.data?.item as IMovieDetail;
-  const seoOnPage = movieData?.data?.seoOnPage;
-  const [searchParams, setSearchParams] = useSearchParams();
-
-  const { data: rawCast, isLoading: castLoading } = useQueryMovie(id, '/peoples');
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const { data: rawCast, isLoading: castLoading } = useQueryMovie(id as string, '/peoples');
   const castData = rawCast as any;
   const peoples = castData?.data?.peoples ?? [];
   const profile_sizes = castData?.data?.profile_sizes ?? [];
@@ -67,8 +66,9 @@ export default function MovieDetail() {
 
   const handleSelectEp = (ep: Episode) => {
     setSelectedEp(ep);
-    setSearchParams({ ep: ep.slug });
-
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('ep', ep.slug ?? '');
+    router.push(`/phim/${id}?${params.toString()}`);
     // Save to watch history
     if (movie) {
       addWatchHistory({
@@ -101,11 +101,11 @@ export default function MovieDetail() {
 
   useEffect(() => {
     if (!movie || !selectedServer) return;
-    const epSlug = searchParams.get("ep");
+    const epSlug = searchParams?.get("ep") ?? '';
     if (!epSlug) return;
     const ep = selectedServer.server_data.find((e: Episode) => e.slug === epSlug);
     if (ep) setSelectedEp(ep);
-  }, [movie, selectedServer, searchParams]);
+  }, [movie, selectedServer, searchParams?.get("ep")]);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -116,56 +116,6 @@ export default function MovieDetail() {
 
   return (
     <>
-      <Helmet>
-        {/* ===== TITLE ===== */}
-        <title>{seoOnPage?.titleHead || `${movie.name} - Pinuss Flix`}</title>
-
-        {/* ===== BASIC SEO ===== */}
-        <meta
-          name="description"
-          content={seoOnPage?.descriptionHead || movie?.content?.slice(0, 160)}
-        />
-        <meta name="robots" content="index, follow" />
-
-        {/* ===== CANONICAL ===== */}
-        <link
-          rel="canonical"
-          href={`https://pinuss-flix.vercel.app/phim/${movie.slug}`}
-        />
-
-        {/* ===== OPEN GRAPH ===== */}
-        <meta property="og:type" content="video.movie" />
-        <meta property="og:title" content={seoOnPage?.titleHead || movie.name} />
-        <meta
-          property="og:description"
-          content={seoOnPage?.descriptionHead}
-        />
-        <meta
-          property="og:image"
-          content={`https://img.ophim.live/uploads/movies/${movie?.poster_url ?? movie.thumb_url}`}
-        />
-        <meta
-          property="og:url"
-          content={`https://pinuss-flix.vercel.app/phim/${movie.slug}`}
-        />
-        <meta property="og:site_name" content="Pinuss Flix" />
-
-        {/* ===== TWITTER ===== */}
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={movie.name} />
-        <meta name="twitter:description" content={seoOnPage?.descriptionHead} />
-        <meta
-          name="twitter:image"
-          content={`https://img.ophim.live/uploads/movies/${movie?.poster_url ?? movie.thumb_url}`}
-        />
-
-        {/* ===== SCHEMA ===== */}
-        {seoOnPage?.seoSchema && (
-          <script type="application/ld+json">
-            {JSON.stringify(seoOnPage.seoSchema)}
-          </script>
-        )}
-      </Helmet>
       <div className="py-2 px-4 max-w-[1400px] mx-auto"><BreadCrumb breadCrumb={breadCrumb} /></div>
       <div className="my-4">
         {/* Hero backdrop */}
@@ -196,7 +146,17 @@ export default function MovieDetail() {
                       <button className="p-2 rounded-full bg-secondary text-secondary-foreground hover:bg-muted transition-colors">
                         <Heart className="w-4 h-4" />
                       </button>
-                      <button className="p-2 rounded-full bg-secondary text-secondary-foreground hover:bg-muted transition-colors">
+                      <button
+                        onClick={() => {
+                          navigator.share({
+                            title: movie.name,
+                            text: movie.name,
+                            url: window.location.href,
+                          });
+                          toast({ title: "Đã sao chép link phim!" });
+                        }}
+                        className="p-2 rounded-full bg-secondary text-secondary-foreground hover:bg-muted transition-colors"
+                      >
                         <Share2 className="w-4 h-4" />
                       </button>
                       <button className="p-2 rounded-full bg-secondary text-secondary-foreground hover:bg-muted transition-colors">
@@ -325,7 +285,7 @@ export default function MovieDetail() {
                     </div>
                   </div>
                 </div>
-                <Comment sampleComments={sampleComments} />
+                {/* <Comment sampleComments={sampleComments} /> */}
               </div>
             </div>
 

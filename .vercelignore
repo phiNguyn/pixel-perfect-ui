@@ -1,0 +1,13 @@
+node_modules
+.env
+.env.local
+.env.*.local
+dist
+build
+.next
+vite.config.ts
+vitest.config.ts
+playwright.config.ts
+src/test
+src/App.css
+src/index.css
