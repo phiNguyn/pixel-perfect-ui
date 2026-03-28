@@ -1,8 +1,8 @@
 import { useHistoryStore } from '@/stores/useHistoryStore';
 import { X, Clock, Trash2, SearchX } from 'lucide-react';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import Empty from '@/components/Common/Empty';
-import Link from 'next/link';
 import Image from 'next/image';
 
 interface SearchHistoryListProps {

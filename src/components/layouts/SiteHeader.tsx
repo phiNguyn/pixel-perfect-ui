@@ -222,7 +222,7 @@ export default function SiteHeader() {
 
             {/* Mobile Search Results */}
             {mobileSearch ? (
-              <div className="flex flex-col gap-3 max-h-[320px] overflow-y-auto bg-secondary/50 rounded-lg p-3">
+              <div className="flex flex-col gap-3">
                 {mobileSearchLoading || mobileSearchFetching ? (
                   <div className="flex w-full max-w-xs flex-col gap-2">
                     <Skeleton className="h-4 w-full" />

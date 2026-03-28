@@ -33,7 +33,6 @@ export default function MovieDetail({ movieDetail }: { movieDetail: IMovieDetail
   const { data: rawData, isLoading } = useQueryMovie(id as string);
   const movieData = rawData as any;
   const movie = movieData?.data?.item as IMovieDetail;
-  const seoOnPage = movieData?.data?.seoOnPage;
   const searchParams = useSearchParams();
   const router = useRouter();
   const { data: rawCast, isLoading: castLoading } = useQueryMovie(id as string, '/peoples');
