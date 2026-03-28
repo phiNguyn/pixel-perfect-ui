@@ -583,8 +583,6 @@ function MovieDetailContent({ movie }: MovieDetailClientProps) {
             </div>
           </motion.div>
         )}
-          </div>
-        </div>
       </div>
     </div>
   );
