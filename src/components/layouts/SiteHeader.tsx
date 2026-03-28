@@ -1,7 +1,9 @@
+"use client";
 import { Search, Bell, User, Menu, Loader, XIcon, ChevronDown } from "lucide-react";
 import { useState } from "react";
 import { useQueryCategories } from "@/lib/api/categories/categorieQuery";
-import { Link, useParams } from "react-router-dom";
+import Link from "next/link";
+import { useParams } from "next/navigation";
 import { useQueryMovies, useQuerySearchMovie } from "@/lib/api/movies/movieQuery";
 import useDebounce from "@/hooks/useDebounce";
 import { Skeleton } from "../ui/skeleton";
@@ -73,7 +75,7 @@ export default function SiteHeader() {
                       {items?.filter((cat) => cat.slug !== 'phim-18').map((cat) => (
                         <DropdownMenuItem key={cat._id} asChild>
                           <Link
-                            to={`/the-loai/${cat.slug}`}
+                            href={`/the-loai/${cat.slug}`}
                             className={`cursor-pointer text-xs px-2 py-1.5 rounded text-center ${cat.slug === slug ? "bg-primary text-accent-foreground" : "hover:bg-primary"}`}
                           >
                             {cat.name}
@@ -106,7 +108,7 @@ export default function SiteHeader() {
                       {countries?.data?.items?.map((c: Country) => (
                         <DropdownMenuItem key={c.slug} asChild >
                           <Link
-                            to={`/quoc-gia/${c.slug}`}
+                            href={`/quoc-gia/${c.slug}`}
                             className={`cursor-pointer text-xs px-2 py-1.5 rounded text-center ${c.slug === slug ? "bg-accent text-accent-foreground" : "hover:bg-accent"}`}
                           >
                             {c.name}
@@ -193,7 +195,7 @@ export default function SiteHeader() {
               <Link onClick={() => {
                 setMobileMenuOpen(false);
                 setMobileSearch('');
-              }} to={'/'} className="flex items-center gap-2">
+              }} href={'/'} className="flex items-center gap-2">
                 <Avatar className="size-8 mb-1.5">
                   <AvatarImage src={`https://api-sandbox.vnhub.com/resource/2026/02/27/1772203272485-1000003143.png`} className="object-cover" />
                   <AvatarFallback className="bg-muted text-muted-foreground text-xs">PF</AvatarFallback>
@@ -269,7 +271,7 @@ export default function SiteHeader() {
                 ) : (
                   items?.filter((cat) => cat.slug !== 'phim-18').map((cat) => (
                     <Link
-                      to={`/the-loai/${cat.slug}`}
+                      href={`/the-loai/${cat.slug}`}
                       key={cat._id}
                       onClick={() => setMobileMenuOpen(false)}
                       className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors 
@@ -294,7 +296,7 @@ export default function SiteHeader() {
                 ) : (
                   countries?.data?.items?.map((c) => (
                     <Link
-                      to={`/quoc-gia/${c.slug}`}
+                      href={`/quoc-gia/${c.slug}`}
                       key={c.slug}
                       onClick={() => setMobileMenuOpen(false)}
                       className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors 

@@ -1,12 +1,3 @@
-import movie1 from "@/assets/movie1.jpg";
-import movie2 from "@/assets/movie2.jpg";
-import movie3 from "@/assets/movie3.jpg";
-import movie4 from "@/assets/movie4.jpg";
-import movie5 from "@/assets/movie5.jpg";
-import movie6 from "@/assets/movie6.jpg";
-import movie7 from "@/assets/movie7.jpg";
-import movie8 from "@/assets/movie8.jpg";
-
 export interface Movie {
   id: number;
   title: string;
@@ -18,15 +9,16 @@ export interface Movie {
   country: string;
 }
 
+// Use placeholder images since we're not using static imports in Next.js
 const allPosters = [
-  movie1,
-  movie2,
-  movie3,
-  movie4,
-  movie5,
-  movie6,
-  movie7,
-  movie8,
+  "/images/movie1.jpg",
+  "/images/movie2.jpg",
+  "/images/movie3.jpg",
+  "/images/movie4.jpg",
+  "/images/movie5.jpg",
+  "/images/movie6.jpg",
+  "/images/movie7.jpg",
+  "/images/movie8.jpg",
 ];
 
 function poster(i: number) {
@@ -420,6 +412,7 @@ export const moods = [
   { label: "Cần động lực", color: "primary" as const },
   { label: "Vui nhộn", color: "secondary" as const },
 ];
+
 export const categories = [
   { key: "phim-moi", label: "Phim mới" },
   { key: "phim-bo", label: "Phim bộ" },

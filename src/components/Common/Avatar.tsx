@@ -1,10 +1,10 @@
-import { Link } from 'react-router-dom'
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
+import Link from 'next/link'
 
 const AvatarComponent = () => {
     return (
         <div className="flex items-center gap-3">
-            <Link to={'/'} className="flex items-center gap-2">
+            <Link href={'/'} className="flex items-center gap-2">
                 <Avatar>
                     <AvatarImage src={`https://api-sandbox.vnhub.com/resource/2026/02/27/1772203272485-1000003143.png`} className="object-cover" />
                     <AvatarFallback className="bg-muted text-muted-foreground text-xs">PF</AvatarFallback>

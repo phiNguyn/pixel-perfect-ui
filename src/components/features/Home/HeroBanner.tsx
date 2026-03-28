@@ -1,6 +1,9 @@
+"use client";
+
 import { Play, Plus, Star } from "lucide-react";
 import { motion } from "framer-motion";
-import heroBanner from "@/assets/hero-banner.jpg";
+
+const heroBanner = "/images/hero-banner.jpg";
 
 export default function HeroBanner() {
   return (

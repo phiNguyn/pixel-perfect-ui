@@ -1,14 +1,14 @@
-import { Link } from "react-router-dom"
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "../ui/breadcrumb"
+import Link from "next/link"
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb"
 
-const BreadCrumb = ({ breadCrumb }) => {
+const BreadCrumb = ({ breadCrumb }: { breadCrumb?: Array<{ position: number; name: string; slug?: string; isCurrent: boolean }> }) => {
     return (
         !!breadCrumb?.length && (
             <Breadcrumb className="mt-3">
                 <BreadcrumbList>
                     <BreadcrumbItem>
                         <BreadcrumbLink asChild>
-                            <Link to={'/'}>Trang chủ</Link>
+                            <Link href={'/'}>Trang chủ</Link>
                         </BreadcrumbLink>
                     </BreadcrumbItem>
                     <BreadcrumbSeparator />
@@ -22,7 +22,7 @@ const BreadCrumb = ({ breadCrumb }) => {
                                         <BreadcrumbPage>{item.name}</BreadcrumbPage>
                                     ) : (
                                         <BreadcrumbLink asChild>
-                                            <Link to={item.slug}>{item.name}</Link>
+                                            <Link href={item.slug}>{item.name}</Link>
                                         </BreadcrumbLink>
                                     )}
                                 </BreadcrumbItem>

@@ -11,6 +11,7 @@ export interface WatchHistoryItem {
   quality: string;
   currentEpSlug: string;
   currentEpName: string;
+  currentServerName: string;
   currentTime: number;
   duration: number;
   watchedAt: number; // timestamp
@@ -37,6 +38,9 @@ interface HistoryState {
   clearSearchHistory: () => void;
 }
 
+// Read fresh store state synchronously — bypasses React stale closure issues
+export const getWatchHistory = () => useHistoryStore.getState().watchHistory;
+
 export const useHistoryStore = create<HistoryState>()(
   persist(
     (set) => ({
@@ -45,6 +49,7 @@ export const useHistoryStore = create<HistoryState>()(
 
       addWatchHistory: (item) =>
         set((state) => {
+          // One entry per movie — switching server updates in-place, preserves currentTime
           const filtered = state.watchHistory.filter((h) => h.slug !== item.slug);
           return { watchHistory: [item, ...filtered].slice(0, 50) };
         }),
@@ -56,7 +61,7 @@ export const useHistoryStore = create<HistoryState>()(
           ),
         })),
 
-      removeWatchHistory: (slug) =>
+      removeWatchHistory: (slug: string) =>
         set((state) => ({
           watchHistory: state.watchHistory.filter((h) => h.slug !== slug),
         })),

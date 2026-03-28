@@ -1,6 +1,8 @@
+"use client";
+
 import { useHistoryStore, WatchHistoryItem } from '@/stores/useHistoryStore';
 import { X, Play, Clock, History } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
@@ -87,7 +89,7 @@ function WatchHistoryCard({ item, onRemove }: { item: WatchHistoryItem; onRemove
         <X className="w-3 h-3" />
       </Button>
 
-      <Link to={`/phim/${item.slug}?ep=${item.currentEpSlug}`}>
+      <Link href={`/phim/${item.slug}?ep=${item.currentEpSlug}`}>
         <div className="relative aspect-[2/3] rounded-lg overflow-hidden shadow-[var(--shadow-card)]">
           <img
             src={`https://img.ophim.live/uploads/movies/${item.thumb_url}?w=1920&q=75`}

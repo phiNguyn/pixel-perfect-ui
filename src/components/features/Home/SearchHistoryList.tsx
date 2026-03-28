@@ -1,8 +1,9 @@
 import { useHistoryStore } from '@/stores/useHistoryStore';
 import { X, Clock, Trash2, SearchX } from 'lucide-react';
-import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import Empty from '@/components/Common/Empty';
+import Link from 'next/link';
+import Image from 'next/image';
 
 interface SearchHistoryListProps {
   onSelect?: () => void;
@@ -48,11 +49,13 @@ export default function SearchHistoryList({ onSelect }: SearchHistoryListProps) 
       {searchHistory.map((item) => (
         <div key={item.slug} className="flex items-center gap-2 group">
           <Link
-            to={`/phim/${item.slug}`}
+            href={`/phim/${item.slug}`}
             onClick={onSelect}
             className="flex items-center gap-2 flex-1 p-1.5 rounded-md hover:bg-muted/50 transition-colors"
           >
-            <img
+            <Image
+              width={1920}
+              height={1080}
               src={`https://img.ophim.live/uploads/movies/${item.thumb_url}`}
               alt={item.name}
               className="w-8 h-11 rounded object-cover flex-shrink-0"
