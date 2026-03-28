@@ -76,5 +76,5 @@ export default async function MovieDetailPage({ params }: Props) {
   // Fetch initial data on server for better performance
   const movieData = await fetchMovieDetail(id);
 
-  return <MovieDetailClient movie={movieData.data.item} />;
+  return <MovieDetailClient movieDetail={movieData.data.item} />;
 }

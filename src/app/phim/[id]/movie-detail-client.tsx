@@ -27,7 +27,7 @@ const sampleComments = [
   { user: "my", time: "2 tháng trước", text: "Coi là bị lọt 'hole' luôn!", likes: 31 },
 ];
 
-export default function MovieDetail() {
+export default function MovieDetail({ movieDetail }: { movieDetail: IMovieDetail }) {
   const { id } = useParams();
 
   const { data: rawData, isLoading } = useQueryMovie(id as string);
