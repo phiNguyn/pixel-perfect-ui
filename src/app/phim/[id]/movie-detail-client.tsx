@@ -265,11 +265,12 @@ function MovieDetailContent({ movie }: MovieDetailClientProps) {
       <div className="container mx-auto px-4 -mt-[30vh] relative z-10">
         <BreadCrumb breadCrumb={breadCrumb} />
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mt-6 items-start">
-          {/* Cột trái: poster + thông tin (~70%) */}
-          <div className="lg:col-span-8 xl:col-span-9 space-y-6">
+        {/* Content - Full Width (no sidebar) */}
+        <div className="mt-6 space-y-8">
+          {/* Movie Poster + Info */}
+          <div className="space-y-6">
             <div className="flex flex-col sm:flex-row gap-6 sm:gap-8">
-              {/* Poster — nhỏ gọn hơn trên desktop */}
+              {/* Poster */}
               <div className="shrink-0 w-full max-w-[200px] sm:max-w-[220px] mx-auto sm:mx-0">
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
@@ -444,21 +445,6 @@ function MovieDetailContent({ movie }: MovieDetailClientProps) {
               </div>
             </div>
           </div>
-
-          {/* Cột phải: danh sách đề xuất dọc */}
-          <div className="lg:col-span-4 xl:col-span-3">
-            <MovieRecommendationsSidebar
-              movies={recommendations?.items?.filter((m) => m.slug !== movie.slug) || []}
-              loading={isLoadingRecommendations}
-              type="the-loai"
-              typeList={movie?.category?.[0]?.slug || "hanh-dong"}
-            />
-          </div>
-        </div>
-
-        {/* Player + Episodes + Cast/Comments — full width cột trái */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          <div className="lg:col-span-12 xl:col-span-12 space-y-8">
         {selectedEpisode && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -473,6 +459,135 @@ function MovieDetailContent({ movie }: MovieDetailClientProps) {
             />
           </motion.div>
         )}
+
+        {/* Episodes Section */}
+        {movie.episodes && movie.episodes.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-8"
+          >
+            <Tabs defaultValue={movie.episodes[0]?.server_name} className="w-full">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-semibold">Danh sách tập</h2>
+                <TabsList className="bg-muted/50">
+                  {movie.episodes?.map((server) => (
+                    <TabsTrigger
+                      key={server.server_name}
+                      value={server.server_name}
+                      onClick={() => setSelectedServer(server)}
+                    >
+                      {server.server_name}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+              </div>
+
+              {movie.episodes?.map((server) => (
+                <TabsContent key={server.server_name} value={server.server_name} className="mt-0">
+                  <ScrollArea className="w-full rounded-lg border border-border/50 p-4">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2">
+                      <AnimatePresence>
+                        {server.server_data?.map((episode, idx) => (
+                          <motion.button
+                            key={episode.slug}
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.8 }}
+                            transition={{ delay: idx * 0.02 }}
+                            onClick={() => handleEpisodeSelect(episode)}
+                            className={`py-2 px-3 rounded-lg text-sm font-medium transition-all ${
+                              selectedEpisode?.slug === episode.slug
+                                ? "bg-primary text-primary-foreground"
+                                : "bg-muted hover:bg-muted/80 text-foreground"
+                            }`}
+                          >
+                            {episode.name}
+                          </motion.button>
+                        ))}
+                      </AnimatePresence>
+                    </div>
+                  </ScrollArea>
+                </TabsContent>
+              ))}
+            </Tabs>
+          </motion.div>
+        )}
+
+        {/* Cast & Comments Tabs */}
+        {(movie?.actor?.length > 0 || true) && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-8"
+          >
+            <Tabs defaultValue="cast" className="w-full">
+              <TabsList className="bg-muted/50">
+                {movie?.actor?.length > 0 && <TabsTrigger value="cast">Diễn viên</TabsTrigger>}
+                <TabsTrigger value="comments">Bình luận</TabsTrigger>
+              </TabsList>
+
+              {movie?.actor?.length > 0 && (
+                <TabsContent value="cast" className="mt-6">
+                  <Cast actors={movie.actor} />
+                </TabsContent>
+              )}
+
+              <TabsContent value="comments" className="mt-6">
+                <Comment />
+              </TabsContent>
+            </Tabs>
+          </motion.div>
+        )}
+
+        {/* Recommendations Section - Below everything */}
+        {recommendations?.items && recommendations.items.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-12"
+          >
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-semibold">Phim đề xuất</h2>
+              <Link
+                href={`/the-loai/${movie?.category?.[0]?.slug || "hanh-dong"}`}
+                className="text-sm text-primary hover:underline"
+              >
+                Xem thêm →
+              </Link>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+              {recommendations.items
+                .filter((m) => m.slug !== movie.slug)
+                .slice(0, 10)
+                .map((m) => (
+                  <Link key={m._id} href={`/phim/${m.slug}`} className="group">
+                    <div className="relative aspect-[2/3] rounded-lg overflow-hidden bg-muted mb-2">
+                      <img
+                        src={`${movieThumbSrc(m)}?w=300&q=75`}
+                        alt={m.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                        loading="lazy"
+                      />
+                      {m.quality && (
+                        <Badge className="absolute top-2 left-2 bg-primary text-primary-foreground text-xs">
+                          {m.quality}
+                        </Badge>
+                      )}
+                    </div>
+                    <p className="text-sm font-medium text-foreground line-clamp-2 group-hover:text-primary transition-colors">
+                      {m.name}
+                    </p>
+                  </Link>
+                ))}
+            </div>
+          </motion.div>
+        )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 
         {/* Episodes Section */}
         {movie.episodes && movie.episodes.length > 0 && (
