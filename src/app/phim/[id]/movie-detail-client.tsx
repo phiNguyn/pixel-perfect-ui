@@ -14,7 +14,7 @@ import MoviePlayer from "@/components/Common/Player";
 import Cast from "@/components/features/Movies/Cast";
 import BreadCrumb from "@/components/Common/BreadCrumb";
 import { useHistoryStore } from "@/stores/useHistoryStore";
-import { toast } from "@/hooks/use-toast";
+import MovieImage from "@/components/features/Movies/MovieImage";
 
 const sampleComments = [
   { user: "khanhchi1", time: "3 ngày trước", text: "Phim hay quá, xem mãi không chán 😍", likes: 12 },
@@ -27,7 +27,7 @@ const sampleComments = [
   { user: "my", time: "2 tháng trước", text: "Coi là bị lọt 'hole' luôn!", likes: 31 },
 ];
 
-export default function MovieDetail({ movieDetail }: { movieDetail: IMovieDetail }) {
+export default function MovieDetail() {
   const { id } = useParams();
 
   const { data: rawData, isLoading } = useQueryMovie(id as string);
@@ -138,11 +138,7 @@ export default function MovieDetail({ movieDetail }: { movieDetail: IMovieDetail
               {/* Movie header */}
               <div className="flex mt-28 md:mt-0 flex-col md:flex-row gap-3 md:gap-5 mb-6">
                 <div className="w-100 flex items-center justify-center">
-                  <img
-                    src={`https://img.ophim.live/uploads/movies/${movie.thumb_url}`}
-                    alt={movie.name}
-                    className="w-[120px] md:w-[150px] aspect-[2/3] rounded-lg object-cover shadow-[var(--shadow-card)] flex-shrink-0"
-                  />
+                  <div className="w-[120px] md:w-[150px] aspect-[2/3] rounded-lg overflow-hidden shadow-[var(--shadow-card)] flex-shrink-0"><MovieImage movie={movie} /></div>
                 </div>
                 <div className="flex flex-col justify-end">
                   <div className="flex items-center gap-3 mb-3 flex-wrap">
@@ -160,7 +156,6 @@ export default function MovieDetail({ movieDetail }: { movieDetail: IMovieDetail
                             text: movie.name,
                             url: window.location.href,
                           });
-                          toast({ title: "Đã sao chép link phim!" });
                         }}
                         className="p-2 rounded-full bg-secondary text-secondary-foreground hover:bg-muted transition-colors"
                       >

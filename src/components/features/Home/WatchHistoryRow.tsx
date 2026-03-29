@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import MovieImage from '../Movies/MovieImage';
 
 function formatTimeAgo(timestamp: number) {
   const diff = Date.now() - timestamp;
@@ -91,11 +92,8 @@ function WatchHistoryCard({ item, onRemove }: { item: WatchHistoryItem; onRemove
 
       <Link href={`/phim/${item.slug}?ep=${item.currentEpSlug}`}>
         <div className="relative aspect-[2/3] rounded-lg overflow-hidden shadow-[var(--shadow-card)]">
-          <img
-            src={`https://img.ophim.live/uploads/movies/${item.thumb_url}?w=1920&q=75`}
-            alt={item.name}
-            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
-            loading="lazy"
+          <MovieImage
+            movie={item}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-transparent to-transparent" />
 
