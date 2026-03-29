@@ -1,11 +1,10 @@
 import type { Metadata, Viewport } from "next";
-import { Analytics } from "@vercel/analytics/react";
 import SiteHeader from "@/components/layouts/SiteHeader";
 import SiteFooter from "@/components/layouts/SiteFooter";
 import "./globals.css";
 import { Providers } from "@/components/Providers";
 import { Toaster } from "@/components/ui/toaster";
-
+import { Analytics } from '@vercel/analytics/next';
 // Force dynamic rendering to prevent prerendering issues with /_not-found
 export const dynamic = "force-dynamic";
 
@@ -61,6 +60,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="vi" suppressHydrationWarning>
+
       <body className="min-h-screen bg-background flex flex-col antialiased">
         <Providers>
           <SiteHeader />
