@@ -27,7 +27,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "../ui/button";
 import Empty from "../Common/Empty";
-
+import fallback from "@/assets/fallback.png";
 export default function SiteHeader() {
   const { slug } = useParams()
   const [searchOpen, setSearchOpen] = useState(false);
@@ -189,7 +189,7 @@ export default function SiteHeader() {
 
       {/* Mobile Menu */}
       <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen} >
-        <SheetContent side="right" className="w-full sm:w-[350px] p-0 ">
+        <SheetContent side="right" className="w-full sm:w-[350px] p-0">
           <SheetHeader className="border-b border-border/50 p-4">
             <div className="flex items-center justify-between">
               <Link onClick={() => {
@@ -197,7 +197,7 @@ export default function SiteHeader() {
                 setMobileSearch('');
               }} href={'/'} className="flex items-center gap-2">
                 <Avatar className="size-8 mb-1.5">
-                  <AvatarImage src={`https://api-sandbox.vnhub.com/resource/2026/02/27/1772203272485-1000003143.png`} className="object-cover" />
+                  <AvatarImage src={fallback.src} className="object-cover" />
                   <AvatarFallback className="bg-muted text-muted-foreground text-xs">PF</AvatarFallback>
                 </Avatar>
                 <SheetTitle className="text-foreground font-bold text-lg tracking-tight">

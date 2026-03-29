@@ -137,7 +137,7 @@ export default function MoviesListClient({
 
       <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6 items-stretch">
         {isLoading ? (
-          <SkeletonCard className="w-full h-[320px]" count={24} />
+          <SkeletonCard className="!w-full h-[320px] w" count={24} />
         ) : items.length > 0 ? (
           items.map((item) => (
             <MovieCard movie={item} key={item._id} className="!w-full" />

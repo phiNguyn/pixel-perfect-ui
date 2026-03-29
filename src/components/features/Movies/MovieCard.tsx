@@ -12,7 +12,8 @@ interface MovieCardProps {
   rank?: number;
   className?: string
 }
-
+import fallback from "@/assets/fallback.png";
+import MovieImage from "./MovieImage";
 export default function MovieCard({ movie, rank, className }: MovieCardProps) {
   return (
     <Link href={`/phim/${movie.slug}`}>
@@ -27,13 +28,8 @@ export default function MovieCard({ movie, rank, className }: MovieCardProps) {
           </div>
         )}
         <div className="relative aspect-[2/3] rounded-lg overflow-hidden shadow-[var(--shadow-card)]">
-          <Image
-            width={1920}
-            height={1080}
-            src={`https://img.ophim.live/uploads/movies/${movie.thumb_url}?w=1920&q=75`}
-            alt={movie.name}
-            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
-            loading="lazy"
+          <MovieImage
+            movie={movie}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
           <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
