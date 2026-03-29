@@ -50,7 +50,7 @@ export default function MovieRow({ title, movies, showRank, type_list, type = 'q
             ref={scrollRef}
             className="flex gap-3 overflow-x-auto scrollbar-hide pb-2"
           >
-            {loading ? <SkeletonCard count={5} className="h-[300px]" /> :
+            {loading ? <SkeletonCard count={5} className="h-[300px] !w-full" /> :
               movies?.map((movie, i) => (
                 <MovieCard key={movie._id} movie={movie} rank={showRank ? i + 1 : undefined} />
               ))

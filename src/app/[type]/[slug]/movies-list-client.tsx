@@ -140,7 +140,7 @@ export default function MoviesListClient({
           <SkeletonCard className="w-full h-[320px]" count={24} />
         ) : items.length > 0 ? (
           items.map((item) => (
-            <MovieCard movie={item} key={item._id} className="w-full" />
+            <MovieCard movie={item} key={item._id} className="!w-full" />
           ))
         ) : (
           <div className="col-span-full text-center py-12 text-muted-foreground">
