@@ -146,7 +146,7 @@ export default function SiteHeader() {
                         </div>
                       ) : searchMovie?.data?.items?.length > 0 ? (
                         <div className="flex flex-col gap-3">
-                          {searchMovie.data.items.map(item => (
+                          {searchMovie.data.items.filter(item => !item.category.some(cat => cat.slug === "phim-18")).map(item => (
                             <MovieCardSeach movie={item} key={item._id} onSelect={() => { setSearch(''); setSearchOpen(false); }} />
                           ))}
                         </div>
@@ -234,7 +234,7 @@ export default function SiteHeader() {
                     setMobileSearch('')
                     setMobileMenuOpen(false)
                   }}>
-                    {mobileSearchMovie.data.items.map(item => (
+                    {mobileSearchMovie.data.items.filter(item => !item.category.some(cat => cat.slug === "phim-18")).map(item => (
                       <MovieCardSeach movie={item} key={item.slug} onSelect={() => { setMobileSearch(''); setMobileMenuOpen(false); }} />
                     ))}
                   </div>

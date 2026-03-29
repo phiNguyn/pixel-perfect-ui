@@ -54,11 +54,13 @@ export function PaginationBase({
         <Pagination >
             <PaginationContent className="gap-4 cursor-pointer flex-wrap">
 
-                <PaginationItem >
-                    <PaginationPrevious
-                        onClick={() => onChange?.(current - 1)}
-                    />
-                </PaginationItem>
+                {current > 1 && (
+                    <PaginationItem >
+                        <PaginationPrevious
+                            onClick={() => onChange?.(current - 1)}
+                        />
+                    </PaginationItem>
+                )}
 
                 {pages.map((page, index) =>
                     page === "ellipsis" ? (
@@ -77,11 +79,13 @@ export function PaginationBase({
                     )
                 )}
 
-                <PaginationItem>
-                    <PaginationNext
-                        onClick={() => onChange?.(current + 1)}
-                    />
-                </PaginationItem>
+                {current < totalPage && (
+                    <PaginationItem>
+                        <PaginationNext
+                            onClick={() => onChange?.(current + 1)}
+                        />
+                    </PaginationItem>
+                )}
 
             </PaginationContent>
         </Pagination>

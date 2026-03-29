@@ -52,7 +52,7 @@ export default function MoviesListClient({
   // Redirect if trying to access restricted content
   useEffect(() => {
     if (slug === "phim-18") {
-      router.push("/");
+      router.back();
     }
   }, [slug, router]);
 
@@ -124,7 +124,7 @@ export default function MoviesListClient({
   const { pagination } = params ?? {};
 
   return (
-    <div className="px-4 my-0 mx-auto max-w-[1400px] py-6">
+    <div className="px-8 my-0 mx-auto  py-6">
       <BreadCrumb breadCrumb={breadCrumb} />
 
       <div className="w-full flex justify-end mt-4">
@@ -135,7 +135,7 @@ export default function MoviesListClient({
         />
       </div>
 
-      <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6 items-stretch">
+      <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-8 gap-6 items-stretch">
         {isLoading ? (
           <SkeletonCard className="!w-full h-[320px] w" count={24} />
         ) : items.length > 0 ? (

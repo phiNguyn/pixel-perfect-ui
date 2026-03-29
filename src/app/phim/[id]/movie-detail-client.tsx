@@ -88,6 +88,13 @@ export default function MovieDetail({ movieDetail }: { movieDetail: IMovieDetail
     }
   };
 
+  // Redirect back if movie is 18+
+  useEffect(() => {
+    if (movie?.category.some(item => item.slug === "phim-18")) {
+      router.back();
+    }
+  }, [movie, router]);
+
   // Listen for time updates from the player
   useEffect(() => {
     const handleTimeUpdate = (e: CustomEvent) => {
@@ -218,7 +225,7 @@ export default function MovieDetail({ movieDetail }: { movieDetail: IMovieDetail
                       ))}
                     </span>
                   </div>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2">
                     {selectedServer?.server_data.map((item: Episode) => {
                       if (!item.slug) return null;
                       return (
