@@ -4,12 +4,14 @@ import { Movie } from '@/lib/api/movies/movieInterface'
 import { FC } from 'react'
 import Link from 'next/link'
 import { useHistoryStore } from '@/stores/useHistoryStore'
+import { getImageSrc } from '@/services/uploadFile';
 
 interface MovieCardSeachProps {
     movie: Movie
     onSelect?: () => void
+    source: "ophim" | "phimapi";
 }
-const MovieCardSeach: FC<MovieCardSeachProps> = ({ movie, onSelect }) => {
+const MovieCardSeach: FC<MovieCardSeachProps> = ({ movie, onSelect, source }) => {
     const { addSearchHistory } = useHistoryStore();
 
     const handleClick = () => {
@@ -20,6 +22,7 @@ const MovieCardSeach: FC<MovieCardSeachProps> = ({ movie, onSelect }) => {
             year: movie.year,
             episode_current: movie.episode_current,
             searchedAt: Date.now(),
+            source: source,
         });
         onSelect?.();
     };
@@ -27,7 +30,7 @@ const MovieCardSeach: FC<MovieCardSeachProps> = ({ movie, onSelect }) => {
     return (
         <Link href={`/phim/${movie.slug}`} onClick={handleClick} className="flex items-center gap-3 group cursor-pointer">
             <img
-                src={`https://img.ophim.live/uploads/movies/${movie.thumb_url}`}
+                src={getImageSrc(movie.thumb_url, source || "ophim")}
                 alt={movie.name}
                 className="w-12 h-16 rounded object-cover flex-shrink-0"
             />

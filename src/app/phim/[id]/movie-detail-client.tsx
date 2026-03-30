@@ -8,8 +8,8 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useEffect, useState } from "react";
 import { featuredMovies, topMovies } from "@/data/movies";
-import { useQueryMovie } from "@/lib/api/movies/movieQuery";
-import { Episode, IMovieDetail } from "@/lib/api/movies/movieInterface";
+import { useQueryMovie, useQueryPhimApi } from "@/lib/api/movies/movieQuery";
+import { Episode, IMovieDetail, convertPhimApiToIMovieDetail } from "@/lib/api/movies/movieInterface";
 import MoviePlayer from "@/components/Common/Player";
 import Cast from "@/components/features/Movies/Cast";
 import BreadCrumb from "@/components/Common/BreadCrumb";
@@ -27,12 +27,20 @@ const sampleComments = [
   { user: "my", time: "2 tháng trước", text: "Coi là bị lọt 'hole' luôn!", likes: 31 },
 ];
 
-export default function MovieDetail() {
+export default function MovieDetail({ movieDetail }) {
   const { id } = useParams();
+  const { data: rawData, isLoading, isError } = useQueryMovie(id as string);
+  const { data: rawDataPhimApi, isLoading: isLoadingPhimApi, error: errorPhimApi, isError: isErrorPhimApi } = useQueryPhimApi(id as string, isError);
 
-  const { data: rawData, isLoading } = useQueryMovie(id as string);
+  // Fallback logic: use phimapi when ophim fails
   const movieData = rawData as any;
-  const movie = movieData?.data?.item as IMovieDetail;
+  const phimApiData = rawDataPhimApi as any;
+  const movie: IMovieDetail | undefined = isError && !isErrorPhimApi && phimApiData?.movie
+    ? convertPhimApiToIMovieDetail(phimApiData)
+    : (movieData?.data?.item as IMovieDetail);
+
+  const isUsingFallback = isError && !isErrorPhimApi && !!phimApiData?.movie;
+
   const searchParams = useSearchParams();
   const router = useRouter();
   const { data: rawCast, isLoading: castLoading } = useQueryMovie(id as string, '/peoples');
@@ -40,7 +48,21 @@ export default function MovieDetail() {
   const peoples = castData?.data?.peoples ?? [];
   const profile_sizes = castData?.data?.profile_sizes ?? [];
 
-  const breadCrumb = movieData?.data?.breadCrumb;
+  const breadCrumb = isUsingFallback
+    ? [{ name: "Trang chủ", slug: "/" }, { name: movie?.name || "", slug: `/phim/${id}` }]
+    : (movieData?.data?.breadCrumb as any[]);
+
+  const loading = isLoading || (isError && isErrorPhimApi && !movieData?.data?.item && !phimApiData?.movie);
+
+  const getPosterUrl = () => {
+    if (!movie) return "";
+    if (isUsingFallback) {
+      return movie.poster_url || movie.thumb_url;
+    }
+    return movie.poster_url?.startsWith("http")
+      ? movie.poster_url
+      : `https://img.ophim.live/uploads/movies/${movie.poster_url || movie.thumb_url}`;
+  };
 
   const [selectedEp, setSelectedEp] = useState<Episode>();
   const [selectedServer, setSelectedServer] = useState<any>(null);
@@ -62,7 +84,7 @@ export default function MovieDetail() {
     if (movie?.episodes?.length) {
       setSelectedServer(movie.episodes[0]);
     }
-  }, [movie]);
+  }, [movie?.episodes?.length]);
 
   const handleSelectEp = (ep: Episode) => {
     setSelectedEp(ep);
@@ -84,6 +106,7 @@ export default function MovieDetail() {
         currentTime: 0,
         duration: 0,
         watchedAt: Date.now(),
+        source: isUsingFallback ? "phimapi" : "ophim",
       });
     }
   };
@@ -118,7 +141,7 @@ export default function MovieDetail() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [id]);
 
-  if (isLoading) return <div className="flex items-center justify-center min-h-[50vh]"><Loader className="w-6 h-6 animate-spin text-primary" /></div>;
+  if (loading) return <div className="flex items-center justify-center min-h-[50vh]"><Loader className="w-6 h-6 animate-spin text-primary" /></div>;
   if (!movie) return null;
 
   return (
@@ -127,7 +150,7 @@ export default function MovieDetail() {
       <div className="my-4">
         {/* Hero backdrop */}
         <div className="relative w-full h-[320px] md:h-[400px]">
-          <img src={`https://img.ophim.live/uploads/movies/${movie?.poster_url ?? movie.thumb_url}`} alt={movie.name} className="w-full h-full object-cover" />
+          <img src={getPosterUrl()} alt={movie.name} className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
           <div className="absolute inset-0 bg-gradient-to-r from-background/80 to-transparent" />
         </div>
@@ -138,7 +161,7 @@ export default function MovieDetail() {
               {/* Movie header */}
               <div className="flex mt-28 md:mt-0 flex-col md:flex-row gap-3 md:gap-5 mb-6">
                 <div className="w-100 flex items-center justify-center">
-                  <div className="w-[120px] md:w-[150px] aspect-[2/3] rounded-lg overflow-hidden shadow-[var(--shadow-card)] flex-shrink-0"><MovieImage movie={movie} /></div>
+                  <div className="w-[120px] md:w-[150px] aspect-[2/3] rounded-lg overflow-hidden shadow-[var(--shadow-card)] flex-shrink-0"><MovieImage movie={movie} source={isUsingFallback ? "phimapi" : "ophim"} /></div>
                 </div>
                 <div className="flex flex-col justify-end">
                   <div className="flex items-center gap-3 mb-3 flex-wrap">
@@ -233,7 +256,7 @@ export default function MovieDetail() {
                             }`}
                         >
                           <Play className="w-2.5 h-2.5" />
-                          Tập {item.slug}
+                          {isUsingFallback ? item.name : "Tập " + item.slug}
                         </button>
                       );
                     })}

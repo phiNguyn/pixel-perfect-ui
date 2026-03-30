@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import Empty from '@/components/Common/Empty';
 import Image from 'next/image';
+import { getImageSrc } from '@/services/uploadFile';
 
 interface SearchHistoryListProps {
   onSelect?: () => void;
@@ -56,7 +57,7 @@ export default function SearchHistoryList({ onSelect }: SearchHistoryListProps) 
             <Image
               width={1920}
               height={1080}
-              src={`https://img.ophim.live/uploads/movies/${item.thumb_url}`}
+              src={getImageSrc(item.thumb_url, item.source || "ophim")}
               alt={item.name}
               className="w-8 h-11 rounded object-cover flex-shrink-0"
             />

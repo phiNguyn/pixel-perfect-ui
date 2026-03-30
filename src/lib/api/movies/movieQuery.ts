@@ -1,6 +1,8 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { moviesApi, MoviesApi } from "./movieApi";
 import { QueryResult } from "@/hooks/useQueryResult";
+import { phimApi } from "./phimApi";
+import { phimApiDetail } from "../phimapi/phimApi";
 
 export const useQueryMovies = <TData = unknown>(
   query: QueryResult,
@@ -29,12 +31,30 @@ export const useQueryMovie = (id?: string, peoples?: string) => {
     staleTime: 5 * 60 * 1000,
   });
 };
+export const useQueryPhimApi = (id?: string, enabled = false) => {
+  return useQuery({
+    queryKey: ["phimapi", id],
+    enabled: !!id && enabled,
+    queryFn: () => phimApiDetail.findOne(id as string),
+    retry: false,
+    staleTime: 5 * 60 * 1000,
+  });
+};
 
 export const useQuerySearchMovie = <TData = unknown>(q: string) => {
   return useQuery<TData>({
     queryKey: ["movies", q],
     enabled: !!q,
     queryFn: () => moviesApi.searchMovie<TData>(q as string),
+    retry: false,
+    staleTime: 5 * 60 * 1000,
+  });
+};
+export const useQueryPhimApiSearchMovie = <TData = unknown>(q: string) => {
+  return useQuery<TData>({
+    queryKey: ["phimapi", q],
+    enabled: !!q,
+    queryFn: () => phimApi.searchMovie<TData>(q as string),
     retry: false,
     staleTime: 5 * 60 * 1000,
   });

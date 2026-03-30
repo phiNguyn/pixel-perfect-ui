@@ -61,18 +61,31 @@ export interface MoviesListResponse {
   };
 }
 
-export async function fetchMovieDetail(
-  slug: string,
-): Promise<MovieDetailResponse> {
+export async function fetchMovieDetail(slug: string) {
+  // gọi API chính
   const res = await fetch(`${BASE_URL}/phim/${slug}`, {
-    next: { revalidate: 3600 }, // Cache for 1 hour
+    next: { revalidate: 3600 },
   });
 
-  if (!res.ok) {
-    throw new Error(`Failed to fetch movie: ${slug}`);
+  if (res.ok) {
+    const data = await res.json();
+
+    // check data rỗng (quan trọng)
+    if (data?.data?.item) {
+      return data;
+    }
   }
 
-  return res.json();
+  // fallback API
+  const fallbackRes = await fetch(`https://phimapi.com/phim/${slug}`, {
+    cache: "no-store",
+  });
+
+  if (!fallbackRes.ok) {
+    throw new Error(`Both APIs failed for slug: ${slug}`);
+  }
+
+  return await fallbackRes.json();
 }
 
 export async function fetchMoviesList(

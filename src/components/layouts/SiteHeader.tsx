@@ -4,10 +4,10 @@ import { useState } from "react";
 import { useQueryCategories } from "@/lib/api/categories/categorieQuery";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useQueryMovies, useQuerySearchMovie } from "@/lib/api/movies/movieQuery";
+import { useQueryMovies, useQueryPhimApiSearchMovie, useQuerySearchMovie } from "@/lib/api/movies/movieQuery";
 import useDebounce from "@/hooks/useDebounce";
 import { Skeleton } from "../ui/skeleton";
-import { Country, Movie } from "@/lib/api/movies/movieInterface";
+import { Country, Movie, SearchMovie } from "@/lib/api/movies/movieInterface";
 import MovieCardSeach from "../features/Movies/MovieCardSeach";
 import {
   Sheet,
@@ -32,22 +32,24 @@ export default function SiteHeader() {
   const { slug } = useParams()
   const [searchOpen, setSearchOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [mobileSearch, setMobileSearch] = useState('');
   const { data, isLoading } = useQueryCategories()
   const { items } = data?.data || []
   const [search, setSearch] = useState('')
   const value = useDebounce(search, 500)
-  const mobileSearchValue = useDebounce(mobileSearch, 500)
   const { data: searchMovie, isLoading: searchLoaing, isFetching: searchFetching } =
     useQuerySearchMovie<{ data: { items: Movie[] } }>(value)
-  const { data: mobileSearchMovie, isLoading: mobileSearchLoading, isFetching: mobileSearchFetching } =
-    useQuerySearchMovie<{ data: { items: Movie[] } }>(mobileSearchValue)
+  const { data: phimApiSearchMovie, isLoading: phimApiSearchLoading, isFetching: phimApiSearchFetching } =
+    useQueryPhimApiSearchMovie<{ data: { items: Movie[] } }>(value)
   const { data: countries, isLoading: countryLoading } = useQueryMovies<{ data: { items: Country[] } }>(
     {},
     true,
     'quoc-gia',
     'quoc-gia'
   )
+  const searchMovieData: SearchMovie[] = [
+    ...(phimApiSearchMovie?.data?.items || []).map(item => ({ ...item, source: "phimapi" as const })),
+    ...(searchMovie?.data?.items || []).map(item => ({ ...item, source: "ophim" as const })),
+  ]
 
   return (
     <header className="py-2 sticky top-0 z-50 bg-background/90 backdrop-blur-md border-b border-border/50">
@@ -140,14 +142,14 @@ export default function SiteHeader() {
                 {searchOpen && (
                   <div className="absolute top-14 left-0 flex flex-col gap-4 max-h-[80dvh] w-[300px] bg-background p-4 rounded-lg border border-border/50 shadow-lg overflow-y-auto scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent" onClick={(e) => e.stopPropagation()}>
                     {search && value ? (
-                      searchLoaing || searchFetching ? (
+                      searchLoaing || searchFetching || phimApiSearchLoading || phimApiSearchFetching ? (
                         <div className="flex items-center justify-center py-8">
                           <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
                         </div>
-                      ) : searchMovie?.data?.items?.length > 0 ? (
+                      ) : searchMovieData.length > 0 ? (
                         <div className="flex flex-col gap-3">
-                          {searchMovie.data.items.filter(item => !item.category.some(cat => cat.slug === "phim-18")).map(item => (
-                            <MovieCardSeach movie={item} key={item._id} onSelect={() => { setSearch(''); setSearchOpen(false); }} />
+                          {searchMovieData.filter(item => !item.category.some(cat => cat.slug === "phim-18")).map(item => (
+                            <MovieCardSeach movie={item} source={item.source} key={`${item.source}-${item._id}`} onSelect={() => { setSearch(''); setSearchOpen(false); }} />
                           ))}
                         </div>
                       ) : (
@@ -194,7 +196,7 @@ export default function SiteHeader() {
             <div className="flex items-center justify-between">
               <Link onClick={() => {
                 setMobileMenuOpen(false);
-                setMobileSearch('');
+                setSearch('');
               }} href={'/'} className="flex items-center gap-2">
                 <Avatar className="size-8 mb-1.5">
                   <AvatarImage src={fallback.src} className="object-cover" />
@@ -214,28 +216,28 @@ export default function SiteHeader() {
                 type="text"
                 placeholder="Tìm phim, diễn viên..."
                 className="bg-secondary text-foreground px-4 py-3 pr-10 rounded-lg text-sm w-full outline-none border border-border focus:border-primary/50 transition-colors"
-                value={mobileSearch}
-                onChange={(e) => setMobileSearch(e.target.value)}
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
               />
-              {mobileSearchValue ? <XIcon onClick={() => setMobileSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"></XIcon> : <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />}
+              {search ? <XIcon onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"></XIcon> : <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />}
             </div>
 
             {/* Mobile Search Results */}
-            {mobileSearch ? (
+            {search ? (
               <div className="flex flex-col gap-3">
-                {mobileSearchLoading || mobileSearchFetching ? (
+                {searchLoaing || searchFetching || phimApiSearchLoading || phimApiSearchFetching ? (
                   <div className="flex w-full max-w-xs flex-col gap-2">
                     <Skeleton className="h-4 w-full" />
                     <Skeleton className="h-4 w-full" />
                     <Skeleton className="h-4 w-3/4" />
                   </div>
-                ) : mobileSearchMovie?.data?.items?.length > 0 ? (
+                ) : searchMovieData.length > 0 ? (
                   <div className="flex flex-col gap-2" onClick={() => {
-                    setMobileSearch('')
+                    setSearch('')
                     setMobileMenuOpen(false)
                   }}>
-                    {mobileSearchMovie.data.items.filter(item => !item.category.some(cat => cat.slug === "phim-18")).map(item => (
-                      <MovieCardSeach movie={item} key={item.slug} onSelect={() => { setMobileSearch(''); setMobileMenuOpen(false); }} />
+                    {searchMovieData.filter(item => !item.category.some(cat => cat.slug === "phim-18")).map(item => (
+                      <MovieCardSeach movie={item} source={item.source} key={`${item.source}-${item._id}`} onSelect={() => { setSearch(''); setMobileMenuOpen(false); }} />
                     ))}
                   </div>
                 ) : (
@@ -244,7 +246,7 @@ export default function SiteHeader() {
               </div>
             ) : (
               <div className="bg-secondary/50 rounded-lg p-3">
-                <SearchHistoryList onSelect={() => { setMobileSearch(''); setMobileMenuOpen(false); }} />
+                <SearchHistoryList onSelect={() => { setSearch(''); setMobileMenuOpen(false); }} />
               </div>
             )
 

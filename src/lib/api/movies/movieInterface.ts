@@ -47,6 +47,10 @@ export interface Movie {
   modified: Modified;
 }
 
+export interface SearchMovie extends Movie {
+  source: "ophim" | "phimapi";
+}
+
 export interface TMDB {
   type: string;
   id: string;
@@ -174,4 +178,104 @@ export interface Episode {
   filename: string;
   link_embed: string;
   link_m3u8: string;
+}
+
+export interface PhimApiEpisode {
+  name: string;
+  slug: string;
+  filename: string;
+  link_embed: string;
+  link_m3u8: string;
+}
+
+export interface PhimApiEpisodeServer {
+  server_name: string;
+  is_ai: boolean;
+  server_data: PhimApiEpisode[];
+}
+
+export interface PhimApiMovie {
+  _id: string;
+  name: string;
+  slug: string;
+  origin_name: string;
+  content: string;
+  type: string;
+  status: string;
+  poster_url: string;
+  thumb_url: string;
+  is_copyright: boolean;
+  sub_docquyen: boolean;
+  chieurap: boolean;
+  trailer_url: string;
+  time: string;
+  episode_current: string;
+  episode_total: string;
+  quality: string;
+  lang: string;
+  notify: string;
+  showtimes: string;
+  year: number;
+  view: number;
+  actor: string[];
+  director: string[];
+  category: Category[];
+  country: Country[];
+  episodes: PhimApiEpisodeServer[];
+}
+
+export function convertPhimApiToIMovieDetail(data: any): IMovieDetail {
+  const { movie: phimApiMovie, episodes } = data;
+
+  return {
+    _id: phimApiMovie._id,
+    name: phimApiMovie.name,
+    slug: phimApiMovie.slug,
+    origin_name: phimApiMovie.origin_name,
+    alternative_names: [],
+    content: phimApiMovie.content,
+    type: phimApiMovie.type,
+    status: phimApiMovie.status,
+    thumb_url: phimApiMovie.thumb_url,
+    poster_url: phimApiMovie.poster_url,
+    is_copyright: phimApiMovie.is_copyright,
+    sub_docquyen: phimApiMovie.sub_docquyen,
+    chieurap: phimApiMovie.chieurap,
+    trailer_url: phimApiMovie.trailer_url,
+    time: phimApiMovie.time,
+    episode_current: phimApiMovie.episode_current,
+    episode_total: phimApiMovie.episode_total,
+    quality: phimApiMovie.quality,
+    lang: phimApiMovie.lang,
+    lang_key: [],
+    notify: phimApiMovie.notify,
+    showtimes: phimApiMovie.showtimes,
+    year: phimApiMovie.year,
+    view: phimApiMovie.view,
+    actor: phimApiMovie.actor,
+    director: phimApiMovie.director,
+    category: phimApiMovie.category,
+    country: phimApiMovie.country,
+    tmdb: {
+      type: null as any,
+      id: null as any,
+      season: null,
+      vote_average: 0,
+      vote_count: 0,
+    },
+    imdb: { id: null as any, vote_average: 0, vote_count: 0 },
+    created: { time: new Date().toISOString() },
+    modified: { time: new Date().toISOString() },
+    episodes: episodes.map((server) => ({
+      server_name: server.server_name,
+      is_ai: server.is_ai,
+      server_data: server.server_data.map((ep) => ({
+        name: ep.name,
+        slug: ep.slug,
+        filename: ep.filename,
+        link_embed: ep.link_embed,
+        link_m3u8: ep.link_m3u8,
+      })),
+    })),
+  };
 }

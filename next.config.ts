@@ -11,9 +11,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/(.*)",
-        headers: [
-          { key: "X-Robots-Tag", value: "index, follow" },
-        ],
+        headers: [{ key: "X-Robots-Tag", value: "index, follow" }],
       },
     ];
   },
@@ -23,6 +21,11 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "img.ophim.live",
         pathname: "/uploads/**",
+      },
+      {
+        protocol: "https",
+        hostname: "phimimg.com",
+        pathname: "/**",
       },
       {
         protocol: "https",

@@ -2,10 +2,18 @@ import Image from "next/image";
 import fallback from "@/assets/fallback.png";
 import { useState } from "react";
 
-export default function MovieImage({ movie }) {
-    const [imgSrc, setImgSrc] = useState(
-        `https://img.ophim.live/uploads/movies/${movie.thumb_url}?w=1920&q=75`
-    );
+export default function MovieImage({ movie, source }: { movie: any; source?: "ophim" | "phimapi" }) {
+    const getImageSrc = () => {
+        if (!movie?.thumb_url) return fallback.src;
+        if (source === "phimapi") {
+            return movie.thumb_url.startsWith("http") ? movie.thumb_url : `https://phimimg.com/${movie.thumb_url}`;
+        }
+        return movie.thumb_url.startsWith("http")
+            ? movie.thumb_url
+            : `https://img.ophim.live/uploads/movies/${movie.thumb_url}?w=1920&q=75`;
+    };
+
+    const [imgSrc, setImgSrc] = useState(getImageSrc());
 
     return (
         <Image

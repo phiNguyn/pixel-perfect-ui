@@ -27,3 +27,15 @@ export const makePreviewUrl = (url?: string | null): string | undefined => {
   const isAbsolute = /^https?:\/\//i.test(url);
   return isAbsolute ? url : generateResourcePath(url);
 };
+
+export const getImageSrc = (
+  url: string,
+  source: "ophim" | "phimapi",
+): string => {
+  if (!url) return "";
+  if (source === "phimapi") {
+    return url.startsWith("http") ? url : `https://phimimg.com/${url}`;
+  }
+  if (url.startsWith("http")) return url;
+  return `https://img.ophim.live/uploads/movies/${url}`;
+};

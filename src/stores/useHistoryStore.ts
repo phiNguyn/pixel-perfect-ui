@@ -14,9 +14,11 @@ export interface WatchHistoryItem {
   currentTime: number;
   duration: number;
   watchedAt: number; // timestamp
+  source: "ophim" | "phimapi";
 }
 
 export interface SearchHistoryItem {
+  source: "ophim" | "phimapi";
   slug: string;
   name: string;
   thumb_url: string;

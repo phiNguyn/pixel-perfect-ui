@@ -72,9 +72,23 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function MovieDetailPage({ params }: Props) {
   const { id } = await params;
+  function normalizeMovieDetail(data: any) {
+    // ophim
+    if (data?.data?.item) {
+      return data.data.item;
+    }
 
+    // phimapi
+    if (data?.movie) {
+      return data.movie;
+    }
+
+    return null;
+  }
   // Fetch initial data on server for better performance
-  const movieData = await fetchMovieDetail(id);
+  const rawData = await fetchMovieDetail(id);
 
-  return <MovieDetailClient movieDetail={movieData.data.item} />;
+  const movieData = normalizeMovieDetail(rawData);
+
+  return <MovieDetailClient movieDetail={movieData} />;
 }
