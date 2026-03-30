@@ -9,14 +9,44 @@ interface Props {
 // Use dynamic rendering for this route
 export const dynamic = "force-dynamic";
 
+// Normalize both API response structures
+function normalizeMovieData(data: any) {
+  // ophim structure
+  if (data?.data?.item) {
+    return {
+      movie: data.data.item,
+      seoOnPage: data.data.seoOnPage,
+      source: "ophim" as const,
+    };
+  }
+  // phimapi fallback structure
+  if (data?.movie) {
+    return {
+      movie: data.movie,
+      seoOnPage: null,
+      source: "phimapi" as const,
+    };
+  }
+  return { movie: null, seoOnPage: null, source: null };
+}
+
+function getPosterUrl(movie: any, source: string | null) {
+  if (!movie) return "";
+  if (source === "phimapi") {
+    return movie.poster_url || movie.thumb_url;
+  }
+  return movie.poster_url?.startsWith("http")
+    ? movie.poster_url
+    : `https://img.ophim.live/uploads/movies/${movie.poster_url || movie.thumb_url}`;
+}
+
 // Generate dynamic metadata for SEO - This runs on server
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
 
   try {
-    const movieData = await fetchMovieDetail(id);
-    const movie = movieData?.data?.item;
-    const seoOnPage = movieData?.data?.seoOnPage;
+    const rawData = await fetchMovieDetail(id);
+    const { movie, seoOnPage, source } = normalizeMovieData(rawData);
 
     if (!movie) {
       return {
@@ -25,7 +55,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       };
     }
 
-    const posterUrl = `https://img.ophim.live/uploads/movies/${movie.poster_url || movie.thumb_url}`;
+    const posterUrl = getPosterUrl(movie, source);
     const pageUrl = `https://pinuss-flix.vercel.app/phim/${movie.slug}`;
 
     return {
@@ -72,23 +102,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function MovieDetailPage({ params }: Props) {
   const { id } = await params;
-  function normalizeMovieDetail(data: any) {
-    // ophim
-    if (data?.data?.item) {
-      return data.data.item;
-    }
-
-    // phimapi
-    if (data?.movie) {
-      return data.movie;
-    }
-
-    return null;
-  }
-  // Fetch initial data on server for better performance
   const rawData = await fetchMovieDetail(id);
+  const { movie, seoOnPage, source } = normalizeMovieData(rawData);
 
-  const movieData = normalizeMovieDetail(rawData);
-
-  return <MovieDetailClient movieDetail={movieData} />;
+  return <MovieDetailClient movieDetail={movie} />;
 }

@@ -78,7 +78,7 @@ export async function fetchMovieDetail(slug: string) {
 
   // fallback API
   const fallbackRes = await fetch(`https://phimapi.com/phim/${slug}`, {
-    cache: "no-store",
+    next: { revalidate: 3600 },
   });
 
   if (!fallbackRes.ok) {

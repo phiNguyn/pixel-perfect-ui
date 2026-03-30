@@ -29,11 +29,14 @@ export const useQueryMovie = (id?: string, peoples?: string) => {
     queryFn: () => moviesApi.findOne(id as string, peoples),
     retry: false,
     staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
   });
 };
 export const useQueryPhimApi = (id?: string, enabled = false) => {
   return useQuery({
-    queryKey: ["phimapi", id],
+    queryKey: ["phimapiDetail", id],
     enabled: !!id && enabled,
     queryFn: () => phimApiDetail.findOne(id as string),
     retry: false,
