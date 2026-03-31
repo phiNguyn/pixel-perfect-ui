@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import { fetchMovieDetail } from "@/lib/api/server";
-import MovieDetailClient from "./movie-detail-client";
+import MovieDetail from "./movie-detail-client";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -102,8 +102,5 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function MovieDetailPage({ params }: Props) {
   const { id } = await params;
-  const rawData = await fetchMovieDetail(id);
-  const { movie, seoOnPage, source } = normalizeMovieData(rawData);
-
-  return <MovieDetailClient movieDetail={movie} />;
+  return <MovieDetail id={id} />;
 }

@@ -1,5 +1,5 @@
 "use client";
-import { Search, Bell, User, Menu, Loader, XIcon, ChevronDown } from "lucide-react";
+import { Search, Bell, Menu, Loader, XIcon, ChevronDown } from "lucide-react";
 import { useState } from "react";
 import { useQueryCategories } from "@/lib/api/categories/categorieQuery";
 import Link from "next/link";
@@ -28,6 +28,7 @@ import {
 import { Button } from "../ui/button";
 import Empty from "../Common/Empty";
 import fallback from "@/assets/fallback.png";
+import { ThemeSelector } from "../theme/ThemeSelector";
 export default function SiteHeader() {
   const { slug } = useParams()
   const [searchOpen, setSearchOpen] = useState(false);
@@ -52,7 +53,7 @@ export default function SiteHeader() {
   ]
 
   return (
-    <header className="py-2 sticky top-0 z-50 bg-background/90 backdrop-blur-md border-b border-border/50">
+    <header className="py-2 sticky top-0 z-50 bg-background/50 backdrop-blur-md border-b border-border/50">
       <div className="max-w-[1400px] mx-auto px-4">
         {/* Top bar */}
         <div className="flex items-center justify-between h-14">
@@ -170,18 +171,18 @@ export default function SiteHeader() {
               <Bell className="w-5 h-5" />
               <span className="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full" />
             </button>
-            <button className="p-2 text-muted-foreground hover:text-foreground transition-colors">
-              <User className="w-5 h-5" />
-            </button>
+            <ThemeSelector />
 
           </div>
-
-          <button
-            className="md:hidden p-2 text-muted-foreground hover:text-foreground transition-colors"
-            onClick={() => setMobileMenuOpen(true)}
-          >
-            <Menu className="w-5 h-5" />
-          </button>
+          <div className="md:hidden">
+            <ThemeSelector />
+            <button
+              className="p-2 text-muted-foreground hover:text-foreground transition-colors"
+              onClick={() => setMobileMenuOpen(true)}
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
         {/* Navigation */}

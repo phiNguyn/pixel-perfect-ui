@@ -584,11 +584,22 @@ export default function MoviePlayer({ src, title = "Movie", poster, onBack, sele
                     <div className="px-4 mb-2">
                         <div
                             ref={progressRef}
-                            className="relative h-1 bg-white/30 rounded-full cursor-pointer group/progress hover:h-1.5 transition-all"
+                            className="relative h-2 bg-white/30 rounded-full cursor-pointer group/progress hover:h-1.5 transition-all"
                             onClick={handleProgressClick}
                             onMouseMove={handleProgressHover}
                             onMouseLeave={() => setPreviewTime(null)}
                         >
+                            {/* Time display */}
+                            {(isMobile && isFullscreen) && (
+                                <>
+                                    <div className="absolute left-0 -top-8 text-xs">
+                                        {formatTime(currentTime)}
+                                    </div>
+                                    <div className="absolute right-0 -top-8 text-xs">
+                                        {formatTime(duration)}
+                                    </div>
+                                </>
+                            )}
                             {/* Buffered */}
                             <div
                                 className="absolute top-0 left-0 h-full bg-white/40 rounded-full"

@@ -31,7 +31,7 @@ export default function HeroBanner() {
             </span>
           </div>
           <h1 className="text-3xl md:text-5xl font-bold text-foreground tracking-tight mb-2 text-shadow-lg">
-            Trao Em Cả Vũ Trụ
+            (Nếu cả đời này không rực rỡ thì sao ?)
           </h1>
           <p className="text-sm text-secondary-foreground max-w-md mb-4 leading-relaxed">
             Lương Tĩnh · Trần Phi Vũ · Tập 24/36 · Tình Cảm, Lãng Mạn

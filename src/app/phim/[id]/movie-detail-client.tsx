@@ -27,10 +27,9 @@ const sampleComments = [
   { user: "my", time: "2 tháng trước", text: "Coi là bị lọt 'hole' luôn!", likes: 31 },
 ];
 
-export default function MovieDetail({ movieDetail }) {
-  const { id } = useParams();
+export default function MovieDetail({ id }: { id: string }) {
   const { data: rawData, isLoading, isError } = useQueryMovie(id as string);
-  const { data: rawDataPhimApi, isLoading: isLoadingPhimApi, error: errorPhimApi, isError: isErrorPhimApi } = useQueryPhimApi(id as string, isError);
+  const { data: rawDataPhimApi, isError: isErrorPhimApi } = useQueryPhimApi(id as string, isError);
 
   // Fallback logic: use phimapi when ophim fails
   const movieData = rawData as any;
@@ -43,13 +42,13 @@ export default function MovieDetail({ movieDetail }) {
 
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { data: rawCast, isLoading: castLoading } = useQueryMovie(id as string, '/peoples');
+  const { data: rawCast, isLoading: castLoading, isError: isErrorCast } = useQueryMovie(id as string, '/peoples');
   const castData = rawCast as any;
   const peoples = castData?.data?.peoples ?? [];
   const profile_sizes = castData?.data?.profile_sizes ?? [];
 
   const breadCrumb = isUsingFallback
-    ? [{ name: "Trang chủ", slug: "/" }, { name: movie?.name || "", slug: `/phim/${id}` }]
+    ? [{ name: movie?.name || "", slug: `/phim/${id}` }]
     : (movieData?.data?.breadCrumb as any[]);
 
   const loading = isLoading || (isError && isErrorPhimApi && !movieData?.data?.item && !phimApiData?.movie);
@@ -283,7 +282,7 @@ export default function MovieDetail({ movieDetail }) {
                 <DetailRow label="Quốc gia" value={movie.country.map(item => item.name).join(", ")} />
               </div>
 
-              <Cast loading={castLoading} peoples={peoples} profile_sizes={profile_sizes} />
+              <Cast loading={castLoading} peoples={isErrorCast ? [] : peoples} profile_sizes={isErrorCast ? [] : profile_sizes} />
 
               {/* Comments */}
               <div className="mb-8 hidden md:block">
