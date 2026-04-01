@@ -22,10 +22,14 @@ export const useQueryMovies = <TData = unknown>(
   });
 };
 
-export const useQueryMovie = (id?: string, peoples?: string) => {
+export const useQueryMovie = (
+  id?: string,
+  peoples?: string,
+  source?: string,
+) => {
   return useQuery({
     queryKey: ["movie", id, peoples],
-    enabled: !!id,
+    enabled: !!id && source !== "phimapi",
     queryFn: () => moviesApi.findOne(id as string, peoples),
     retry: false,
     staleTime: 5 * 60 * 1000,

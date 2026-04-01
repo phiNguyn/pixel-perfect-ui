@@ -1,20 +1,21 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Play, Heart, Share2, BookmarkPlus, Star, Loader } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { featuredMovies, topMovies } from "@/data/movies";
 import { useQueryMovie, useQueryPhimApi } from "@/lib/api/movies/movieQuery";
-import { Episode, IMovieDetail, convertPhimApiToIMovieDetail } from "@/lib/api/movies/movieInterface";
+import { Episode, convertPhimApiToIMovieDetail } from "@/lib/api/movies/movieInterface";
 import MoviePlayer from "@/components/Common/Player";
 import Cast from "@/components/features/Movies/Cast";
 import BreadCrumb from "@/components/Common/BreadCrumb";
 import { useHistoryStore } from "@/stores/useHistoryStore";
 import MovieImage from "@/components/features/Movies/MovieImage";
+import Comment from "@/components/features/Movies/Comment";
 
 const sampleComments = [
   { user: "khanhchi1", time: "3 ngày trước", text: "Phim hay quá, xem mãi không chán 😍", likes: 12 },
@@ -28,34 +29,37 @@ const sampleComments = [
 ];
 
 export default function MovieDetail({ id }: { id: string }) {
-  const { data: rawData, isLoading, isError } = useQueryMovie(id as string);
-  const { data: rawDataPhimApi, isError: isErrorPhimApi } = useQueryPhimApi(id as string, isError);
-
-  // Fallback logic: use phimapi when ophim fails
-  const movieData = rawData as any;
-  const phimApiData = rawDataPhimApi as any;
-  const movie: IMovieDetail | undefined = isError && !isErrorPhimApi && phimApiData?.movie
-    ? convertPhimApiToIMovieDetail(phimApiData)
-    : (movieData?.data?.item as IMovieDetail);
-
-  const isUsingFallback = isError && !isErrorPhimApi && !!phimApiData?.movie;
-
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { data: rawCast, isLoading: castLoading, isError: isErrorCast } = useQueryMovie(id as string, '/peoples');
-  const castData = rawCast as any;
-  const peoples = castData?.data?.peoples ?? [];
-  const profile_sizes = castData?.data?.profile_sizes ?? [];
+  const source = searchParams?.get("source") ?? "ophim";
+  const isPhimApi = source === "phimapi";
 
-  const breadCrumb = isUsingFallback
+  const { data: rawData, isLoading, isError } = useQueryMovie(id as string, undefined, source);
+  const { data: rawDataPhimApi, isError: isErrorPhimApi, isLoading: isLoadingPhimApi } = useQueryPhimApi(id as string, isPhimApi);
+  // 👉 normalize data
+  const movieData = rawData as any;
+  const phimApiData = rawDataPhimApi as any;
+
+  const movie = useMemo(() => {
+    if (isPhimApi) {
+      return phimApiData
+        ? convertPhimApiToIMovieDetail(phimApiData)
+        : undefined;
+    }
+    return movieData?.data?.item;
+  }, [isPhimApi, phimApiData, movieData]);
+
+  // 👉 loading + error theo source
+  const loading = isPhimApi ? isLoadingPhimApi : isLoading;
+  const error = isPhimApi ? isErrorPhimApi : isError;
+
+  // 👉 breadcrumb
+  const breadCrumb = isPhimApi
     ? [{ name: movie?.name || "", slug: `/phim/${id}` }]
     : (movieData?.data?.breadCrumb as any[]);
-
-  const loading = isLoading || (isError && isErrorPhimApi && !movieData?.data?.item && !phimApiData?.movie);
-
   const getPosterUrl = () => {
     if (!movie) return "";
-    if (isUsingFallback) {
+    if (isPhimApi) {
       return movie.poster_url || movie.thumb_url;
     }
     return movie.poster_url?.startsWith("http")
@@ -105,7 +109,7 @@ export default function MovieDetail({ id }: { id: string }) {
         currentTime: 0,
         duration: 0,
         watchedAt: Date.now(),
-        source: isUsingFallback ? "phimapi" : "ophim",
+        source: isPhimApi ? "phimapi" : "ophim",
       });
     }
   };
@@ -142,7 +146,6 @@ export default function MovieDetail({ id }: { id: string }) {
 
   if (loading) return <div className="flex items-center justify-center min-h-[50vh]"><Loader className="w-6 h-6 animate-spin text-primary" /></div>;
   if (!movie) return null;
-
   return (
     <>
       <div className="py-2 px-4 max-w-[1400px] mx-auto"><BreadCrumb breadCrumb={breadCrumb} /></div>
@@ -160,7 +163,7 @@ export default function MovieDetail({ id }: { id: string }) {
               {/* Movie header */}
               <div className="flex mt-28 md:mt-0 flex-col md:flex-row gap-3 md:gap-5 mb-6">
                 <div className="w-100 flex items-center justify-center">
-                  <div className="w-[120px] md:w-[150px] aspect-[2/3] rounded-lg overflow-hidden shadow-[var(--shadow-card)] flex-shrink-0"><MovieImage movie={movie} source={isUsingFallback ? "phimapi" : "ophim"} /></div>
+                  <div className="w-[120px] md:w-[150px] aspect-[2/3] rounded-lg overflow-hidden shadow-[var(--shadow-card)] flex-shrink-0"><MovieImage movie={movie} source={isPhimApi ? "phimapi" : "ophim"} /></div>
                 </div>
                 <div className="flex flex-col justify-end">
                   <div className="flex items-center gap-3 mb-3 flex-wrap">
@@ -255,7 +258,7 @@ export default function MovieDetail({ id }: { id: string }) {
                             }`}
                         >
                           <Play className="w-2.5 h-2.5" />
-                          {isUsingFallback ? item.name : "Tập " + item.slug}
+                          {isPhimApi ? item.name : "Tập " + item.slug}
                         </button>
                       );
                     })}
@@ -282,7 +285,7 @@ export default function MovieDetail({ id }: { id: string }) {
                 <DetailRow label="Quốc gia" value={movie.country.map(item => item.name).join(", ")} />
               </div>
 
-              <Cast loading={castLoading} peoples={isErrorCast ? [] : peoples} profile_sizes={isErrorCast ? [] : profile_sizes} />
+              {/* <Cast loading={castLoading} peoples={isErrorCast ? [] : peoples} profile_sizes={isErrorCast ? [] : profile_sizes} /> */}
 
               {/* Comments */}
               <div className="mb-8 hidden md:block">
@@ -304,12 +307,12 @@ export default function MovieDetail({ id }: { id: string }) {
                     />
                     <div className="flex items-center gap-2 mt-2">
                       <span className="text-xs text-muted-foreground">Tìm kiếm</span>
-                      <span className="text-xs text-muted-foreground">🖼 GIF</span>
+                      <span className="text-xs text-muted-foreground">GIF</span>
                       <Button size="sm" className="ml-auto rounded-full text-xs px-4">Gửi</Button>
                     </div>
                   </div>
                 </div>
-                {/* <Comment sampleComments={sampleComments} /> */}
+                <Comment movieSlug={movie.slug} />
               </div>
             </div>
 

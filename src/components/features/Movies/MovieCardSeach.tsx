@@ -28,7 +28,7 @@ const MovieCardSeach: FC<MovieCardSeachProps> = ({ movie, onSelect, source }) =>
     };
 
     return (
-        <Link href={`/phim/${movie.slug}`} onClick={handleClick} className="flex items-center gap-3 group cursor-pointer">
+        <Link href={`/phim/${movie.slug}?source=${source}`} onClick={handleClick} className="flex items-center gap-3 group cursor-pointer">
             <img
                 src={getImageSrc(movie.thumb_url, source || "ophim")}
                 alt={movie.name}

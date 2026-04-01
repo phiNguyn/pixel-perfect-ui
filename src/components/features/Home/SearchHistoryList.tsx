@@ -50,7 +50,7 @@ export default function SearchHistoryList({ onSelect }: SearchHistoryListProps) 
       {searchHistory.map((item) => (
         <div key={item.slug} className="flex items-center gap-2 group">
           <Link
-            href={`/phim/${item.slug}`}
+            href={`/phim/${item.slug}?source=${item.source}`}
             onClick={onSelect}
             className="flex items-center gap-2 flex-1 p-1.5 rounded-md hover:bg-muted/50 transition-colors"
           >
@@ -68,9 +68,10 @@ export default function SearchHistoryList({ onSelect }: SearchHistoryListProps) 
             <span className="text-[9px] text-muted-foreground whitespace-nowrap">{formatTimeAgo(item.searchedAt)}</span>
           </Link>
           <Button
+            type='button'
             size='icon'
             variant='secondary'
-            onClick={() => removeSearchHistory(item.slug)}
+            onClick={(e) => { e.stopPropagation(); removeSearchHistory(item.slug); }}
             className="rounded-md text-muted-foreground transition-all"
           >
             <X className="w-3 h-3" />

@@ -90,7 +90,7 @@ function WatchHistoryCard({ item, onRemove }: { item: WatchHistoryItem; onRemove
         <X className="w-3 h-3" />
       </Button>
 
-      <Link href={`/phim/${item.slug}?ep=${item.currentEpSlug}`}>
+      <Link href={`/phim/${item.slug}?ep=${item.currentEpSlug}&source=${item.source}`}>
         <div className="relative aspect-[2/3] rounded-lg overflow-hidden shadow-[var(--shadow-card)]">
           <MovieImage
             movie={item}
@@ -106,7 +106,7 @@ function WatchHistoryCard({ item, onRemove }: { item: WatchHistoryItem; onRemove
 
           {/* Episode badge */}
           <span className="absolute top-2 left-2 bg-primary/90 backdrop-blur-sm text-primary-foreground text-[10px] font-medium px-1.5 py-0.5 rounded">
-            Tập {item.currentEpName}
+            {item.source === "phimapi" ? item.currentEpName : `Tập ${item.currentEpName}`}
           </span>
 
           {/* Progress bar */}

@@ -1,6 +1,6 @@
 "use client";
 import { Search, Bell, Menu, Loader, XIcon, ChevronDown } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useQueryCategories } from "@/lib/api/categories/categorieQuery";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -30,6 +30,7 @@ import Empty from "../Common/Empty";
 import fallback from "@/assets/fallback.png";
 import { ThemeSelector } from "../theme/ThemeSelector";
 export default function SiteHeader() {
+  const wrapperRef = useRef<HTMLDivElement>(null);
   const { slug } = useParams()
   const [searchOpen, setSearchOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -51,7 +52,19 @@ export default function SiteHeader() {
     ...(phimApiSearchMovie?.data?.items || []).map(item => ({ ...item, source: "phimapi" as const })),
     ...(searchMovie?.data?.items || []).map(item => ({ ...item, source: "ophim" as const })),
   ]
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (!wrapperRef.current?.contains(event.target as Node)) {
+        setSearchOpen(false);
+      }
+    };
 
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
   return (
     <header className="py-2 sticky top-0 z-50 bg-background/50 backdrop-blur-md border-b border-border/50">
       <div className="max-w-[1400px] mx-auto px-4">
@@ -100,12 +113,7 @@ export default function SiteHeader() {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start" className="w-[480px]">
                   {countryLoading ? (
-                    <div className="p-2 grid grid-cols-4 gap-2">
-                      <Skeleton className="h-7 w-full" />
-                      <Skeleton className="h-7 w-full" />
-                      <Skeleton className="h-7 w-full" />
-                      <Skeleton className="h-7 w-full" />
-                    </div>
+                    <BadgeSkeleton count={4} />
                   ) : (
                     <div className="grid grid-cols-4 gap-1 p-2">
                       {countries?.data?.items?.map((c: Country) => (
@@ -127,21 +135,24 @@ export default function SiteHeader() {
           {/* search */}
           <div className="hidden md:flex items-center gap-1">
             {searchOpen ? (
-              <div className="relative">
+              <div className="relative" ref={wrapperRef}>
                 <input
                   type="text"
                   placeholder="Tìm phim, diễn viên..."
                   className="bg-secondary text-foreground px-4 py-2 rounded-full text-sm w-64 outline-none border border-border focus:border-primary/50 transition-colors"
                   autoFocus
-                  onBlur={() => {
-                    setTimeout(() => setSearchOpen(false), 200)
-                  }}
+                  // onBlur={() => {
+                  //   setTimeout(() => setSearchOpen(false), 200)
+                  // }}
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                 />
                 <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 {searchOpen && (
-                  <div className="absolute top-14 left-0 flex flex-col gap-4 max-h-[80dvh] w-[300px] bg-background p-4 rounded-lg border border-border/50 shadow-lg overflow-y-auto scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent" onClick={(e) => e.stopPropagation()}>
+                  <div className="absolute top-14 left-0 flex flex-col gap-4 max-h-[80dvh] w-[300px] bg-background p-4 rounded-lg border border-border/50 shadow-lg overflow-y-auto scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent"
+                    onClick={(e) => e.stopPropagation()
+                    }
+                  >
                     {search && value ? (
                       searchLoaing || searchFetching || phimApiSearchLoading || phimApiSearchFetching ? (
                         <div className="flex items-center justify-center py-8">
@@ -172,7 +183,6 @@ export default function SiteHeader() {
               <span className="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full" />
             </button>
             <ThemeSelector />
-
           </div>
           <div className="md:hidden">
             <ThemeSelector />
