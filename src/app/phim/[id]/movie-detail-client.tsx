@@ -245,7 +245,7 @@ export default function MovieDetail({ id }: { id: string }) {
                       ))}
                     </span>
                   </div>
-                  <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2">
+                  <div className="grid grid-cols-6 lg:grid-cols-8 gap-2">
                     {selectedServer?.server_data.map((item: Episode) => {
                       if (!item.slug) return null;
                       return (
