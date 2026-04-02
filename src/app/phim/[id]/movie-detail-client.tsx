@@ -9,23 +9,67 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useEffect, useMemo, useState } from "react";
 import { featuredMovies, topMovies } from "@/data/movies";
 import { useQueryMovie, useQueryPhimApi } from "@/lib/api/movies/movieQuery";
-import { Episode, convertPhimApiToIMovieDetail } from "@/lib/api/movies/movieInterface";
+import {
+  Episode,
+  convertPhimApiToIMovieDetail,
+} from "@/lib/api/movies/movieInterface";
 import MoviePlayer from "@/components/Common/Player";
 import Cast from "@/components/features/Movies/Cast";
 import BreadCrumb from "@/components/Common/BreadCrumb";
 import { useHistoryStore } from "@/stores/useHistoryStore";
 import MovieImage from "@/components/features/Movies/MovieImage";
 import Comment from "@/components/features/Movies/Comment";
+import { Modal } from "@/components/Common/Modal";
 
 const sampleComments = [
-  { user: "khanhchi1", time: "3 ngày trước", text: "Phim hay quá, xem mãi không chán 😍", likes: 12 },
-  { user: "hải", time: "5 ngày trước", text: "Mới xem tới tập 12 chưa biết sau thế nào", likes: 8 },
-  { user: "Rose81", time: "1 tuần trước", text: "Phim hay thật sự, ai chưa xem thì xem đi 👍", likes: 15 },
-  { user: "phacodemap", time: "2 tuần trước", text: "Vừa xem tập 15 và nó quá rất sốc nhé mọi người!", likes: 24 },
-  { user: "Nguyễn Anh Thư", time: "3 tuần trước", text: "uuuuuuuu film này coi cực nghiện luôn nha mng ơi", likes: 6 },
-  { user: "bạch loan hồng", time: "1 tháng trước", text: "Film này quá đỉnh", likes: 3 },
-  { user: "khánh lý", time: "2 tháng trước", text: "mới xem phim, chiếu ở mọc 🫠", likes: 9 },
-  { user: "my", time: "2 tháng trước", text: "Coi là bị lọt 'hole' luôn!", likes: 31 },
+  {
+    user: "khanhchi1",
+    time: "3 ngày trước",
+    text: "Phim hay quá, xem mãi không chán 😍",
+    likes: 12,
+  },
+  {
+    user: "hải",
+    time: "5 ngày trước",
+    text: "Mới xem tới tập 12 chưa biết sau thế nào",
+    likes: 8,
+  },
+  {
+    user: "Rose81",
+    time: "1 tuần trước",
+    text: "Phim hay thật sự, ai chưa xem thì xem đi 👍",
+    likes: 15,
+  },
+  {
+    user: "phacodemap",
+    time: "2 tuần trước",
+    text: "Vừa xem tập 15 và nó quá rất sốc nhé mọi người!",
+    likes: 24,
+  },
+  {
+    user: "Nguyễn Anh Thư",
+    time: "3 tuần trước",
+    text: "uuuuuuuu film này coi cực nghiện luôn nha mng ơi",
+    likes: 6,
+  },
+  {
+    user: "bạch loan hồng",
+    time: "1 tháng trước",
+    text: "Film này quá đỉnh",
+    likes: 3,
+  },
+  {
+    user: "khánh lý",
+    time: "2 tháng trước",
+    text: "mới xem phim, chiếu ở mọc 🫠",
+    likes: 9,
+  },
+  {
+    user: "my",
+    time: "2 tháng trước",
+    text: "Coi là bị lọt 'hole' luôn!",
+    likes: 31,
+  },
 ];
 
 export default function MovieDetail({ id }: { id: string }) {
@@ -34,13 +78,22 @@ export default function MovieDetail({ id }: { id: string }) {
   const source = searchParams?.get("source") ?? "ophim";
   const isPhimApi = source === "phimapi";
 
-  const { data: rawData, isLoading, isError } = useQueryMovie(id as string, undefined, source);
-  const { data: rawDataPhimApi, isError: isErrorPhimApi, isLoading: isLoadingPhimApi } = useQueryPhimApi(id as string, isPhimApi);
+  const {
+    data: rawData,
+    isLoading,
+    isError,
+  } = useQueryMovie(id as string, undefined, source);
+  const {
+    data: rawDataPhimApi,
+    isError: isErrorPhimApi,
+    isLoading: isLoadingPhimApi,
+  } = useQueryPhimApi(id as string, isPhimApi);
   const {
     data: castData,
     isLoading: isLoadingCast,
     isError: isErrorCast,
-  } = useQueryMovie(id as string, "peoples", source);
+  } = useQueryMovie(id as string, "/peoples", source);
+
   // 👉 normalize data
   const movieData = rawData as any;
   const phimApiData = rawDataPhimApi as any;
@@ -77,13 +130,18 @@ export default function MovieDetail({ id }: { id: string }) {
   const [selectedServer, setSelectedServer] = useState<any>(null);
   const [commentText, setCommentText] = useState("");
 
-  const { addWatchHistory, updateWatchProgress, watchHistory } = useHistoryStore();
+  const { addWatchHistory, updateWatchProgress, watchHistory } =
+    useHistoryStore();
 
   // Get saved time for current episode from watch history
   const savedStartTime = (() => {
     if (!movie || !selectedEp) return 0;
-    const historyItem = watchHistory.find(h => h.slug === movie.slug);
-    if (historyItem && historyItem.currentEpSlug === selectedEp.slug && historyItem.currentTime > 0) {
+    const historyItem = watchHistory.find((h) => h.slug === movie.slug);
+    if (
+      historyItem &&
+      historyItem.currentEpSlug === selectedEp.slug &&
+      historyItem.currentTime > 0
+    ) {
       return historyItem.currentTime;
     }
     return 0;
@@ -98,7 +156,7 @@ export default function MovieDetail({ id }: { id: string }) {
   const handleSelectEp = (ep: Episode) => {
     setSelectedEp(ep);
     const params = new URLSearchParams(searchParams.toString());
-    params.set('ep', ep.slug ?? '');
+    params.set("ep", ep.slug ?? "");
     router.push(`/phim/${id}?${params.toString()}`);
     // Save to watch history
     if (movie) {
@@ -122,7 +180,7 @@ export default function MovieDetail({ id }: { id: string }) {
 
   // Redirect back if movie is 18+
   useEffect(() => {
-    if (movie?.category.some(item => item.slug === "phim-18")) {
+    if (movie?.category.some((item) => item.slug === "phim-18")) {
       router.back();
     }
   }, [movie, router]);
@@ -131,18 +189,31 @@ export default function MovieDetail({ id }: { id: string }) {
   useEffect(() => {
     const handleTimeUpdate = (e: CustomEvent) => {
       if (movie) {
-        updateWatchProgress(movie.slug, e.detail.currentTime, e.detail.duration);
+        updateWatchProgress(
+          movie.slug,
+          e.detail.currentTime,
+          e.detail.duration,
+        );
       }
     };
-    window.addEventListener('player-time-update', handleTimeUpdate as EventListener);
-    return () => window.removeEventListener('player-time-update', handleTimeUpdate as EventListener);
+    window.addEventListener(
+      "player-time-update",
+      handleTimeUpdate as EventListener,
+    );
+    return () =>
+      window.removeEventListener(
+        "player-time-update",
+        handleTimeUpdate as EventListener,
+      );
   }, [movie, updateWatchProgress]);
 
   useEffect(() => {
     if (!movie || !selectedServer) return;
-    const epSlug = searchParams?.get("ep") ?? '';
+    const epSlug = searchParams?.get("ep") ?? "";
     if (!epSlug) return;
-    const ep = selectedServer.server_data.find((e: Episode) => e.slug === epSlug);
+    const ep = selectedServer.server_data.find(
+      (e: Episode) => e.slug === epSlug,
+    );
     if (ep) setSelectedEp(ep);
   }, [movie, selectedServer, searchParams?.get("ep")]);
 
@@ -150,7 +221,12 @@ export default function MovieDetail({ id }: { id: string }) {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [id]);
 
-  if (loading) return <div className="flex items-center justify-center min-h-[50vh]"><Loader className="w-6 h-6 animate-spin text-primary" /></div>;
+  if (loading)
+    return (
+      <div className="flex items-center justify-center min-h-[50vh]">
+        <Loader className="w-6 h-6 animate-spin text-primary" />
+      </div>
+    );
   if (!movie) return null;
   return (
     <>
@@ -195,6 +271,26 @@ export default function MovieDetail({ id }: { id: string }) {
                     >
                       <Play className="w-4 h-4 fill-current" /> Xem Ngay
                     </Button>
+                    {movie?.trailer_url && (
+                      <Modal
+                        title={movie.name}
+                        trigger={
+                          <Button variant="outline">
+                            <Play className="w-4 h-4 fill-current" /> Trailer
+                          </Button>
+                        }
+                      >
+                        <iframe
+                          className="w-[90vw] md:w-[560px] md:h-[315px]"
+                          src={`https://www.youtube.com/embed/${movie.trailer_url.split("v=")[1]}`}
+                          title="YouTube video player"
+                          frameBorder={0}
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                          referrerPolicy="strict-origin-when-cross-origin"
+                          allowFullScreen={true}
+                        ></iframe>
+                      </Modal>
+                    )}
                     <div className="flex gap-2">
                       <button className="p-2 rounded-full bg-secondary text-secondary-foreground hover:bg-muted transition-colors">
                         <Heart className="w-4 h-4" />
@@ -339,7 +435,7 @@ export default function MovieDetail({ id }: { id: string }) {
                         <button
                           key={item.name}
                           onClick={() => handleSelectEp(item)}
-                          className={`flex items-center justify-center gap-1 p-2.5 rounded text-xs font-medium transition-colors ${
+                          className={`flex items-center justify-center gap-1 py-2.5 px-1.5 rounded text-xs font-medium transition-colors ${
                             selectedEp?.slug === item.slug
                               ? "bg-primary text-primary-foreground"
                               : "bg-secondary text-secondary-foreground hover:bg-muted"
@@ -389,19 +485,18 @@ export default function MovieDetail({ id }: { id: string }) {
                 />
               </div>
 
-              <Cast source={source}
+              <Cast
+                source={source}
                 loading={loadingCast}
                 peoples={
                   isPhimApi
                     ? movie?.actor
                     : isErrorCast
                       ? []
-                      : (castData as any)?.data?.item?.peoples
+                      : (castData as any)?.data?.peoples
                 }
                 profile_sizes={
-                 isPhimApi
-                    ? []
-                    : (castData as any)?.data?.item?.profile_sizes
+                  isPhimApi ? [] : (castData as any)?.data?.profile_sizes
                 }
               />
 
@@ -502,13 +597,28 @@ export default function MovieDetail({ id }: { id: string }) {
   );
 }
 
-function DetailRow({ label, value, isHtml = false }: { label: string; value: string[] | string; isHtml?: boolean }) {
+function DetailRow({
+  label,
+  value,
+  isHtml = false,
+}: {
+  label: string;
+  value: string[] | string;
+  isHtml?: boolean;
+}) {
   return (
     <div className="flex gap-2">
-      <span className="text-muted-foreground whitespace-nowrap min-w-[80px]">{label}:</span>
-      {isHtml ? <span dangerouslySetInnerHTML={{ __html: value }} className="text-foreground/90" /> :
+      <span className="text-muted-foreground whitespace-nowrap min-w-[80px]">
+        {label}:
+      </span>
+      {isHtml ? (
+        <span
+          dangerouslySetInnerHTML={{ __html: value }}
+          className="text-foreground/90"
+        />
+      ) : (
         <span className="text-foreground/90">{value}</span>
-      }
+      )}
     </div>
   );
 }
