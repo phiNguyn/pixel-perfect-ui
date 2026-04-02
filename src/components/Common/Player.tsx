@@ -578,9 +578,9 @@ export default function MoviePlayer({
               : "opacity-0 pointer-events-none",
           )}
         >
-          {!isFullscreen && isMobile ? (
+          {isFullscreen && isMobile ? (
             <div className="flex items-center gap-4 p-4">
-              {onBack && (
+              {isMobile && (
                 <button
                   type="button"
                   onClick={onBack}
@@ -746,7 +746,7 @@ export default function MoviePlayer({
                   </TooltipContent>
                 </Tooltip>
                 <div
-                  className={`${isMobile && isFullscreen ? "w-auto" : "w-0"}  group-hover/volume:w-20 transition-all duration-300`}
+                  className={`${isMobile && isFullscreen ? "w-auto" : "w-0"} overflow-hidden group-hover/volume:w-20 transition-all duration-300`}
                 >
                   <Slider
                     value={[isMuted ? 0 : volume * 100]}
