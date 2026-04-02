@@ -1,12 +1,38 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Skeleton } from '@/components/ui/skeleton'
 
-const Cast = ({ loading, peoples, profile_sizes }) => {
+const Cast = ({ loading, peoples, profile_sizes, source }) => {
+    const isPhimApi = source === "phimapi";
+   if(isPhimApi) 
+    return  (   <div className="mb-8">
+     <h3 className="text-base font-semibold text-foreground mb-4">Diễn viên</h3>
+     <div className="grid grid-cols-3 sm:grid-cols-8 gap-3">
+       {loading ? (
+         <Skeleton />
+       ) : (
+         peoples?.map((cast) => (
+           <div
+             key={cast}
+             className="flex flex-col items-center text-center"
+           >
+             <Avatar  className="size-12 md:size-14 mb-1.5">
+               <AvatarFallback className="bg-muted text-muted-foreground text-xs">
+                 {cast.slice(0, 2)}
+               </AvatarFallback>
+             </Avatar>
+             <span className="text-xs text-foreground font-medium line-clamp-1">
+               {cast}
+             </span>
+           </div>
+         ))
+       )}
+     </div>
+   </div>)
     return (
         <div className="mb-8">
             <h3 className="text-base font-semibold text-foreground mb-4">Diễn viên</h3>
             <div className="grid grid-cols-3 sm:grid-cols-8 gap-3">
-                {loading ? <Skeleton /> : peoples.map((cast) => (
+                {loading ? <Skeleton /> : peoples?.map((cast) => (
                     <div key={cast.tmdb_people_id} className="flex flex-col items-center text-center">
                         <Avatar className="w-14 h-14 mb-1.5">
                             <AvatarImage src={`${profile_sizes.w185

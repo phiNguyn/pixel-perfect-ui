@@ -36,6 +36,11 @@ export default function MovieDetail({ id }: { id: string }) {
 
   const { data: rawData, isLoading, isError } = useQueryMovie(id as string, undefined, source);
   const { data: rawDataPhimApi, isError: isErrorPhimApi, isLoading: isLoadingPhimApi } = useQueryPhimApi(id as string, isPhimApi);
+  const {
+    data: castData,
+    isLoading: isLoadingCast,
+    isError: isErrorCast,
+  } = useQueryMovie(id as string, "peoples", source);
   // 👉 normalize data
   const movieData = rawData as any;
   const phimApiData = rawDataPhimApi as any;
@@ -51,11 +56,12 @@ export default function MovieDetail({ id }: { id: string }) {
 
   // 👉 loading + error theo source
   const loading = isPhimApi ? isLoadingPhimApi : isLoading;
+  const loadingCast = isPhimApi ? isLoadingPhimApi : isLoadingCast;
   const error = isPhimApi ? isErrorPhimApi : isError;
 
   // 👉 breadcrumb
   const breadCrumb = isPhimApi
-    ? [{ name: movie?.name || "", slug: `/phim/${id}` }]
+    ? movie?.category.map((item) => ({ name: item.name, slug: item.slug }))
     : (movieData?.data?.breadCrumb as any[]);
   const getPosterUrl = () => {
     if (!movie) return "";
@@ -148,11 +154,17 @@ export default function MovieDetail({ id }: { id: string }) {
   if (!movie) return null;
   return (
     <>
-      <div className="py-2 px-4 max-w-[1400px] mx-auto"><BreadCrumb breadCrumb={breadCrumb} /></div>
+      <div className="py-2 px-4 max-w-[1400px] mx-auto">
+        <BreadCrumb breadCrumb={breadCrumb} />
+      </div>
       <div className="my-4">
         {/* Hero backdrop */}
         <div className="relative w-full h-[320px] md:h-[400px]">
-          <img src={getPosterUrl()} alt={movie.name} className="w-full h-full object-cover" />
+          <img
+            src={getPosterUrl()}
+            alt={movie.name}
+            className="w-full h-full object-cover"
+          />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
           <div className="absolute inset-0 bg-gradient-to-r from-background/80 to-transparent" />
         </div>
@@ -163,11 +175,24 @@ export default function MovieDetail({ id }: { id: string }) {
               {/* Movie header */}
               <div className="flex mt-28 md:mt-0 flex-col md:flex-row gap-3 md:gap-5 mb-6">
                 <div className="w-100 flex items-center justify-center">
-                  <div className="w-[120px] md:w-[150px] aspect-[2/3] rounded-lg overflow-hidden shadow-[var(--shadow-card)] flex-shrink-0"><MovieImage movie={movie} source={isPhimApi ? "phimapi" : "ophim"} /></div>
+                  <div className="w-[120px] md:w-[150px] aspect-[2/3] rounded-lg overflow-hidden shadow-[var(--shadow-card)] flex-shrink-0">
+                    <MovieImage
+                      movie={movie}
+                      source={isPhimApi ? "phimapi" : "ophim"}
+                    />
+                  </div>
                 </div>
                 <div className="flex flex-col justify-end">
                   <div className="flex items-center gap-3 mb-3 flex-wrap">
-                    <Button disabled={movie?.episodes[0]?.server_data[0]?.link_m3u8 === ''} onClick={() => handleSelectEp(movie.episodes[0].server_data[0])} className="rounded-full gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-6">
+                    <Button
+                      disabled={
+                        movie?.episodes[0]?.server_data[0]?.link_m3u8 === ""
+                      }
+                      onClick={() =>
+                        handleSelectEp(movie.episodes[0].server_data[0])
+                      }
+                      className="rounded-full gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-6"
+                    >
                       <Play className="w-4 h-4 fill-current" /> Xem Ngay
                     </Button>
                     <div className="flex gap-2">
@@ -189,23 +214,46 @@ export default function MovieDetail({ id }: { id: string }) {
                       <button className="p-2 rounded-full bg-secondary text-secondary-foreground hover:bg-muted transition-colors">
                         <BookmarkPlus className="w-4 h-4" />
                       </button>
-                      <Badge variant="outline" className="border-primary text-primary ml-2">HD</Badge>
+                      <Badge
+                        variant="outline"
+                        className="border-primary text-primary ml-2"
+                      >
+                        HD
+                      </Badge>
                     </div>
                   </div>
 
-                  <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-1">{movie.name}</h1>
-                  <p className="text-sm text-muted-foreground mb-2">{movie.lang}</p>
+                  <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-1">
+                    {movie.name}
+                  </h1>
+                  <p className="text-sm text-muted-foreground mb-2">
+                    {movie.lang}
+                  </p>
 
                   <div className="flex flex-wrap items-center gap-2 mb-2">
-                    <Badge className="bg-accent text-accent-foreground text-xs">{movie.tmdb.vote_average}</Badge>
-                    <Badge variant="secondary" className="text-xs">{movie.year}</Badge>
-                    {movie.category.map(item => (
-                      <Badge key={item.id} variant="secondary" className="text-xs">{item.name}</Badge>
+                    <Badge className="bg-accent text-accent-foreground text-xs">
+                      {movie.tmdb.vote_average}
+                    </Badge>
+                    <Badge variant="secondary" className="text-xs">
+                      {movie.year}
+                    </Badge>
+                    {movie.category.map((item) => (
+                      <Badge
+                        key={item.id}
+                        variant="secondary"
+                        className="text-xs"
+                      >
+                        {item.name}
+                      </Badge>
                     ))}
-                    <Badge variant="secondary" className="text-xs">{movie.quality}</Badge>
+                    <Badge variant="secondary" className="text-xs">
+                      {movie.quality}
+                    </Badge>
                   </div>
 
-                  <p className="text-xs text-muted-foreground">Cập nhật: Tập mới nhất · Lịch chiếu</p>
+                  <p className="text-xs text-muted-foreground">
+                    Cập nhật: Tập mới nhất · Lịch chiếu
+                  </p>
                   <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
                     <Star className="w-3 h-3 text-yellow-400 fill-current" />
                     <span>Số tập: {movie?.episode_current}</span>
@@ -216,29 +264,68 @@ export default function MovieDetail({ id }: { id: string }) {
 
               {selectedEp && (
                 <div className="mb-4">
-                  <MoviePlayer src={selectedEp.link_m3u8} key={selectedEp?.slug + selectedServer?.server_name} title={movie.name} selectedEp={selectedEp.name} poster={movie.poster_url} startTime={savedStartTime} />
+                  <MoviePlayer
+                    src={selectedEp.link_m3u8}
+                    key={selectedEp?.slug + selectedServer?.server_name}
+                    title={movie.name}
+                    selectedEp={selectedEp.name}
+                    poster={movie.poster_url}
+                    startTime={savedStartTime}
+                  />
                 </div>
               )}
 
               {/* Tabs */}
-              <Tabs defaultValue="tapphim" className="mb-6 overflow-x-auto scrollbar-hide">
+              <Tabs
+                defaultValue="tapphim"
+                className="mb-6 overflow-x-auto scrollbar-hide"
+              >
                 <TabsList className="bg-secondary/50 border border-border rounded-lg p-1">
-                  <TabsTrigger value="tapphim" className="text-xs rounded-md data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Tập phim</TabsTrigger>
-                  <TabsTrigger value="gallery" className="text-xs rounded-md data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Gallery</TabsTrigger>
-                  <TabsTrigger value="chitiet" className="text-xs rounded-md data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Chi tiết</TabsTrigger>
-                  <TabsTrigger value="soundtrack" className="text-xs rounded-md data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Soundtrack</TabsTrigger>
-                  <TabsTrigger value="giaisuat" className="text-xs rounded-md data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">Giải suất</TabsTrigger>
+                  <TabsTrigger
+                    value="tapphim"
+                    className="text-xs rounded-md data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                  >
+                    Tập phim
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="gallery"
+                    className="text-xs rounded-md data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                  >
+                    Gallery
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="chitiet"
+                    className="text-xs rounded-md data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                  >
+                    Chi tiết
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="soundtrack"
+                    className="text-xs rounded-md data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                  >
+                    Soundtrack
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="giaisuat"
+                    className="text-xs rounded-md data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                  >
+                    Giải suất
+                  </TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="tapphim" className="mt-4">
                   <div className="flex items-center gap-3 mb-3">
                     <span className="flex gap-2">
-                      {movie.episodes.map(item => (
+                      {movie.episodes.map((item) => (
                         <Button
                           size="sm"
                           key={item.server_name}
                           onClick={() => setSelectedServer(item)}
-                          variant={selectedServer?.server_name === item.server_name ? "default" : "secondary"}
+                          variant={
+                            selectedServer?.server_name === item.server_name
+                              ? "default"
+                              : "secondary"
+                          }
                         >
                           {item.server_name}
                         </Button>
@@ -252,10 +339,11 @@ export default function MovieDetail({ id }: { id: string }) {
                         <button
                           key={item.name}
                           onClick={() => handleSelectEp(item)}
-                          className={`flex items-center justify-center gap-1 p-2.5 rounded text-xs font-medium transition-colors ${selectedEp?.slug === item.slug
-                            ? "bg-primary text-primary-foreground"
-                            : "bg-secondary text-secondary-foreground hover:bg-muted"
-                            }`}
+                          className={`flex items-center justify-center gap-1 p-2.5 rounded text-xs font-medium transition-colors ${
+                            selectedEp?.slug === item.slug
+                              ? "bg-primary text-primary-foreground"
+                              : "bg-secondary text-secondary-foreground hover:bg-muted"
+                          }`}
                         >
                           <Play className="w-2.5 h-2.5" />
                           {isPhimApi ? item.name : "Tập " + item.slug}
@@ -266,37 +354,83 @@ export default function MovieDetail({ id }: { id: string }) {
                 </TabsContent>
 
                 <TabsContent value="chitiet" className="mt-4 space-y-3">
-                  <DetailRow label="Giới thiệu" value={movie.content} isHtml={true} />
+                  <DetailRow
+                    label="Giới thiệu"
+                    value={movie.content}
+                    isHtml={true}
+                  />
                 </TabsContent>
                 <TabsContent value="gallery" className="mt-4">
-                  <p className="text-sm text-muted-foreground">Chưa có hình ảnh</p>
+                  <p className="text-sm text-muted-foreground">
+                    Chưa có hình ảnh
+                  </p>
                 </TabsContent>
                 <TabsContent value="soundtrack" className="mt-4">
-                  <p className="text-sm text-muted-foreground">Chưa có soundtrack</p>
+                  <p className="text-sm text-muted-foreground">
+                    Chưa có soundtrack
+                  </p>
                 </TabsContent>
                 <TabsContent value="giaisuat" className="mt-4">
-                  <p className="text-sm text-muted-foreground">Chưa có thông tin giải suất</p>
+                  <p className="text-sm text-muted-foreground">
+                    Chưa có thông tin giải suất
+                  </p>
                 </TabsContent>
               </Tabs>
 
               {/* Info */}
               <div className="mb-8 space-y-2 text-sm">
-                <DetailRow label="Thể loại" value={movie.category.map(item => item.name).join(', ')} />
-                <DetailRow label="Quốc gia" value={movie.country.map(item => item.name).join(", ")} />
+                <DetailRow
+                  label="Thể loại"
+                  value={movie.category.map((item) => item.name).join(", ")}
+                />
+                <DetailRow
+                  label="Quốc gia"
+                  value={movie.country.map((item) => item.name).join(", ")}
+                />
               </div>
 
-              {/* <Cast loading={castLoading} peoples={isErrorCast ? [] : peoples} profile_sizes={isErrorCast ? [] : profile_sizes} /> */}
+              <Cast source={source}
+                loading={loadingCast}
+                peoples={
+                  isPhimApi
+                    ? movie?.actor
+                    : isErrorCast
+                      ? []
+                      : (castData as any)?.data?.item?.peoples
+                }
+                profile_sizes={
+                 isPhimApi
+                    ? []
+                    : (castData as any)?.data?.item?.profile_sizes
+                }
+              />
 
               {/* Comments */}
               <div className="mb-8 hidden md:block">
                 <div className="flex items-center gap-3 mb-4">
-                  <h3 className="text-base font-semibold text-foreground">💬 Bình luận ({sampleComments.length * 8})</h3>
-                  <Button variant="default" size="sm" className="text-xs rounded-full">Tốt nhất</Button>
-                  <Button variant="ghost" size="sm" className="text-xs rounded-full text-muted-foreground">Gần gần</Button>
+                  <h3 className="text-base font-semibold text-foreground">
+                    💬 Bình luận ({sampleComments.length * 8})
+                  </h3>
+                  <Button
+                    variant="default"
+                    size="sm"
+                    className="text-xs rounded-full"
+                  >
+                    Tốt nhất
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-xs rounded-full text-muted-foreground"
+                  >
+                    Gần gần
+                  </Button>
                 </div>
                 <div className="flex gap-3 mb-6">
                   <Avatar className="w-8 h-8 flex-shrink-0">
-                    <AvatarFallback className="bg-muted text-muted-foreground text-xs">U</AvatarFallback>
+                    <AvatarFallback className="bg-muted text-muted-foreground text-xs">
+                      U
+                    </AvatarFallback>
                   </Avatar>
                   <div className="flex-1">
                     <textarea
@@ -306,9 +440,16 @@ export default function MovieDetail({ id }: { id: string }) {
                       className="w-full bg-secondary border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground resize-none outline-none focus:border-primary/50 transition-colors min-h-[60px]"
                     />
                     <div className="flex items-center gap-2 mt-2">
-                      <span className="text-xs text-muted-foreground">Tìm kiếm</span>
+                      <span className="text-xs text-muted-foreground">
+                        Tìm kiếm
+                      </span>
                       <span className="text-xs text-muted-foreground">GIF</span>
-                      <Button size="sm" className="ml-auto rounded-full text-xs px-4">Gửi</Button>
+                      <Button
+                        size="sm"
+                        className="ml-auto rounded-full text-xs px-4"
+                      >
+                        Gửi
+                      </Button>
                     </div>
                   </div>
                 </div>
@@ -323,15 +464,32 @@ export default function MovieDetail({ id }: { id: string }) {
               </h3>
               <div className="space-y-3">
                 {topMovies.concat(featuredMovies.slice(0, 5)).map((m, i) => (
-                  <div key={`${m.id}-${i}`} className="flex items-center gap-3 group cursor-pointer">
-                    <span className={`text-lg font-black w-6 text-center flex-shrink-0 ${i < 3 ? "text-primary" : "text-muted-foreground"}`}>
+                  <div
+                    key={`${m.id}-${i}`}
+                    className="flex items-center gap-3 group cursor-pointer"
+                  >
+                    <span
+                      className={`text-lg font-black w-6 text-center flex-shrink-0 ${i < 3 ? "text-primary" : "text-muted-foreground"}`}
+                    >
                       {i + 1}
                     </span>
-                    <img src={m.image} alt={m.title} className="w-12 h-16 rounded object-cover flex-shrink-0" />
+                    <img
+                      src={m.image}
+                      alt={m.title}
+                      className="w-12 h-16 rounded object-cover flex-shrink-0"
+                    />
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs font-medium text-foreground line-clamp-2 group-hover:text-primary transition-colors">{m.title}</p>
-                      <p className="text-[10px] text-muted-foreground mt-0.5">{m.year} · {m.country}</p>
-                      {m.episodes && <p className="text-[10px] text-muted-foreground">{m.episodes}</p>}
+                      <p className="text-xs font-medium text-foreground line-clamp-2 group-hover:text-primary transition-colors">
+                        {m.title}
+                      </p>
+                      <p className="text-[10px] text-muted-foreground mt-0.5">
+                        {m.year} · {m.country}
+                      </p>
+                      {m.episodes && (
+                        <p className="text-[10px] text-muted-foreground">
+                          {m.episodes}
+                        </p>
+                      )}
                     </div>
                   </div>
                 ))}
