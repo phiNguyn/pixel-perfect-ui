@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { ThemeProvider as NextThemesProvider } from "next-themes";
+import { ThemeProvider as NextThemesProvider, useTheme } from "next-themes";
 
 export type Theme = {
   id: string;
@@ -73,9 +73,29 @@ export const THEMES: Theme[] = [
   },
 ];
 
+function ThemeColorUpdater() {
+  const { theme } = useTheme();
+
+  React.useEffect(() => {
+    const matched = THEMES.find((t) => t.id === theme);
+    const color = matched?.color ?? "#e11d48";
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) {
+      meta.setAttribute("content", color);
+    }
+  }, [theme]);
+
+  return null;
+}
+
 export function ThemeProvider({
   children,
   ...props
 }: React.ComponentProps<typeof NextThemesProvider>) {
-  return <NextThemesProvider {...props}>{children}</NextThemesProvider>;
+  return (
+    <NextThemesProvider {...props}>
+      <ThemeColorUpdater />
+      {children}
+    </NextThemesProvider>
+  );
 }
