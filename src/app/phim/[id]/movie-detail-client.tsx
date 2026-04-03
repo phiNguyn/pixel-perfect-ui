@@ -261,6 +261,8 @@ export default function MovieDetail({ id }: { id: string }) {
                 <div className="flex flex-col justify-end">
                   <div className="flex items-center gap-3 mb-3 flex-wrap">
                     <Button
+                      aria-label="Xem ngay"
+                      name="watch-now"
                       disabled={
                         movie?.episodes[0]?.server_data[0]?.link_m3u8 === ""
                       }
@@ -275,7 +277,11 @@ export default function MovieDetail({ id }: { id: string }) {
                       <Modal
                         title={movie.name}
                         trigger={
-                          <Button variant="outline">
+                          <Button
+                            aria-label="Trailer"
+                            name="trailer"
+                            variant="outline"
+                          >
                             <Play className="w-4 h-4 fill-current" /> Trailer
                           </Button>
                         }
@@ -292,10 +298,16 @@ export default function MovieDetail({ id }: { id: string }) {
                       </Modal>
                     )}
                     <div className="flex gap-2">
-                      <button className="p-2 rounded-full bg-secondary text-secondary-foreground hover:bg-muted transition-colors">
+                      <button
+                        aria-label="Yêu thích"
+                        name="favorite"
+                        className="p-2 rounded-full bg-secondary text-secondary-foreground hover:bg-muted transition-colors"
+                      >
                         <Heart className="w-4 h-4" />
                       </button>
                       <button
+                        aria-label="Chia sẻ"
+                        name="share"
                         onClick={() => {
                           navigator.share({
                             title: movie.name,
@@ -307,7 +319,11 @@ export default function MovieDetail({ id }: { id: string }) {
                       >
                         <Share2 className="w-4 h-4" />
                       </button>
-                      <button className="p-2 rounded-full bg-secondary text-secondary-foreground hover:bg-muted transition-colors">
+                      <button
+                        aria-label="Lưu"
+                        name="bookmark"
+                        className="p-2 rounded-full bg-secondary text-secondary-foreground hover:bg-muted transition-colors"
+                      >
                         <BookmarkPlus className="w-4 h-4" />
                       </button>
                       <Badge
@@ -414,6 +430,8 @@ export default function MovieDetail({ id }: { id: string }) {
                     <span className="flex gap-2">
                       {movie.episodes.map((item) => (
                         <Button
+                          aria-label={item.server_name}
+                          name={item.server_name}
                           size="sm"
                           key={item.server_name}
                           onClick={() => setSelectedServer(item)}
@@ -433,6 +451,8 @@ export default function MovieDetail({ id }: { id: string }) {
                       if (!item.slug) return null;
                       return (
                         <button
+                          aria-label={item.name}
+                          name={item.name}
                           key={item.name}
                           onClick={() => handleSelectEp(item)}
                           className={`flex items-center justify-center gap-1 py-2.5 px-1.5 rounded text-xs font-medium transition-colors ${
@@ -507,6 +527,8 @@ export default function MovieDetail({ id }: { id: string }) {
                     💬 Bình luận ({sampleComments.length * 8})
                   </h3>
                   <Button
+                    aria-label="Tốt nhất"
+                    name="best"
                     variant="default"
                     size="sm"
                     className="text-xs rounded-full"
@@ -514,6 +536,8 @@ export default function MovieDetail({ id }: { id: string }) {
                     Tốt nhất
                   </Button>
                   <Button
+                    aria-label="Gần gần"
+                    name="near"
                     variant="ghost"
                     size="sm"
                     className="text-xs rounded-full text-muted-foreground"
@@ -540,6 +564,8 @@ export default function MovieDetail({ id }: { id: string }) {
                       </span>
                       <span className="text-xs text-muted-foreground">GIF</span>
                       <Button
+                        aria-label="Gửi"
+                        name="send"
                         size="sm"
                         className="ml-auto rounded-full text-xs px-4"
                       >
