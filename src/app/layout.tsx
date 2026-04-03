@@ -61,10 +61,17 @@ export default function RootLayout({
 }) {
   return (
     <html lang="vi" suppressHydrationWarning>
-      <meta
-        name="google-site-verification"
-        content="yTcodZRIQIBV8BDtfje8c5uvLUwnACfh1NNtVYPULhU"
-      />
+      <head>
+        <meta
+          name="google-site-verification"
+          content="yTcodZRIQIBV8BDtfje8c5uvLUwnACfh1NNtVYPULhU"
+        />
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#e11d48" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="Pinuss Flix" />
+      </head>
       <body className="min-h-screen bg-background flex flex-col antialiased">
         <Providers>
           <ThemeProvider
