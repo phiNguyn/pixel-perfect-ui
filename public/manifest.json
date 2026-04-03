@@ -1,0 +1,17 @@
+{
+  "name": "Pinuss Flix - Xem phim HD miễn phí",
+  "short_name": "Pinuss Flix",
+  "description": "Kho phim HD Vietsub chất lượng cao, cập nhật liên tục",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a0a",
+  "theme_color": "#e11d48",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "64x64",
+      "type": "image/x-icon"
+    }
+  ]
+}
