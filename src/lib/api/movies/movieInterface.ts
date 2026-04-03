@@ -226,7 +226,6 @@ export interface PhimApiMovie {
 
 export function convertPhimApiToIMovieDetail(data: any): IMovieDetail {
   const { movie: phimApiMovie, episodes } = data;
-  console.log(phimApiMovie);
 
   return {
     _id: phimApiMovie._id,

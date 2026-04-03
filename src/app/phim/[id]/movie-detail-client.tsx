@@ -238,7 +238,7 @@ export default function MovieDetail({ id }: { id: string }) {
         <div className="relative w-full h-[320px] md:h-[400px]">
           <img
             src={getPosterUrl()}
-            alt={movie.name}
+            alt={movie.name + " poster"}
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
