@@ -1,13 +1,56 @@
-import { Link } from "react-router-dom";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+"use client";
+
+import { useState, useEffect } from "react";
+import { Download } from "lucide-react";
 import AvatarComponent from "../Common/Avatar";
+
+function InstallButton() {
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [isInstalled, setIsInstalled] = useState(false);
+
+  useEffect(() => {
+    const handler = (e: Event) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+    window.addEventListener("beforeinstallprompt", handler);
+
+    if (window.matchMedia("(display-mode: standalone)").matches) {
+      setIsInstalled(true);
+    }
+
+    return () => window.removeEventListener("beforeinstallprompt", handler);
+  }, []);
+
+  const handleInstall = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === "accepted") setIsInstalled(true);
+      setDeferredPrompt(null);
+    }
+  };
+
+  if (isInstalled) return null;
+
+  return (
+    <button
+      onClick={handleInstall}
+      className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/90 transition-colors"
+    >
+      <Download className="w-4 h-4" />
+      Tải ứng dụng
+    </button>
+  );
+}
 
 export default function SiteFooter() {
   return (
     <footer className="border-t border-border/50 mt-8 py-8">
       <div className="max-w-[1400px] mx-auto px-4">
-        <div className="flex items-center gap-2 mb-4">
+        <div className="flex items-center justify-between mb-4">
           <AvatarComponent />
+          <InstallButton />
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs text-muted-foreground mb-6">
           <div className="space-y-2">
