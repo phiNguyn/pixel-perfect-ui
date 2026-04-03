@@ -24,14 +24,16 @@ export default function HeroBanner() {
           transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
         >
           <div className="flex items-center gap-2 mb-2">
-            <span className="bg-primary/90 text-primary-foreground text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider">Hot</span>
+            <span className="bg-primary/90 text-primary-foreground text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider">
+              Hot
+            </span>
             <span className="text-muted-foreground text-xs">2025</span>
             <span className="flex items-center gap-1 text-yellow-400 text-xs">
               <Star className="w-3 h-3 fill-current" /> 9.1
             </span>
           </div>
           <h1 className="text-3xl md:text-5xl font-bold text-foreground tracking-tight mb-2 text-shadow-lg">
-            (Nếu cả đời này không rực rỡ thì sao ?)
+            (Filter không thấy phim hả 2? Vui lòng search giúp em nhen)
           </h1>
           <p className="text-sm text-secondary-foreground max-w-md mb-4 leading-relaxed">
             Lương Tĩnh · Trần Phi Vũ · Tập 24/36 · Tình Cảm, Lãng Mạn
