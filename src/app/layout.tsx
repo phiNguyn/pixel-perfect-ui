@@ -4,7 +4,7 @@ import SiteFooter from "@/components/layouts/SiteFooter";
 import "./globals.css";
 import { Providers } from "@/components/Providers";
 import { Toaster } from "@/components/ui/toaster";
-import { Analytics } from '@vercel/analytics/next';
+import { Analytics } from "@vercel/analytics/next";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 // Force dynamic rendering to prevent prerendering issues with /_not-found
 export const dynamic = "force-dynamic";
@@ -61,7 +61,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="vi" suppressHydrationWarning>
-
+      <meta
+        name="google-site-verification"
+        content="yTcodZRIQIBV8BDtfje8c5uvLUwnACfh1NNtVYPULhU"
+      />
       <body className="min-h-screen bg-background flex flex-col antialiased">
         <Providers>
           <ThemeProvider
