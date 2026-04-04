@@ -475,6 +475,15 @@ export default function MoviePlayer({
           }
         }
       }
+      // Auto-rotate to landscape on mobile
+      try {
+        const screenOrientation = (screen as any).orientation;
+        if (screenOrientation?.lock) {
+          await screenOrientation.lock("landscape");
+        }
+      } catch (_) {
+        // Screen Orientation API not supported or permission denied
+      }
     } else {
       // Exit fullscreen
       try {
