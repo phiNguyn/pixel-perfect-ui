@@ -501,6 +501,15 @@ export default function MoviePlayer({
       } catch (err) {
         console.error("Exit fullscreen failed");
       }
+      // Unlock orientation back to portrait on mobile
+      try {
+        const screenOrientation = (screen as any).orientation;
+        if (screenOrientation?.unlock) {
+          screenOrientation.unlock();
+        }
+      } catch (_) {
+        // Screen Orientation API not supported
+      }
     }
   };
 
