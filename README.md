@@ -1,73 +1,59 @@
-# Welcome to your Lovable project
+# Pixel Perfect UI — Website Xem Phim
 
-## Project info
+Website xem phim trực tuyến với giao diện hiện đại, hỗ trợ nhiều nguồn phim và tính năng tìm kiếm.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## Tính năng
 
-## How can I edit this code?
+- **Xem phim với link** — Hỗ trợ phát video qua link M3U8 hoặc Embed
+- **Tìm kiếm phim** — Tìm kiếm từ nhiều nguồn (nguonc, ophim, phimapi)
+- **Lịch sử tìm kiếm** — Lưu lại lịch sử tìm kiếm local
+- **Giao diện đẹp** — Dark mode, responsive, tối ưu trải nghiệm người dùng
 
-There are several ways of editing your application.
+## Tech Stack
 
-**Use Lovable**
+- **Next.js 14** — App Router, Server Components
+- **TypeScript** — Type-safe development
+- **Tailwind CSS** — Utility-first styling
+- **shadcn/ui** — UI component library
+- **TanStack Query** — Server state management
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
+## Setup
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
+# Clone repository
 git clone <YOUR_GIT_URL>
+cd pixel-perfect-ui
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
+# Install dependencies
 npm i
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Start development server
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+## Cấu trúc thư mục
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+```
+src/
+├── app/                    # Next.js App Router
+│   ├── xem-phim-link/      # Trang xem phim với link
+│   └── phim/[slug]/        # Trang chi tiết phim
+├── components/             # React components
+│   ├── features/           # Feature-based components
+│   │   ├── Home/           # Trang chủ
+│   │   ├── Movies/         # Danh sách phim
+│   │   └── WatchMovieLink/ # Xem phim với link
+│   └── ui/                 # shadcn/ui components
+├── lib/
+│   ├── api/                # API integration (nguonc, ophim, phimapi)
+│   └── client/             # HTTP client
+├── hooks/                  # Custom React hooks
+├── stores/                 # State management (Zustand)
+└── services/               # Utility services
+```
 
-**Use GitHub Codespaces**
+## API Sources
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+- **nguonc** — https://phim.nguonc.com/api/
+- **ophim** — https://ophim.com/api/
+- **phimapi** — https://phimapi.com/api/
