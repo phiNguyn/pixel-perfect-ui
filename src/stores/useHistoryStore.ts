@@ -14,11 +14,11 @@ export interface WatchHistoryItem {
   currentTime: number;
   duration: number;
   watchedAt: number; // timestamp
-  source: "ophim" | "phimapi";
+  source: "ophim" | "phimapi" | "nguonc";
 }
 
 export interface SearchHistoryItem {
-  source: "ophim" | "phimapi";
+  source: "ophim" | "phimapi" | "nguonc";
   slug: string;
   name: string;
   thumb_url: string;

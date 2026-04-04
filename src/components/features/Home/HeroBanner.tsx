@@ -2,6 +2,7 @@
 
 import { Play, Plus, Star } from "lucide-react";
 import { motion } from "framer-motion";
+import Link from "next/link";
 
 const heroBanner = "/images/hero-banner.jpg";
 
@@ -32,17 +33,17 @@ export default function HeroBanner() {
               <Star className="w-3 h-3 fill-current" /> 9.1
             </span>
           </div>
-          <h1 className="text-3xl md:text-5xl font-bold text-foreground tracking-tight mb-2 text-shadow-lg">
+          <div className="text-3xl md:text-5xl font-bold text-foreground tracking-tight mb-2 text-shadow-lg">
             (Filter không thấy phim hả 2? Vui lòng search giúp em nhen)
-          </h1>
-          <p className="text-sm text-secondary-foreground max-w-md mb-4 leading-relaxed">
-            Lương Tĩnh · Trần Phi Vũ · Tập 24/36 · Tình Cảm, Lãng Mạn
-          </p>
+          </div>
           <div className="flex items-center gap-3">
-            <button className="bg-primary hover:bg-primary/90 text-primary-foreground px-5 py-2.5 rounded-full text-sm font-semibold flex items-center gap-2 transition-colors shadow-lg">
+            <Link
+              href="/xem-phim-link"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground px-5 py-2.5 rounded-full text-sm font-semibold flex items-center gap-2 transition-colors shadow-lg"
+            >
               <Play className="w-4 h-4 fill-current" />
-              Xem Ngay
-            </button>
+              Tìm Phim
+            </Link>
             <button className="bg-secondary/80 hover:bg-secondary text-secondary-foreground px-4 py-2.5 rounded-full text-sm font-medium flex items-center gap-2 transition-colors backdrop-blur-sm">
               <Plus className="w-4 h-4" />
               Theo dõi

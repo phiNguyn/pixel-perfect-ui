@@ -29,6 +29,11 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
+        hostname: "phim.nguonc.com",
+        pathname: "/public/images/**",
+      },
+      {
+        protocol: "https",
         hostname: "image.tmdb.org",
         pathname: "/**",
       },

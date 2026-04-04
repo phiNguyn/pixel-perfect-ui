@@ -30,11 +30,16 @@ export const makePreviewUrl = (url?: string | null): string | undefined => {
 
 export const getImageSrc = (
   url: string,
-  source: "ophim" | "phimapi",
+  source: "ophim" | "phimapi" | "nguonc",
 ): string => {
   if (!url) return "";
   if (source === "phimapi") {
     return url.startsWith("http") ? url : `https://phimimg.com/${url}`;
+  }
+  if (source === "nguonc") {
+    return url.startsWith("http")
+      ? url
+      : `https://nguonc.com/uploads/movies/${url}`;
   }
   if (url.startsWith("http")) return url;
   return `https://img.ophim.live/uploads/movies/${url}`;
