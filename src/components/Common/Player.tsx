@@ -446,7 +446,7 @@ export default function MoviePlayer({
       try {
         if (container.requestFullscreen) {
           await container.requestFullscreen();
-        } else if ((container as any).webkitRequestFullscreen) {
+        }  else if ((container as any).webkitRequestFullscreen) {
           // Safari desktop
           await (container as any).webkitRequestFullscreen();
         } else if ((container as any).mozRequestFullScreen) {
