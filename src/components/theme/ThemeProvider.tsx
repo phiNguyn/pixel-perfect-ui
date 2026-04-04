@@ -89,7 +89,7 @@ function ThemeColorUpdater() {
 
   React.useEffect(() => {
     const matched = THEMES.find((t) => t.id === theme);
-    const color = matched?.color ?? "#e11d48";
+    const color = matched?.bgColor ?? "#0a0a0a";
     const meta = document.querySelector('meta[name="theme-color"]');
     if (meta) {
       meta.setAttribute("content", color);
