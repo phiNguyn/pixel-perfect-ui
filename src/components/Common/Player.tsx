@@ -446,7 +446,7 @@ export default function MoviePlayer({
       try {
         if (container.requestFullscreen) {
           await container.requestFullscreen();
-        } else if ((container as any).webkitRequestFullscreen) {
+        }  else if ((container as any).webkitRequestFullscreen) {
           // Safari desktop
           await (container as any).webkitRequestFullscreen();
         } else if ((container as any).mozRequestFullScreen) {
@@ -475,6 +475,15 @@ export default function MoviePlayer({
           }
         }
       }
+      // Auto-rotate to landscape on mobile
+      try {
+        const screenOrientation = (screen as any).orientation;
+        if (screenOrientation?.lock) {
+          await screenOrientation.lock("landscape");
+        }
+      } catch (_) {
+        // Screen Orientation API not supported or permission denied
+      }
     } else {
       // Exit fullscreen
       try {
@@ -491,6 +500,15 @@ export default function MoviePlayer({
         }
       } catch (err) {
         console.error("Exit fullscreen failed");
+      }
+      // Unlock orientation back to portrait on mobile
+      try {
+        const screenOrientation = (screen as any).orientation;
+        if (screenOrientation?.unlock) {
+          screenOrientation.unlock();
+        }
+      } catch (_) {
+        // Screen Orientation API not supported
       }
     }
   };
