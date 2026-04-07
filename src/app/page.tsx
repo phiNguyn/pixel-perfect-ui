@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import HomeClient from "./home-client";
 
 export const metadata: Metadata = {
-  title: "Xem phim HD mien phí - Pinuss Flix | Phim mới, Vietsub chất lượng cao",
+  title:
+    "Xem phim HD miễn phí - Pinuss Flix | Phim mới, Vietsub chất lượng cao",
   description:
     "Xem phim HD miễn phí tại Pinuss Flix. Kho phim Hàn Quốc, Nhật Bản, Âu Mỹ, Hoạt Hình Vietsub cập nhật liên tục. Xem ngay!",
   alternates: {
