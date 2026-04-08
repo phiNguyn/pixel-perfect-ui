@@ -20,6 +20,7 @@ import { useHistoryStore } from "@/stores/useHistoryStore";
 import MovieImage from "@/components/features/Movies/MovieImage";
 import Comment from "@/components/features/Movies/Comment";
 import { Modal } from "@/components/Common/Modal";
+import Image from "next/image";
 
 const sampleComments = [
   {
@@ -116,14 +117,18 @@ export default function MovieDetail({ id }: { id: string }) {
   const breadCrumb = isPhimApi
     ? movie?.category.map((item) => ({ name: item.name, slug: item.slug }))
     : (movieData?.data?.breadCrumb as any[]);
-  const getPosterUrl = () => {
+  const getPosterUrl = (type: "poster" | "thumb" = "poster") => {
     if (!movie) return "";
     if (isPhimApi) {
-      return movie.poster_url || movie.thumb_url;
+      return type === "poster" ? movie.thumb_url : movie.poster_url;
     }
-    return movie.poster_url?.startsWith("http")
-      ? movie.poster_url
-      : `https://img.ophim.live/uploads/movies/${movie.poster_url || movie.thumb_url}`;
+    return type === "poster"
+      ? movie.poster_url?.startsWith("http")
+        ? movie.poster_url
+        : `https://img.ophim.live/uploads/movies/${movie.poster_url || movie.thumb_url}`
+      : movie.thumb_url?.startsWith("http")
+        ? movie.thumb_url
+        : `https://img.ophim.live/uploads/movies/${movie.thumb_url}`;
   };
 
   const [selectedEp, setSelectedEp] = useState<Episode>();
@@ -236,8 +241,12 @@ export default function MovieDetail({ id }: { id: string }) {
       <div className="my-4">
         {/* Hero backdrop */}
         <div className="relative w-full h-[320px] md:h-[400px]">
-          <img
-            src={getPosterUrl()}
+          <Image
+            width={1920}
+            height={1080}
+            quality={75}
+            loading="lazy"
+            src={getPosterUrl("poster")}
             alt={movie.name + " poster"}
             className="w-full h-full object-cover"
           />
@@ -381,7 +390,7 @@ export default function MovieDetail({ id }: { id: string }) {
                     key={selectedEp?.slug + selectedServer?.server_name}
                     title={movie.name}
                     selectedEp={selectedEp.name}
-                    poster={movie.poster_url}
+                    poster={movie.thumb_url}
                     startTime={savedStartTime}
                   />
                 </div>
@@ -594,7 +603,11 @@ export default function MovieDetail({ id }: { id: string }) {
                     >
                       {i + 1}
                     </span>
-                    <img
+                    <Image
+                      loading="lazy"
+                      width={48}
+                      height={64}
+                      quality={80}
                       src={m.image}
                       alt={m.title}
                       className="w-12 h-16 rounded object-cover flex-shrink-0"

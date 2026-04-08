@@ -6,6 +6,7 @@ import { Providers } from "@/components/Providers";
 import { Toaster } from "@/components/ui/toaster";
 import { Analytics } from "@vercel/analytics/next";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
+import Script from "next/script";
 // Force dynamic rendering to prevent prerendering issues with /_not-found
 export const dynamic = "force-dynamic";
 
@@ -69,7 +70,10 @@ export default function RootLayout({
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta
+          name="apple-mobile-web-app-status-bar-style"
+          content="black-translucent"
+        />
         <meta name="apple-mobile-web-app-title" content="Pinuss Flix" />
       </head>
       <body className="min-h-screen bg-background flex flex-col antialiased">
@@ -87,6 +91,18 @@ export default function RootLayout({
         </Providers>
         <Toaster />
         <Analytics />
+        <Script
+          src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID}`}
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '${process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID}');
+          `}
+        </Script>
       </body>
     </html>
   );

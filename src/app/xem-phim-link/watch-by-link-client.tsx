@@ -17,6 +17,7 @@ import WatchMovieLinkSearch from "@/components/features/WatchMovieLink/Search";
 import { useSearchParams } from "next/navigation";
 import { useQueryNguoncGetMovie } from "@/lib/api/nguonc/nguonc.query";
 import { Episode } from "@/lib/api/movies/movieInterface";
+import Image from "next/image";
 
 export default function WatchByLinkClient() {
   const [m3u8Link, setM3u8Link] = useState("");
@@ -73,7 +74,11 @@ export default function WatchByLinkClient() {
       {movie && (
         <div className="mb-6 p-4 bg-card rounded-lg border border-border">
           <div className="flex gap-4">
-            <img
+            <Image
+              loading="lazy"
+              width={128}
+              height={192}
+              quality={80}
               src={movie.poster_url}
               alt={movie.name}
               className="w-32 h-44 object-cover rounded-md flex-shrink-0"

@@ -64,11 +64,13 @@ export default function SearchHistoryList({
               className="flex items-center gap-2 flex-1 p-1.5 rounded-md hover:bg-muted/50 transition-colors"
             >
               <Image
-                width={1920}
-                height={1080}
+                quality={50}
+                loading="lazy"
+                width={48}
+                height={64}
                 src={getImageSrc(item.thumb_url, item.source || "ophim")}
                 alt={item.name}
-                className="w-8 h-11 rounded object-cover flex-shrink-0"
+                className="w-12 h-16 rounded object-cover flex-shrink-0"
               />
               <div className="flex-1 min-w-0">
                 <p className="text-xs font-medium text-foreground line-clamp-1">

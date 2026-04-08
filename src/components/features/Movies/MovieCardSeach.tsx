@@ -5,6 +5,7 @@ import { FC } from "react";
 import Link from "next/link";
 import { useHistoryStore } from "@/stores/useHistoryStore";
 import { getImageSrc } from "@/services/uploadFile";
+import Image from "next/image";
 
 interface MovieCardSeachProps {
   movie: Movie;
@@ -37,8 +38,14 @@ const MovieCardSeach: FC<MovieCardSeachProps> = ({
       onClick={handleClick}
       className="flex items-center gap-3 group cursor-pointer"
     >
-      <img
-        src={getImageSrc(movie.thumb_url, source || "ophim")}
+      <Image
+        loading="lazy"
+        width={48}
+        height={64}
+        src={getImageSrc(
+          source === "phimapi" ? movie.poster_url : movie.thumb_url,
+          source || "ophim",
+        )}
         alt={movie.name}
         className="w-12 h-16 rounded object-cover flex-shrink-0"
       />

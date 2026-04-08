@@ -57,24 +57,29 @@ export default function MoviesListClient({
   }, [slug, router]);
 
   // Fetch data when page or filters change
-  const fetchData = useCallback(async (page: number, filterParams: Record<string, string> = {}) => {
-    setIsLoading(true);
-    try {
-      const queryString = new URLSearchParams({
-        page: page.toString(),
-        sort_field: "year",
-        ...filterParams,
-      }).toString();
+  const fetchData = useCallback(
+    async (page: number, filterParams: Record<string, string> = {}) => {
+      setIsLoading(true);
+      try {
+        const queryString = new URLSearchParams({
+          page: page.toString(),
+          sort_field: "year",
+          ...filterParams,
+        }).toString();
 
-      const response = await fetch(`/api/movies/${type}/${slug}?${queryString}`);
-      const result = await response.json();
-      setData(result);
-    } catch (error) {
-      console.error("Error fetching movies:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [type, slug]);
+        const response = await fetch(
+          `/api/movies/${type}/${slug}?${queryString}`,
+        );
+        const result = await response.json();
+        setData(result);
+      } catch (error) {
+        console.error("Error fetching movies:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [type, slug],
+  );
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -106,10 +111,10 @@ export default function MoviesListClient({
     fetchData(1, newFilters);
   };
 
-  const getFilterValue = (key: string, filterType?: 'string' | 'array') => {
+  const getFilterValue = (key: string, filterType?: "string" | "array") => {
     const value = filters[key] || searchParams.get(key) || "";
-    if (filterType === 'array' && value) {
-      return value.split(',');
+    if (filterType === "array" && value) {
+      return value.split(",");
     }
     return value;
   };
@@ -136,7 +141,7 @@ export default function MoviesListClient({
         />
       </div>
 
-      <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-8 gap-6 items-stretch">
+      <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-6 items-stretch">
         {isLoading ? (
           <SkeletonCard className="!w-full h-[320px] w" count={24} />
         ) : items.length > 0 ? (
