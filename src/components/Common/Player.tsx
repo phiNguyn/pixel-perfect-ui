@@ -640,6 +640,7 @@ export default function MoviePlayer({
               <Slider
                 className="
         cursor-pointer
+        [&_[data-orientation=horizontal]]:h-1
         [&_[role=slider]]:h-2 
         [&_[role=slider]]:w-2
         [&_[role=slider]]:bg-white
