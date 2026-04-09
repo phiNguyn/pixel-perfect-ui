@@ -22,6 +22,7 @@ import Comment from "@/components/features/Movies/Comment";
 import { Modal } from "@/components/Common/Modal";
 import Image from "next/image";
 import MovieDetailSkeleton from "@/components/features/Movies/Skeletons/MovieDetailSkeleton";
+import MovieNotFound from "@/components/features/Movies/MovieNotFound";
 
 const sampleComments = [
   {
@@ -228,7 +229,8 @@ export default function MovieDetail({ id }: { id: string }) {
   }, [id]);
 
   if (loading) return <MovieDetailSkeleton />;
-  if (!movie) return null;
+  if (error) return <MovieNotFound type="error" slug={id} />;
+  if (!movie) return <MovieNotFound type="not-found" slug={id} />;
   return (
     <>
       <div className="py-2 px-4 max-w-[1400px] mx-auto">
