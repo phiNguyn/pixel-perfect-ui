@@ -640,8 +640,8 @@ export default function MoviePlayer({
               <Slider
                 className="
         cursor-pointer
-        [&_[role=slider]]:h-3 
-        [&_[role=slider]]:w-3
+        [&_[role=slider]]:h-2 
+        [&_[role=slider]]:w-2
         [&_[role=slider]]:bg-white
         [&_[role=slider]]:border
         [&_[role=slider]]:border-primary
