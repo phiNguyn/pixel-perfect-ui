@@ -7,8 +7,8 @@ import { PaginationBase } from "@/components/layouts/Pagination";
 import { SkeletonCard } from "@/components/features/Movies/Skeletons/SkeletonCard";
 import BreadCrumb from "@/components/Common/BreadCrumb";
 import { Filter } from "@/components/Common/Filter";
-import { Movie } from "@/lib/api/movies/movieInterface";
 import { ItemQueryField } from "@/hooks/useQueryResult";
+import { MoviesListResponse } from "@/lib/api/server";
 
 type BreadCrumbItem = {
   name: string;
@@ -26,12 +26,7 @@ type MoviesPagination = {
 interface MoviesListClientProps {
   type: string;
   slug: string;
-  initialData: {
-    items?: Movie[];
-    params?: { pagination?: MoviesPagination };
-    titlePage?: string;
-    breadCrumb?: BreadCrumbItem[];
-  } | null;
+  initialData: MoviesListResponse["data"] | null;
   initialPage: number;
 }
 
