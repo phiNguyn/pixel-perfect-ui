@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Play, Heart, Share2, BookmarkPlus, Star, Loader } from "lucide-react";
+import { Play, Heart, Share2, BookmarkPlus, Star } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -21,6 +21,7 @@ import MovieImage from "@/components/features/Movies/MovieImage";
 import Comment from "@/components/features/Movies/Comment";
 import { Modal } from "@/components/Common/Modal";
 import Image from "next/image";
+import MovieDetailSkeleton from "@/components/features/Movies/Skeletons/MovieDetailSkeleton";
 
 const sampleComments = [
   {
@@ -226,12 +227,7 @@ export default function MovieDetail({ id }: { id: string }) {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [id]);
 
-  if (loading)
-    return (
-      <div className="flex items-center justify-center min-h-[50vh]">
-        <Loader className="w-6 h-6 animate-spin text-primary" />
-      </div>
-    );
+  if (loading) return <MovieDetailSkeleton />;
   if (!movie) return null;
   return (
     <>
