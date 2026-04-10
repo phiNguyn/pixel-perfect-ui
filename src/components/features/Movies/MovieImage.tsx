@@ -24,11 +24,11 @@ export default function MovieImage({
   const [imgSrc, setImgSrc] = useState(getImageSrc());
 
   return (
-    <Image
+    <img
       width={1920}
       height={1080}
       src={imgSrc}
-      quality={80}
+      // quality={80}
       alt={movie.name}
       className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
       loading="lazy"

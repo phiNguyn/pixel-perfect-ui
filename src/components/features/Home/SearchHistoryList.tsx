@@ -64,7 +64,7 @@ export default function SearchHistoryList({
               className="flex items-center gap-2 flex-1 p-1.5 rounded-md hover:bg-muted/50 transition-colors"
             >
               <Image
-                quality={50}
+                quality={75}
                 loading="lazy"
                 width={48}
                 height={64}

@@ -239,10 +239,10 @@ export default function MovieDetail({ id }: { id: string }) {
       <div className="my-4">
         {/* Hero backdrop */}
         <div className="relative w-full h-[320px] md:h-[400px]">
-          <Image
+          <img
             width={1920}
             height={1080}
-            quality={75}
+            // quality={75}
             loading="lazy"
             src={getPosterUrl("poster")}
             alt={movie.name + " poster"}
@@ -601,11 +601,11 @@ export default function MovieDetail({ id }: { id: string }) {
                     >
                       {i + 1}
                     </span>
-                    <Image
+                    <img
                       loading="lazy"
                       width={48}
                       height={64}
-                      quality={80}
+                      // quality={80}
                       src={m.image}
                       alt={m.title}
                       className="w-12 h-16 rounded object-cover flex-shrink-0"

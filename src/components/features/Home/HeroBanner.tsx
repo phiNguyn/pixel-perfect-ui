@@ -10,11 +10,11 @@ const heroBanner = "/images/hero-banner.jpg";
 export default function HeroBanner() {
   return (
     <section className="relative w-full h-[420px] md:h-[500px] overflow-hidden">
-      <Image
+      <img
         loading="lazy"
         width={1920}
         height={1080}
-        quality={80}
+        // quality={80}
         src={heroBanner}
         alt="Featured movie banner"
         className="absolute inset-0 w-full h-full object-cover"
