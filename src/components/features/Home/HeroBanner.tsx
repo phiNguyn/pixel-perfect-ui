@@ -2,10 +2,8 @@
 
 import { Play, Plus, Star } from "lucide-react";
 import { motion } from "framer-motion";
-import Link from "next/link";
 import { useQueryNguoncGetMovie } from "@/lib/api/nguonc/nguonc.query";
 import { Skeleton } from "@/components/ui/skeleton";
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 
