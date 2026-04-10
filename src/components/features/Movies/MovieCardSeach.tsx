@@ -38,7 +38,7 @@ const MovieCardSeach: FC<MovieCardSeachProps> = ({
       onClick={handleClick}
       className="flex items-center gap-3 group cursor-pointer"
     >
-      <Image
+      <img
         loading="lazy"
         width={48}
         height={64}

@@ -4,20 +4,12 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Play,
-  Link2,
-  Code2,
-  ChevronLeft,
-  ChevronRight,
-  Info,
-} from "lucide-react";
+import { Play, Link2, Code2 } from "lucide-react";
 import MoviePlayer from "@/components/Common/Player";
 import WatchMovieLinkSearch from "@/components/features/WatchMovieLink/Search";
 import { useSearchParams } from "next/navigation";
 import { useQueryNguoncGetMovie } from "@/lib/api/nguonc/nguonc.query";
 import { Episode } from "@/lib/api/movies/movieInterface";
-import Image from "next/image";
 
 export default function WatchByLinkClient() {
   const [m3u8Link, setM3u8Link] = useState("");
@@ -28,7 +20,7 @@ export default function WatchByLinkClient() {
     index: number;
     type: "m3u8" | "embed";
   } | null>(null);
-  const [playerMode, setPlayerMode] = useState<"m3u8" | "embed">("m3u8");
+  const [playerMode, setPlayerMode] = useState<"m3u8" | "embed">("embed");
   const searchParams = useSearchParams();
   const link = searchParams.get("link");
   const { data: movie, isLoading } = useQueryNguoncGetMovie(link);
@@ -79,7 +71,7 @@ export default function WatchByLinkClient() {
               width={128}
               height={192}
               // quality={80}
-              src={movie.poster_url}
+              src={movie.thumb_url}
               alt={movie.name}
               className="w-32 h-44 object-cover rounded-md flex-shrink-0"
             />
@@ -141,7 +133,7 @@ export default function WatchByLinkClient() {
                   Chế độ phát:
                 </span>
                 <div className="flex rounded-md border border-border overflow-hidden">
-                  <button
+                  {/* <button
                     onClick={() => setPlayerMode("m3u8")}
                     className={`px-3 py-1 text-xs transition-colors flex items-center gap-1 ${
                       playerMode === "m3u8"
@@ -151,7 +143,7 @@ export default function WatchByLinkClient() {
                   >
                     <Link2 className="h-3 w-3" />
                     M3U8
-                  </button>
+                  </button> */}
                   <button
                     onClick={() => setPlayerMode("embed")}
                     className={`px-3 py-1 text-xs transition-colors flex items-center gap-1 border-l border-border ${
