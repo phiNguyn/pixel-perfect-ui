@@ -58,7 +58,6 @@ export default function MoviesListClient({
       try {
         const queryString = new URLSearchParams({
           page: page.toString(),
-          sort_field: "year",
           ...filterParams,
         }).toString();
 

@@ -6,15 +6,31 @@ import { useQueryNguoncGetMovie } from "@/lib/api/nguonc/nguonc.query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import { useQueryPhimApi } from "@/lib/api/movies/movieQuery";
+import { convertPhimApiToIMovieDetail } from "@/lib/api/movies/movieInterface";
+import { useMemo } from "react";
+import MovieNotFound from "../Movies/MovieNotFound";
 
 export default function HeroBanner() {
-  const { data: movie, isLoading } = useQueryNguoncGetMovie(
-    "vi-me-anh-phan-chia-tay",
-  );
+  const {
+    data,
+    isError,
+    isLoading: isLoadingPhimApi,
+    isSuccess,
+  } = useQueryPhimApi("vi-me-anh-phan-chia-tay", true);
+
+  const movie = useMemo(() => {
+    if (isSuccess) {
+      return data ? convertPhimApiToIMovieDetail(data) : undefined;
+    }
+  }, [isSuccess, data]);
+
   const router = useRouter();
+  if (isError)
+    return <MovieNotFound type="error" slug="vi-me-anh-phan-chia-tay" />;
   return (
-    <section className="relative w-full h-[420px] md:h-[500px] overflow-hidden">
-      {isLoading ? (
+    <section className="relative my-4 w-full h-[420px] md:h-[500px]  overflow-hidden">
+      {isLoadingPhimApi ? (
         <Skeleton className="w-full h-full px-6 py-4" />
       ) : (
         <>
@@ -22,7 +38,7 @@ export default function HeroBanner() {
             loading="lazy"
             width={1920}
             height={1080}
-            src={movie?.poster_url || ""}
+            src={movie?.thumb_url || ""}
             alt={movie?.name + " - Ảnh bìa phim"}
             className="absolute inset-0 w-full h-full object-cover"
           />

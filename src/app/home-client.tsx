@@ -11,38 +11,38 @@ import useQueryResult from "@/hooks/useQueryResult";
 import { MovieCategory } from "@/lib/api/movies/movieInterface";
 
 export default function HomeClient() {
-  const { queryResult } = useQueryResult({ limit: 10, page: 1, sort_field: "year" });
+  const { queryResult } = useQueryResult({ limit: 10, page: 1 });
   const isLoad = queryResult?.q === "";
   const { data, isLoading } = useQueryMovies(
     queryResult,
     isLoad,
     MovieCategory.PHIM_MOI,
-    "danh-sach/" + MovieCategory.PHIM_MOI
+    "danh-sach/" + MovieCategory.PHIM_MOI,
   );
   const movieData = data as any;
   const { data: koreanMovies, isLoading: koreanMoviesLoading } = useQueryMovies(
     queryResult,
     isLoad,
     "quoc-gia/han-quoc",
-    "quoc-gia/han-quoc"
+    "quoc-gia/han-quoc",
   );
   const { data: japanMovies, isLoading: japanMoviesLoading } = useQueryMovies(
     queryResult,
     isLoad,
     "quoc-gia/nhat-ban",
-    "quoc-gia/nhat-ban"
+    "quoc-gia/nhat-ban",
   );
   const { data: usMovies, isLoading: usMoviesLoading } = useQueryMovies(
     queryResult,
     isLoad,
     "quoc-gia/au-my",
-    "quoc-gia/au-my"
+    "quoc-gia/au-my",
   );
   const { data: animeMovies, isLoading: animeMoviesLoading } = useQueryMovies(
     queryResult,
     isLoad,
     "danh-sach/hoat-hinh",
-    "danh-sach/hoat-hinh"
+    "danh-sach/hoat-hinh",
   );
   const koreanData = koreanMovies as any;
   const japanData = japanMovies as any;

@@ -117,7 +117,10 @@ export default function MovieDetail({ id }: { id: string }) {
 
   // 👉 breadcrumb
   const breadCrumb = isPhimApi
-    ? movie?.category.map((item) => ({ name: item.name, slug: item.slug }))
+    ? movie?.category.map((item) => ({
+        name: item.name,
+        slug: "/the-loai/" + item.slug,
+      }))
     : (movieData?.data?.breadCrumb as any[]);
   const getPosterUrl = (type: "poster" | "thumb" = "poster") => {
     if (!movie) return "";
@@ -353,6 +356,11 @@ export default function MovieDetail({ id }: { id: string }) {
                     <Badge className="bg-accent text-accent-foreground text-xs">
                       {movie.tmdb.vote_average}
                     </Badge>
+                    {movie.episode_current && (
+                      <Badge variant="default" className="text-xs">
+                        {movie.episode_current} / {movie.episode_total}
+                      </Badge>
+                    )}
                     <Badge variant="secondary" className="text-xs">
                       {movie.year}
                     </Badge>
@@ -375,7 +383,7 @@ export default function MovieDetail({ id }: { id: string }) {
                   </p>
                   <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
                     <Star className="w-3 h-3 text-yellow-400 fill-current" />
-                    <span>Số tập: {movie?.episode_current}</span>
+
                     <span>Số lượt xem: {movie.view}</span>
                   </div>
                 </div>
