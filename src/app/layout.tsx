@@ -7,6 +7,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Analytics } from "@vercel/analytics/next";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import Script from "next/script";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 // Force dynamic rendering to prevent prerendering issues with /_not-found
 export const dynamic = "force-dynamic";
 
@@ -91,6 +92,7 @@ export default function RootLayout({
         </Providers>
         <Toaster />
         <Analytics />
+        <SpeedInsights />
         <Script
           src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID}`}
           strategy="afterInteractive"
