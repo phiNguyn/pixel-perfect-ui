@@ -548,6 +548,7 @@ export default function MoviePlayer({
         className={cn(
           "relative w-full bg-black overflow-hidden group",
           isFullscreen ? "h-screen" : "aspect-video",
+          isFullscreen && !showControls && isPlaying ? "cursor-none" : "cursor-auto",
         )}
         onMouseMove={showControlsTemporarily}
         onTouchStart={showControlsTemporarily}
