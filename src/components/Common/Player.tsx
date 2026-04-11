@@ -565,6 +565,7 @@ export default function MoviePlayer({
           poster={poster}
           onClick={togglePlay}
           onDoubleClick={toggleFullscreen}
+          onMouseMove={showControlsTemporarily}
           playsInline
         />
 
