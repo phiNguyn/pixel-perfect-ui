@@ -63,8 +63,7 @@ export default function SearchHistoryList({
               onClick={onSelect}
               className="flex items-center gap-2 flex-1 p-1.5 rounded-md hover:bg-muted/50 transition-colors"
             >
-              <Image
-                quality={75}
+              <img
                 loading="lazy"
                 width={48}
                 height={64}
