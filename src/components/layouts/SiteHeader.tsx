@@ -1,6 +1,15 @@
 "use client";
-import { Search, Bell, Menu, Loader, XIcon, ChevronDown } from "lucide-react";
+import {
+  Search,
+  Bell,
+  Menu,
+  Loader,
+  XIcon,
+  ChevronDown,
+  ArrowLeft,
+} from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import { useQueryCategories } from "@/lib/api/categories/categorieQuery";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -33,11 +42,16 @@ import { Button } from "../ui/button";
 import Empty from "../Common/Empty";
 import fallback from "@/assets/fallback.png";
 import { ThemeSelector } from "../theme/ThemeSelector";
+import { motion, AnimatePresence } from "framer-motion";
 export default function SiteHeader() {
+  const router = useRouter();
+  const pathname = usePathname();
   const wrapperRef = useRef<HTMLDivElement>(null);
   const { slug } = useParams();
   const [searchOpen, setSearchOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const isHomePage = pathname === "/";
   const { data, isLoading } = useQueryCategories();
   const { items } = data?.data || [];
   const [search, setSearch] = useState("");
@@ -78,12 +92,42 @@ export default function SiteHeader() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50);
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const shouldShowBackButton = !isHomePage && isScrolled;
   return (
     <header className="py-2 sticky top-0 z-50 bg-background/50 backdrop-blur-md border-b border-border/50">
       <div className="max-w-[1400px] mx-auto px-4">
         {/* Top bar */}
         <div className="flex items-center justify-between h-14">
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4 md:gap-6">
+            <AnimatePresence mode="wait">
+              {shouldShowBackButton && (
+                <motion.div
+                  initial={{ opacity: 0, x: -20, scale: 0.8 }}
+                  animate={{ opacity: 1, x: 0, scale: 1 }}
+                  exit={{ opacity: 0, x: -20, scale: 0.8 }}
+                  transition={{ duration: 0.25, ease: "easeOut" }}
+                >
+                  <Button
+                    size="icon"
+                    onClick={() => router.back()}
+                    aria-label="Quay lại"
+                    className="rounded-full transition-colors hover:bg-secondary/50"
+                  >
+                    <ArrowLeft className="w-5 h-5" />
+                  </Button>
+                </motion.div>
+              )}
+            </AnimatePresence>
             <AvatarComponent />
             <div className="hidden md:flex items-center gap-2 ">
               {/* Thể loại dropdown */}

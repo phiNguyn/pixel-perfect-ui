@@ -236,9 +236,6 @@ export default function MovieDetail({ id }: { id: string }) {
   if (!movie) return <MovieNotFound type="not-found" slug={id} />;
   return (
     <>
-      <div className="py-2 px-4 max-w-[1400px] mx-auto">
-        <BreadCrumb breadCrumb={breadCrumb} />
-      </div>
       <div className="my-4">
         {/* Hero backdrop */}
         <div className="relative w-full h-[320px] md:h-[400px]">
@@ -358,15 +355,18 @@ export default function MovieDetail({ id }: { id: string }) {
                     </Badge>
                     {movie.episode_current && (
                       <Badge variant="default" className="text-xs">
-                        {movie.episode_current} / {movie.episode_total}
+                        {movie.episode_current}{" "}
+                        {movie.episode_total === "1"
+                          ? ""
+                          : " / " + movie.episode_total}
                       </Badge>
                     )}
                     <Badge variant="secondary" className="text-xs">
                       {movie.year}
                     </Badge>
-                    {movie.category.map((item) => (
+                    {movie.category.map((item, idx) => (
                       <Badge
-                        key={item.id}
+                        key={item.id + idx}
                         variant="secondary"
                         className="text-xs"
                       >
