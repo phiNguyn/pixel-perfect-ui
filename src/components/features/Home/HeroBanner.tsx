@@ -29,7 +29,7 @@ export default function HeroBanner() {
   if (isError)
     return <MovieNotFound type="error" slug="vi-me-anh-phan-chia-tay" />;
   return (
-    <section className="relative my-4 w-full h-[420px] md:h-[500px]  overflow-hidden">
+    <section className="relative my-4 w-full h-[420px] md:h-[calc(100vh-80px)]  overflow-hidden">
       {isLoadingPhimApi ? (
         <Skeleton className="w-full h-full px-6 py-4" />
       ) : (

@@ -43,24 +43,26 @@ const Cast = ({ loading, peoples, profile_sizes, source }) => {
         ) : (
           peoples?.map((cast: any) => (
             <div
-              key={cast.tmdb_people_id}
+              key={cast.tmdb_people_id || cast}
               className="flex flex-col items-center text-center"
             >
               <Avatar className="w-14 h-14 mb-1.5">
                 <AvatarImage
-                  src={`${profile_sizes.w185}/${cast.profile_path}`}
+                  src={`${profile_sizes?.w185}/${cast?.profile_path}`}
                   className="object-cover"
                 />
                 <AvatarFallback className="bg-muted text-muted-foreground text-xs">
-                  {cast.name.slice(0, 2)}
+                  {cast?.name?.slice(0, 2) || cast?.slice(0, 2)}
                 </AvatarFallback>
               </Avatar>
               <span className="text-xs text-foreground font-medium line-clamp-1">
-                {cast.name}
+                {cast?.name || cast}
               </span>
-              <span className="text-[10px] text-muted-foreground">
-                {cast?.character}
-              </span>
+              {cast?.character && (
+                <span className="text-[10px] text-muted-foreground">
+                  {cast?.character}
+                </span>
+              )}
             </div>
           ))
         )}

@@ -167,7 +167,7 @@ export default function MovieDetail({ id }: { id: string }) {
     setSelectedEp(ep);
     const params = new URLSearchParams(searchParams.toString());
     params.set("ep", ep.slug ?? "");
-    router.push(`/phim/${id}?${params.toString()}`);
+    router.replace(`/phim/${id}?${params.toString()}`, { scroll: false });
     // Save to watch history
     if (movie) {
       addWatchHistory({
@@ -227,10 +227,6 @@ export default function MovieDetail({ id }: { id: string }) {
     if (ep) setSelectedEp(ep);
   }, [movie, selectedServer, searchParams?.get("ep")]);
 
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [id]);
-
   if (loading) return <MovieDetailSkeleton />;
   if (error) return <MovieNotFound type="error" slug={id} />;
   if (!movie) return <MovieNotFound type="not-found" slug={id} />;
@@ -238,7 +234,7 @@ export default function MovieDetail({ id }: { id: string }) {
     <>
       <div className="my-4">
         {/* Hero backdrop */}
-        <div className="relative w-full h-[320px] md:h-[400px]">
+        <div className="relative w-full h-[320px] md:h-[calc(100vh-80px)]">
           <img
             width={1920}
             height={1080}
@@ -249,7 +245,7 @@ export default function MovieDetail({ id }: { id: string }) {
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-r from-background/80 to-transparent" />
+          {/* <div className="absolute inset-0 bg-gradient-to-r from-background/80 to-transparent" /> */}
         </div>
 
         <div className="max-w-[1400px] mx-auto px-4 -mt-48 relative z-10">
@@ -415,18 +411,19 @@ export default function MovieDetail({ id }: { id: string }) {
                     Tập phim
                   </TabsTrigger>
                   <TabsTrigger
-                    value="gallery"
-                    className="text-xs rounded-md data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-                  >
-                    Gallery
-                  </TabsTrigger>
-                  <TabsTrigger
                     value="chitiet"
                     className="text-xs rounded-md data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
                   >
                     Chi tiết
                   </TabsTrigger>
                   <TabsTrigger
+                    value="gallery"
+                    className="text-xs rounded-md data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                  >
+                    Gallery
+                  </TabsTrigger>
+
+                  {/* <TabsTrigger
                     value="soundtrack"
                     className="text-xs rounded-md data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
                   >
@@ -437,7 +434,7 @@ export default function MovieDetail({ id }: { id: string }) {
                     className="text-xs rounded-md data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
                   >
                     Giải suất
-                  </TabsTrigger>
+                  </TabsTrigger> */}
                 </TabsList>
 
                 <TabsContent value="tapphim" className="mt-4">
@@ -496,7 +493,7 @@ export default function MovieDetail({ id }: { id: string }) {
                     Chưa có hình ảnh
                   </p>
                 </TabsContent>
-                <TabsContent value="soundtrack" className="mt-4">
+                {/* <TabsContent value="soundtrack" className="mt-4">
                   <p className="text-sm text-muted-foreground">
                     Chưa có soundtrack
                   </p>
@@ -505,7 +502,7 @@ export default function MovieDetail({ id }: { id: string }) {
                   <p className="text-sm text-muted-foreground">
                     Chưa có thông tin giải suất
                   </p>
-                </TabsContent>
+                </TabsContent> */}
               </Tabs>
 
               {/* Info */}
@@ -527,7 +524,7 @@ export default function MovieDetail({ id }: { id: string }) {
                   isPhimApi
                     ? movie?.actor
                     : isErrorCast
-                      ? []
+                      ? movie?.actor
                       : (castData as any)?.data?.peoples
                 }
                 profile_sizes={

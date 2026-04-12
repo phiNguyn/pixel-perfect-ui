@@ -124,7 +124,7 @@ export default function MoviesListClient({
   const { pagination } = params ?? {};
 
   return (
-    <div className="px-8 my-0 mx-auto  py-6">
+    <div className="px-8 mt-16 mx-auto  py-6">
       <BreadCrumb breadCrumb={breadCrumb} />
 
       <div className="w-full flex justify-end mt-4">

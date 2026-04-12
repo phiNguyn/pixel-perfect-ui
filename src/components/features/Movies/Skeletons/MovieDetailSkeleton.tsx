@@ -4,7 +4,7 @@ export default function MovieDetailSkeleton() {
   return (
     <div className="my-4 animate-in fade-in duration-300">
       {/* Breadcrumb skeleton */}
-      <div className="py-2 px-4 max-w-[1400px] mx-auto">
+      {/* <div className="py-2 px-4 max-w-[1400px] mx-auto">
         <div className="flex items-center gap-2">
           <Skeleton className="h-4 w-16" />
           <Skeleton className="h-4 w-4" />
@@ -12,10 +12,10 @@ export default function MovieDetailSkeleton() {
           <Skeleton className="h-4 w-4" />
           <Skeleton className="h-4 w-32" />
         </div>
-      </div>
+      </div> */}
 
       {/* Hero backdrop skeleton */}
-      <div className="relative w-full h-[320px] md:h-[400px]">
+      <div className="relative w-full h-[320px] md:h-[calc(100vh-80px)]">
         <Skeleton className="w-full h-full rounded-none" />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-r from-background/80 to-transparent" />
@@ -64,7 +64,13 @@ export default function MovieDetailSkeleton() {
             {/* Tabs skeleton */}
             <div className="mb-6">
               <div className="flex gap-1 bg-secondary/50 border border-border rounded-lg p-1 w-fit">
-                {["Tập phim", "Gallery", "Chi tiết", "Soundtrack", "Giải suất"].map((_, i) => (
+                {[
+                  "Tập phim",
+                  "Gallery",
+                  "Chi tiết",
+                  "Soundtrack",
+                  "Giải suất",
+                ].map((_, i) => (
                   <Skeleton key={i} className="h-7 w-16 rounded-md" />
                 ))}
               </div>
@@ -100,7 +106,10 @@ export default function MovieDetailSkeleton() {
               <Skeleton className="h-5 w-32 mb-4" />
               <div className="flex gap-3 overflow-hidden">
                 {Array.from({ length: 6 }).map((_, i) => (
-                  <div key={i} className="flex flex-col items-center gap-2 flex-shrink-0">
+                  <div
+                    key={i}
+                    className="flex flex-col items-center gap-2 flex-shrink-0"
+                  >
                     <Skeleton className="w-16 h-16 rounded-full" />
                     <Skeleton className="h-3 w-14" />
                   </div>

@@ -104,7 +104,7 @@ export default function SiteHeader() {
 
   const shouldShowBackButton = !isHomePage && isScrolled;
   return (
-    <header className="py-2 sticky top-0 z-50 bg-background/50 backdrop-blur-md border-b border-border/50">
+    <header className=" py-2 fixed w-full top-0 z-50 bg-background/50 backdrop-blur-md border-b border-border/50">
       <div className="max-w-[1400px] mx-auto px-4">
         {/* Top bar */}
         <div className="flex items-center justify-between h-14">
