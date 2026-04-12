@@ -533,7 +533,7 @@ export default function MovieDetail({ id }: { id: string }) {
               />
 
               {/* Comments */}
-              <div className="mb-8 hidden md:block">
+              <div className="mb-8">
                 <div className="flex items-center gap-3 mb-4">
                   <h3 className="text-base font-semibold text-foreground">
                     💬 Bình luận ({sampleComments.length * 8})
