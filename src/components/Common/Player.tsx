@@ -774,7 +774,7 @@ export default function MoviePlayer({
                     onValueChange={handleVolumeChange}
                     max={100}
                     step={1}
-                    className="w-20
+                    className="w-28
                          cursor-pointer
         [&_[role=slider]]:h-3 
         [&_[role=slider]]:w-3
