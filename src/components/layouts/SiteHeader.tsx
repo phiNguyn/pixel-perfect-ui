@@ -43,9 +43,11 @@ import Empty from "../Common/Empty";
 import fallback from "@/assets/fallback.png";
 import { ThemeSelector } from "../theme/ThemeSelector";
 import { motion, AnimatePresence } from "framer-motion";
+import { useDisclaimerNotice } from "./DisclaimerNotice";
 export default function SiteHeader() {
   const router = useRouter();
   const pathname = usePathname();
+  const { openDisclaimer } = useDisclaimerNotice();
   const wrapperRef = useRef<HTMLDivElement>(null);
   const { slug } = useParams();
   const [searchOpen, setSearchOpen] = useState(false);
@@ -200,6 +202,28 @@ export default function SiteHeader() {
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
+            <div className="hidden md:flex items-center gap-2">
+              <a
+                href="https://unikorn.vn/p/pinuss-flix?ref=embed-pinuss-flix"
+                target="_blank"
+              >
+                <img
+                  src="https://unikorn.vn/api/widgets/badge/pinuss-flix/rank?theme=light&type=daily"
+                  alt="Pinuss Flix - Hàng ngày"
+                  style={{ width: "auto", height: "48px" }}
+                />
+              </a>
+              <a
+                href="https://unikorn.vn/p/pinuss-flix?ref=embed-pinuss-flix"
+                target="_blank"
+              >
+                <img
+                  src="https://unikorn.vn/api/widgets/badge/pinuss-flix/rank?theme=light&type=weekly"
+                  alt="Pinuss Flix - Hàng tuần"
+                  style={{ width: "auto", height: "48px" }}
+                />
+              </a>
+            </div>
           </div>
           {/* search */}
           <div className="hidden md:flex items-center gap-1">
@@ -280,8 +304,10 @@ export default function SiteHeader() {
               </button>
             )}
             <button
+              type="button"
               aria-label="Thông báo"
               name="notification"
+              onClick={() => openDisclaimer()}
               className="p-2 text-muted-foreground hover:text-foreground transition-colors relative"
             >
               <Bell className="w-5 h-5" />

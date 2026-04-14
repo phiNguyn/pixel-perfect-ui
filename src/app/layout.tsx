@@ -8,6 +8,7 @@ import { Analytics } from "@vercel/analytics/next";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import Script from "next/script";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { DisclaimerNoticeProvider } from "@/components/layouts/DisclaimerNotice";
 // Force dynamic rendering to prevent prerendering issues with /_not-found
 export const dynamic = "force-dynamic";
 
@@ -85,9 +86,11 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <SiteHeader />
-            <main className="flex-1">{children}</main>
-            <SiteFooter />
+            <DisclaimerNoticeProvider>
+              <SiteHeader />
+              <main className="flex-1">{children}</main>
+              <SiteFooter />
+            </DisclaimerNoticeProvider>
           </ThemeProvider>
         </Providers>
         <Toaster />
@@ -105,16 +108,14 @@ export default function RootLayout({
             gtag('config', '${process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID}');
           `}
         </Script>
-        import Script from 'next/script';
-
-<Script
-  defer
-  src='https://analytics.deplio.app/script.js'
-  data-website-id='0a4618cb-0f87-416a-bed5-742c736b7b87'
-  data-performance='true'
-  data-do-not-track='true'
-  data-domains='pinuss-flix.vercel.app'
-/>
+        <Script
+          defer
+          src="https://analytics.deplio.app/script.js"
+          data-website-id="0a4618cb-0f87-416a-bed5-742c736b7b87"
+          data-performance="true"
+          data-do-not-track="true"
+          data-domains="pinuss-flix.vercel.app"
+        />
       </body>
     </html>
   );

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Download } from "lucide-react";
 import AvatarComponent from "../Common/Avatar";
+import { SITE_DISCLAIMER_TEXT } from "@/lib/site-disclaimer";
 
 function InstallButton() {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
@@ -36,7 +37,7 @@ function InstallButton() {
   return (
     <button
       onClick={handleInstall}
-      className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/90 transition-colors"
+      className="w-fit ml-auto flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/90 transition-colors"
     >
       <Download className="w-4 h-4" />
       Tải ứng dụng
@@ -50,36 +51,84 @@ export default function SiteFooter() {
       <div className="max-w-[1400px] mx-auto px-4">
         <div className="flex items-center justify-between mb-4">
           <AvatarComponent />
-          <InstallButton />
+          <div className="flex-col md:flex gap-2">
+            <div className="flex items-center gap-2">
+              <a
+                href="https://unikorn.vn/p/pinuss-flix?ref=embed-pinuss-flix"
+                target="_blank"
+              >
+                <img
+                  src="https://unikorn.vn/api/widgets/badge/pinuss-flix/rank?theme=light&type=daily"
+                  alt="Pinuss Flix - Hàng ngày"
+                  className="h-8 md:h-12 w-auto"
+                />
+              </a>
+              <a
+                href="https://unikorn.vn/p/pinuss-flix?ref=embed-pinuss-flix"
+                target="_blank"
+              >
+                <img
+                  src="https://unikorn.vn/api/widgets/badge/pinuss-flix/rank?theme=light&type=weekly"
+                  alt="Pinuss Flix - Hàng tuần"
+                  className="h-8 md:h-12 w-auto"
+                />
+              </a>
+            </div>
+            <InstallButton />
+          </div>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs text-muted-foreground mb-6">
           <div className="space-y-2">
             <p className="text-secondary-foreground font-medium">Phim Hay</p>
-            <p className="hover:text-foreground cursor-pointer transition-colors">Phim Bộ</p>
-            <p className="hover:text-foreground cursor-pointer transition-colors">Phim Lẻ</p>
-            <p className="hover:text-foreground cursor-pointer transition-colors">Phim Chiếu Rạp</p>
+            <p className="hover:text-foreground cursor-pointer transition-colors">
+              Phim Bộ
+            </p>
+            <p className="hover:text-foreground cursor-pointer transition-colors">
+              Phim Lẻ
+            </p>
+            <p className="hover:text-foreground cursor-pointer transition-colors">
+              Phim Chiếu Rạp
+            </p>
           </div>
           <div className="space-y-2">
             <p className="text-secondary-foreground font-medium">Thể Loại</p>
-            <p className="hover:text-foreground cursor-pointer transition-colors">Hành Động</p>
-            <p className="hover:text-foreground cursor-pointer transition-colors">Tình Cảm</p>
-            <p className="hover:text-foreground cursor-pointer transition-colors">Kinh Dị</p>
+            <p className="hover:text-foreground cursor-pointer transition-colors">
+              Hành Động
+            </p>
+            <p className="hover:text-foreground cursor-pointer transition-colors">
+              Tình Cảm
+            </p>
+            <p className="hover:text-foreground cursor-pointer transition-colors">
+              Kinh Dị
+            </p>
           </div>
           <div className="space-y-2">
             <p className="text-secondary-foreground font-medium">Quốc Gia</p>
-            <p className="hover:text-foreground cursor-pointer transition-colors">Hàn Quốc</p>
-            <p className="hover:text-foreground cursor-pointer transition-colors">Trung Quốc</p>
-            <p className="hover:text-foreground cursor-pointer transition-colors">Nhật Bản</p>
+            <p className="hover:text-foreground cursor-pointer transition-colors">
+              Hàn Quốc
+            </p>
+            <p className="hover:text-foreground cursor-pointer transition-colors">
+              Trung Quốc
+            </p>
+            <p className="hover:text-foreground cursor-pointer transition-colors">
+              Nhật Bản
+            </p>
           </div>
           <div className="space-y-2">
             <p className="text-secondary-foreground font-medium">Hỗ Trợ</p>
-            <p className="hover:text-foreground cursor-pointer transition-colors">Liên hệ</p>
-            <p className="hover:text-foreground cursor-pointer transition-colors">Điều khoản</p>
-            <p className="hover:text-foreground cursor-pointer transition-colors">Bảo mật</p>
+            <p className="hover:text-foreground cursor-pointer transition-colors">
+              Liên hệ
+            </p>
+            <p className="hover:text-foreground cursor-pointer transition-colors">
+              Điều khoản
+            </p>
+            <p className="hover:text-foreground cursor-pointer transition-colors">
+              Bảo mật
+            </p>
           </div>
         </div>
-        <p className="text-[10px] text-muted-foreground">© 2025 Pinuss Flix.</p>
-        <p className="text-[12px] text-muted-foreground">Lưu ý: Chúng tôi từ chối mọi trách nhiệm liên quan đến nội dung hiển thị/tồn tại trên trang. Tất cả video và dữ liệu tại đây đều được tổng hợp từ các nguồn phổ biến trên Internet, và không thuộc quyền sở hữu hay kiểm soát của chúng tôi. Chúng tôi không cung cấp dịch vụ phát trực tuyến chính thức. Nếu bạn cho rằng quyền lợi của mình bị ảnh hưởng, vui lòng liên hệ ngay cho chúng tôi sẽ xử lý và gỡ bỏ nội dung vi phạm kịp thời. Xin cảm ơn sự thông cảm và hợp tác của bạn.</p>
+        <p className="text-sm text-muted-foreground">© 2025 Pinuss Flix.</p>
+        <p className="text-sm text-muted-foreground">{SITE_DISCLAIMER_TEXT}</p>
       </div>
     </footer>
   );
