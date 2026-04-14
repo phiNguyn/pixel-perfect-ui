@@ -767,7 +767,7 @@ export default function MoviePlayer({
                   </TooltipContent>
                 </Tooltip>
                 <div
-                  className={`${isMobile && isFullscreen ? "w-auto" : "w-0"} overflow-hidden group-hover/volume:w-20 transition-all duration-300`}
+                  className={`${isMobile && isFullscreen ? "w-auto" : "w-0 overflow-hidden"} group-hover/volume:w-20 transition-all duration-300`}
                 >
                   <Slider
                     value={[isMuted ? 0 : volume * 100]}
