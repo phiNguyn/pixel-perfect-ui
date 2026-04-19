@@ -3,7 +3,7 @@
 
 import Hls from "hls.js";
 import { useEffect, useRef, useState, useCallback } from "react";
-import { cn } from "@/lib/utils";
+import { cn, normalizeEpisode } from "@/lib/utils";
 import {
   Play,
   Pause,
@@ -446,7 +446,7 @@ export default function MoviePlayer({
       try {
         if (container.requestFullscreen) {
           await container.requestFullscreen();
-        }  else if ((container as any).webkitRequestFullscreen) {
+        } else if ((container as any).webkitRequestFullscreen) {
           // Safari desktop
           await (container as any).webkitRequestFullscreen();
         } else if ((container as any).mozRequestFullScreen) {
@@ -548,7 +548,9 @@ export default function MoviePlayer({
         className={cn(
           "relative w-full bg-black overflow-hidden group",
           isFullscreen ? "h-screen" : "aspect-video",
-          isFullscreen && !showControls && isPlaying ? "cursor-none" : "cursor-auto",
+          isFullscreen && !showControls && isPlaying
+            ? "cursor-none"
+            : "cursor-auto",
         )}
         onMouseMove={showControlsTemporarily}
         onTouchStart={showControlsTemporarily}
@@ -598,7 +600,7 @@ export default function MoviePlayer({
               : "opacity-0 pointer-events-none",
           )}
         >
-          {isFullscreen && isMobile ? (
+          {isFullscreen ? (
             <div className="flex items-center gap-4 p-4">
               {isMobile && (
                 <button
@@ -609,9 +611,9 @@ export default function MoviePlayer({
                   <ChevronLeft className="w-6 h-6 text-white" />
                 </button>
               )}
-              <h1 className="text-white font-medium text-lg truncate">
-                {title} tập {selectedEp}
-              </h1>
+              <div className="text-white font-medium text-lg truncate">
+                {title} - Tập {normalizeEpisode(selectedEp)}
+              </div>
             </div>
           ) : null}
         </div>
