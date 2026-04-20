@@ -1,4 +1,3 @@
-import Image from "next/image";
 import fallback from "@/assets/fallback.png";
 import { useState } from "react";
 

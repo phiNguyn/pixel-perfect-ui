@@ -10,9 +10,8 @@ import Image from "next/image";
 interface MovieCardProps {
   movie: Movie;
   rank?: number;
-  className?: string
+  className?: string;
 }
-import fallback from "@/assets/fallback.png";
 import MovieImage from "./MovieImage";
 export default function MovieCard({ movie, rank, className }: MovieCardProps) {
   return (
@@ -20,17 +19,21 @@ export default function MovieCard({ movie, rank, className }: MovieCardProps) {
       <motion.div
         whileHover={{ scale: 1.05 }}
         transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
-        className={cn("relative flex-shrink-0 w-[140px] md:w-[170px] group cursor-pointer", className)}
+        className={cn(
+          "relative flex-shrink-0 w-[140px] md:w-[170px] group cursor-pointer",
+          className,
+        )}
       >
         {rank !== undefined && (
-          <div className="absolute -left-3 -bottom-2 z-10 text-6xl font-black text-foreground/20 leading-none select-none" style={{ WebkitTextStroke: "2px hsl(var(--primary))" }}>
+          <div
+            className="absolute -left-3 -bottom-2 z-10 text-6xl font-black text-foreground/20 leading-none select-none"
+            style={{ WebkitTextStroke: "2px hsl(var(--primary))" }}
+          >
             {rank}
           </div>
         )}
         <div className="relative aspect-[2/3] rounded-lg overflow-hidden shadow-[var(--shadow-card)]">
-          <MovieImage
-            movie={movie}
-          />
+          <MovieImage movie={movie} />
           <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
           <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
             <div className="w-10 h-10 rounded-full bg-primary/90 flex items-center justify-center">
@@ -49,10 +52,11 @@ export default function MovieCard({ movie, rank, className }: MovieCardProps) {
             </div>
           </div>
         </div>
-        <h3 className="mt-2 text-xs font-medium text-foreground line-clamp-2 leading-snug">{movie.name}</h3>
-        <p className="text-[10px] text-muted-foreground mt-0.5">{movie.year} · {movie.country.map(item =>
-          item.name
-        )}
+        <h3 className="mt-2 text-xs font-medium text-foreground line-clamp-2 leading-snug">
+          {movie.name}
+        </h3>
+        <p className="text-[10px] text-muted-foreground mt-0.5">
+          {movie.year} · {movie.country.map((item) => item.name)}
         </p>
       </motion.div>
     </Link>
