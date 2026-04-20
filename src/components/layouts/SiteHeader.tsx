@@ -106,7 +106,7 @@ export default function SiteHeader() {
 
   const shouldShowBackButton = !isHomePage && isScrolled;
   return (
-    <header className=" py-2 fixed w-full top-0 z-50 bg-background/50 backdrop-blur-md border-b border-border/50">
+    <header className="py-2 max-h-16 fixed w-full top-0 z-50 bg-background/50 backdrop-blur-md border-b border-border/50">
       <div className="max-w-[1400px] mx-auto px-4">
         {/* Top bar */}
         <div className="flex items-center justify-between h-14">
@@ -202,7 +202,7 @@ export default function SiteHeader() {
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
-            <div className="hidden md:flex items-center gap-2">
+            <div className="hidden  items-center gap-2">
               <a
                 href="https://unikorn.vn/p/pinuss-flix?ref=embed-pinuss-flix"
                 target="_blank"

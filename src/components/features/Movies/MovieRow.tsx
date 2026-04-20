@@ -11,12 +11,19 @@ interface MovieRowProps {
   title: string;
   movies: Movie[];
   showRank?: boolean;
-  loading?: boolean
-  type_list?: string
-  type?: string
+  loading?: boolean;
+  type_list?: string;
+  type?: string;
 }
 
-export default function MovieRow({ title, movies, showRank, type_list, type = 'quoc-gia', loading }: MovieRowProps) {
+export default function MovieRow({
+  title,
+  movies,
+  showRank,
+  type_list,
+  type = "quoc-gia",
+  loading,
+}: MovieRowProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const scroll = (dir: "left" | "right") => {
@@ -31,8 +38,13 @@ export default function MovieRow({ title, movies, showRank, type_list, type = 'q
       <section className="py-4">
         <div className="max-w-[1400px] mx-auto px-4">
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-lg font-semibold text-foreground tracking-tight">{title}</h2>
-            <Link href={`/${type}/${type_list}`} className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors font-medium">
+            <h2 className="text-lg font-semibold text-foreground tracking-tight">
+              {title}
+            </h2>
+            <Link
+              href={`/${type}/${type_list}`}
+              className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors font-medium"
+            >
               Xem thêm <ChevronRight className="w-3.5 h-3.5" />
             </Link>
           </div>
@@ -50,11 +62,17 @@ export default function MovieRow({ title, movies, showRank, type_list, type = 'q
             ref={scrollRef}
             className="flex gap-3 overflow-x-auto scrollbar-hide pb-2"
           >
-            {loading ? <SkeletonCard count={5} className="h-[300px] !w-full" /> :
+            {loading ? (
+              <SkeletonCard count={5} className="h-[300px] !w-full" />
+            ) : (
               movies?.map((movie, i) => (
-                <MovieCard key={movie._id} movie={movie} rank={showRank ? i + 1 : undefined} />
+                <MovieCard
+                  key={movie._id}
+                  movie={movie}
+                  rank={showRank ? i + 1 : undefined}
+                />
               ))
-            }
+            )}
           </div>
 
           <button

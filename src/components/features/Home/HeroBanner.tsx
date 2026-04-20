@@ -29,7 +29,7 @@ export default function HeroBanner() {
   if (isError)
     return <MovieNotFound type="error" slug="vi-me-anh-phan-chia-tay" />;
   return (
-    <section className="relative my-4 w-full h-[420px] md:h-[calc(100vh-80px)]  overflow-hidden">
+    <section className="relative my-4 w-full h-[420px] md:h-[calc(100vh-64px)]  overflow-hidden">
       {isLoadingPhimApi ? (
         <Skeleton className="w-full h-full px-6 py-4" />
       ) : (
@@ -53,10 +53,10 @@ export default function HeroBanner() {
               transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
             >
               <div className="flex items-center gap-2 mb-2">
-                <span className="bg-primary/90 text-primary-foreground text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider">
-                  Hot
-                </span>
                 <div className="flex flex-wrap gap-2  text-xs text-muted-foreground">
+                  <span className="bg-primary/90 text-primary-foreground text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider">
+                    Hot
+                  </span>
                   {movie.quality && (
                     <span className="px-2 py-0.5 bg-muted rounded">
                       {movie.quality}
@@ -79,13 +79,13 @@ export default function HeroBanner() {
                   )}
                 </div>
               </div>
-              <h2 className="text-2xl font-semibold text-foreground">
+              <h2 className="text-xl md:text-2xl font-semibold text-foreground">
                 {movie.name}
               </h2>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-xs md:text-sm text-muted-foreground">
                 {movie.origin_name}
               </p>
-              <p className="text-sm text-secondary-foreground mb-4 w-full leading-relaxed">
+              <p className="text-[10px] md:text-sm text-secondary-foreground mb-4 w-full leading-relaxed">
                 {movie?.actor.map((item) => item).join(", ")}
               </p>
 

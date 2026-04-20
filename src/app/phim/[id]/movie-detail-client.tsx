@@ -23,6 +23,7 @@ import { Modal } from "@/components/Common/Modal";
 import Image from "next/image";
 import MovieDetailSkeleton from "@/components/features/Movies/Skeletons/MovieDetailSkeleton";
 import MovieNotFound from "@/components/features/Movies/MovieNotFound";
+import { normalizeEpisode } from "@/lib/utils";
 
 const sampleComments = [
   {
@@ -234,7 +235,7 @@ export default function MovieDetail({ id }: { id: string }) {
     <>
       <div className="my-4">
         {/* Hero backdrop */}
-        <div className="relative w-full h-[320px] md:h-[calc(100vh-80px)]">
+        <div className="relative w-full h-[320px] md:h-[calc(100vh-64px)]">
           <img
             width={1920}
             height={1080}
@@ -301,14 +302,8 @@ export default function MovieDetail({ id }: { id: string }) {
                       </Modal>
                     )}
                     <div className="flex gap-2">
-                      <button
-                        aria-label="Yêu thích"
-                        name="favorite"
-                        className="p-2 rounded-full bg-secondary text-secondary-foreground hover:bg-muted transition-colors"
-                      >
-                        <Heart className="w-4 h-4" />
-                      </button>
-                      <button
+                      <Button
+                        size="icon"
                         aria-label="Chia sẻ"
                         name="share"
                         onClick={() => {
@@ -321,29 +316,37 @@ export default function MovieDetail({ id }: { id: string }) {
                         className="p-2 rounded-full bg-secondary text-secondary-foreground hover:bg-muted transition-colors"
                       >
                         <Share2 className="w-4 h-4" />
-                      </button>
-                      <button
+                      </Button>
+                      <Button
+                        size="icon"
+                        disabled
+                        aria-label="Yêu thích"
+                        name="favorite"
+                        className="p-2 rounded-full bg-secondary text-secondary-foreground hover:bg-muted transition-colors"
+                      >
+                        <Heart className="w-4 h-4" />
+                      </Button>
+
+                      <Button
+                        size="icon"
+                        disabled
                         aria-label="Lưu"
                         name="bookmark"
                         className="p-2 rounded-full bg-secondary text-secondary-foreground hover:bg-muted transition-colors"
                       >
                         <BookmarkPlus className="w-4 h-4" />
-                      </button>
-                      <Badge
-                        variant="outline"
-                        className="border-primary text-primary ml-2"
-                      >
-                        HD
-                      </Badge>
+                      </Button>
                     </div>
                   </div>
 
-                  <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-1">
-                    {movie.name}
-                  </h1>
-                  <p className="text-sm text-muted-foreground mb-2">
-                    {movie.lang}
-                  </p>
+                  <div className="flex gap-2 items-start mb-2 flex-wrap">
+                    <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-1">
+                      {movie.name}
+                    </h1>
+                    <div className="text-2xl md:text-3xl text-primary   mb-2">
+                      {movie?.origin_name}
+                    </div>
+                  </div>
 
                   <div className="flex flex-wrap items-center gap-2 mb-2">
                     <Badge className="bg-accent text-accent-foreground text-xs">
@@ -371,6 +374,9 @@ export default function MovieDetail({ id }: { id: string }) {
                     ))}
                     <Badge variant="secondary" className="text-xs">
                       {movie.quality}
+                    </Badge>
+                    <Badge variant="secondary" className="text-xs">
+                      {movie.lang}
                     </Badge>
                   </div>
 
@@ -459,13 +465,13 @@ export default function MovieDetail({ id }: { id: string }) {
                     </span>
                   </div>
                   <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2">
-                    {selectedServer?.server_data.map((item: Episode) => {
+                    {selectedServer?.server_data.map((item: Episode, idx) => {
                       if (!item.slug) return null;
                       return (
                         <button
                           aria-label={item.name}
                           name={item.name}
-                          key={item.name}
+                          key={item.name + idx}
                           onClick={() => handleSelectEp(item)}
                           className={`flex items-center justify-center gap-1 py-2.5 px-1.5 rounded text-xs font-medium transition-colors ${
                             selectedEp?.slug === item.slug
@@ -474,7 +480,7 @@ export default function MovieDetail({ id }: { id: string }) {
                           }`}
                         >
                           <Play className="w-2.5 h-2.5" />
-                          {isPhimApi ? item.name : "Tập " + item.slug}
+                          {"Tập " + normalizeEpisode(item.name)}
                         </button>
                       );
                     })}

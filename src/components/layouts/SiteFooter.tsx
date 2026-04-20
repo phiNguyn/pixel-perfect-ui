@@ -37,7 +37,7 @@ function InstallButton() {
   return (
     <button
       onClick={handleInstall}
-      className="w-fit ml-auto flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/90 transition-colors"
+      className="w-fit h-fit ml-auto flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/90 transition-colors"
     >
       <Download className="w-4 h-4" />
       Tải ứng dụng
@@ -49,10 +49,16 @@ export default function SiteFooter() {
   return (
     <footer className="border-t border-border/50 mt-8 py-8">
       <div className="max-w-[1400px] mx-auto px-4">
-        <div className="flex items-center justify-between mb-4">
-          <AvatarComponent />
-          <div className="flex-col md:flex gap-2">
-            <div className="flex items-center gap-2">
+        <div className="flex items-start md:items-center justify-between mb-4">
+          <div className="flex-col flex gap-2">
+            <AvatarComponent />
+            <div className="block md:hidden ">
+              <InstallButton />
+            </div>
+          </div>
+
+          <div className="flex-col md:flex-row flex gap-2">
+            <div className="flex-col md:flex-row flex items-center gap-2">
               <a
                 href="https://unikorn.vn/p/pinuss-flix?ref=embed-pinuss-flix"
                 target="_blank"
@@ -74,7 +80,9 @@ export default function SiteFooter() {
                 />
               </a>
             </div>
-            <InstallButton />
+            <div className="hidden md:block">
+              <InstallButton />
+            </div>
           </div>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs text-muted-foreground mb-6">
