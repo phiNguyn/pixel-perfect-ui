@@ -3,7 +3,6 @@ import { X, Clock, Trash2, SearchX } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import Empty from "@/components/Common/Empty";
-import Image from "next/image";
 import { getImageSrc } from "@/services/uploadFile";
 
 interface SearchHistoryListProps {

@@ -5,7 +5,6 @@ import { FC } from "react";
 import Link from "next/link";
 import { useHistoryStore } from "@/stores/useHistoryStore";
 import { getImageSrc } from "@/services/uploadFile";
-import Image from "next/image";
 
 interface MovieCardSeachProps {
   movie: Movie;

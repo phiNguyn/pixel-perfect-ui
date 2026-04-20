@@ -5,7 +5,6 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { Movie } from "@/lib/api/movies/movieInterface";
 import { cn } from "@/lib/utils";
-import Image from "next/image";
 
 interface MovieCardProps {
   movie: Movie;

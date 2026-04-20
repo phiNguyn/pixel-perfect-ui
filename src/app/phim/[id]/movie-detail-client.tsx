@@ -15,12 +15,10 @@ import {
 } from "@/lib/api/movies/movieInterface";
 import MoviePlayer from "@/components/Common/Player";
 import Cast from "@/components/features/Movies/Cast";
-import BreadCrumb from "@/components/Common/BreadCrumb";
 import { useHistoryStore } from "@/stores/useHistoryStore";
 import MovieImage from "@/components/features/Movies/MovieImage";
 import Comment from "@/components/features/Movies/Comment";
 import { Modal } from "@/components/Common/Modal";
-import Image from "next/image";
 import MovieDetailSkeleton from "@/components/features/Movies/Skeletons/MovieDetailSkeleton";
 import MovieNotFound from "@/components/features/Movies/MovieNotFound";
 import { normalizeEpisode } from "@/lib/utils";
@@ -599,7 +597,7 @@ export default function MovieDetail({ id }: { id: string }) {
             {/* Sidebar */}
             <aside className="lg:w-[300px] flex-shrink-0 hidden md:block">
               <h3 className="text-base font-semibold text-foreground mb-4 flex items-center gap-2">
-                🔥 Top phim tuần này
+                🔥Top phim tuần này (này ảo thui)
               </h3>
               <div className="space-y-3">
                 {topMovies.concat(featuredMovies.slice(0, 5)).map((m, i) => (
