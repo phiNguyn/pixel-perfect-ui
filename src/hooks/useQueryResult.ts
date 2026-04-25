@@ -113,7 +113,9 @@ const useQueryResult = (props?: QueryResultProps) => {
   } | null>(null);
 
   if (urlInitRef.current === null) {
-    if (syncUrl && typeof window !== "undefined") {
+    // Always try to read from URL for page/limit/search (even when syncUrl is false)
+    // This ensures back navigation works correctly
+    if (typeof window !== "undefined") {
       const parsed = queryString.parse(window.location.search, {
         arrayFormat: "comma",
       }) as Record<string, unknown>;
@@ -140,10 +142,27 @@ const useQueryResult = (props?: QueryResultProps) => {
     }
   }
 
+  // Helper to read page from URL directly (for back navigation)
+  const getPageFromUrl = (): number => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const urlPage = params.get("page");
+      if (urlPage) {
+        const parsed = parseInt(urlPage, 10);
+        if (!Number.isNaN(parsed) && parsed > 0) return parsed;
+      }
+    }
+    return undefined as unknown as number;
+  };
+
   const [page, setpage] = useState<number>(() => {
-    const urlPage = urlInitRef.current?.page;
-    return urlPage && !Number.isNaN(urlPage)
-      ? urlPage
+    // Always try URL first (for back navigation)
+    const urlPage = getPageFromUrl();
+    if (urlPage && urlPage > 0) return urlPage;
+    // Fallback to init ref (SSR/initial)
+    const initPage = urlInitRef.current?.page;
+    return initPage && !Number.isNaN(initPage)
+      ? initPage
       : props?.page || defaultQuery.page;
   });
 
@@ -168,6 +187,7 @@ const useQueryResult = (props?: QueryResultProps) => {
   // Track props ban đầu để giữ nguyên fields, sort_field, etc.
   const initialPropsRef = useRef(props);
   const lastGeneratedRef = useRef<string>(undefined);
+  const isInitializedRef = useRef(false);
 
   const buildQueryResult = () => {
     const {
@@ -258,13 +278,31 @@ const useQueryResult = (props?: QueryResultProps) => {
 
   // Update khi itemQueries, page, limit, hoặc debouncedSearchValue thay đổi
   useEffect(() => {
-    setpage(1);
+    // Skip page reset on first initialization
+    if (!isInitializedRef.current) {
+      isInitializedRef.current = true;
+      updateQueryResult();
+      return;
+    }
+    // Không reset page về 1 khi filters/search thay đổi - giữ nguyên page
     updateQueryResult();
   }, [itemQueries, debouncedSearchValue]);
 
   useEffect(() => {
     updateQueryResult();
   }, [page, limit]);
+
+  // Sync page from URL when back navigation happens (popstate)
+  useEffect(() => {
+    const handlePopState = () => {
+      const urlPage = getPageFromUrl();
+      if (urlPage && urlPage > 0 && urlPage !== page) {
+        setpage(urlPage);
+      }
+    };
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, [page]);
 
   // Auto-save cả filters và search vào localStorage (encrypted & merged)
   useEffect(() => {

@@ -231,9 +231,9 @@ export default function MovieDetail({ id }: { id: string }) {
   if (!movie) return <MovieNotFound type="not-found" slug={id} />;
   return (
     <>
-      <div className="my-4">
+      <div className="mb-4">
         {/* Hero backdrop */}
-        <div className="relative w-full h-[320px] md:h-[calc(100vh-64px)]">
+        <div className="relative w-full h-[320px] md:h-[calc(100vh-128px)]">
           <img
             width={1920}
             height={1080}
