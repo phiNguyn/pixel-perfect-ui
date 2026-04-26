@@ -398,6 +398,10 @@ export default function MovieDetail({ id }: { id: string }) {
                     selectedEp={selectedEp.name}
                     poster={movie.thumb_url}
                     startTime={savedStartTime}
+                    adSegments={[
+                      { start: 5, end: 15, label: "Bỏ qua quảng cáo" },
+                      { start: 15 * 60, end: 15 * 60 + 33, label: "Bỏ qua quảng cáo" },
+                    ]}
                   />
                 </div>
               )}
