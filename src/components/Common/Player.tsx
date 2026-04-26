@@ -552,6 +552,16 @@ export default function MoviePlayer({
   const progress = duration ? (currentTime / duration) * 100 : 0;
   const bufferedProgress = duration ? (buffered / duration) * 100 : 0;
 
+  // Detect if current playback is inside an ad segment
+  const activeAd = adSegments.find(
+    (ad) => currentTime >= ad.start && currentTime < ad.end,
+  );
+
+  const handleSkipAd = () => {
+    if (!videoRef.current || !activeAd) return;
+    videoRef.current.currentTime = activeAd.end;
+  };
+
   return (
     <TooltipProvider>
       <div
