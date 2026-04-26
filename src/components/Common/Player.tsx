@@ -40,6 +40,15 @@ import { Slider } from "@/components/ui/slider";
 import { useIsMobile } from "@/hooks/use-mobile";
 import useDebounce from "@/hooks/useDebounce";
 
+export interface AdSegment {
+  /** Start time in seconds */
+  start: number;
+  /** End time in seconds (player will seek to this when skipped) */
+  end: number;
+  /** Optional label for the skip button */
+  label?: string;
+}
+
 interface MoviePlayerProps {
   src: string;
   title?: string;
@@ -47,6 +56,7 @@ interface MoviePlayerProps {
   onBack?: () => void;
   selectedEp?: string;
   startTime?: number;
+  adSegments?: AdSegment[];
 }
 
 const formatTime = (seconds: number): string => {
