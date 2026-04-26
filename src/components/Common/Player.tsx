@@ -559,11 +559,11 @@ export default function MoviePlayer({
 
   // Detect upcoming ad within next 5 seconds (YouTube-style countdown)
   const UPCOMING_AD_WINDOW = 5;
-  const upcomingAd = !activeAd
+  const upcomingAd = !activeAd && currentTime > 0
     ? adSegments.find(
         (ad) =>
           currentTime < ad.start &&
-          ad.start - currentTime <= UPCOMING_AD_WINDOW,
+          ad.start - currentTime < UPCOMING_AD_WINDOW,
       )
     : undefined;
   const upcomingAdCountdown = upcomingAd
