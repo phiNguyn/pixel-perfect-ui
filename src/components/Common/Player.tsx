@@ -639,6 +639,24 @@ export default function MoviePlayer({
           ) : null}
         </div>
 
+        {/* Skip Ad Button */}
+        {activeAd && (
+          <button
+            type="button"
+            onClick={handleSkipAd}
+            className={cn(
+              "absolute right-4 z-30 flex items-center gap-2 px-4 py-2 rounded-md",
+              "bg-black/80 hover:bg-black text-white text-sm font-medium",
+              "border border-white/30 backdrop-blur-sm shadow-lg",
+              "transition-all duration-200 hover:scale-105",
+              showControls || !isPlaying ? "bottom-24" : "bottom-6",
+            )}
+          >
+            <span>{activeAd.label || "Bỏ qua quảng cáo"}</span>
+            <SkipForward className="w-4 h-4" />
+          </button>
+        )}
+
         {/* Bottom Controls */}
         <div
           className={cn(
