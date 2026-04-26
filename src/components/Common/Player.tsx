@@ -557,6 +557,19 @@ export default function MoviePlayer({
     (ad) => currentTime >= ad.start && currentTime < ad.end,
   );
 
+  // Detect upcoming ad within next 5 seconds (YouTube-style countdown)
+  const UPCOMING_AD_WINDOW = 5;
+  const upcomingAd = !activeAd
+    ? adSegments.find(
+        (ad) =>
+          currentTime < ad.start &&
+          ad.start - currentTime <= UPCOMING_AD_WINDOW,
+      )
+    : undefined;
+  const upcomingAdCountdown = upcomingAd
+    ? Math.max(1, Math.ceil(upcomingAd.start - currentTime))
+    : 0;
+
   const handleSkipAd = () => {
     if (!videoRef.current || !activeAd) return;
     videoRef.current.currentTime = activeAd.end;
