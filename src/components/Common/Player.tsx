@@ -557,6 +557,19 @@ export default function MoviePlayer({
     (ad) => currentTime >= ad.start && currentTime < ad.end,
   );
 
+  // Detect upcoming ad within next 5 seconds (YouTube-style countdown)
+  const UPCOMING_AD_WINDOW = 5;
+  const upcomingAd = !activeAd
+    ? adSegments.find(
+        (ad) =>
+          currentTime < ad.start &&
+          ad.start - currentTime <= UPCOMING_AD_WINDOW,
+      )
+    : undefined;
+  const upcomingAdCountdown = upcomingAd
+    ? Math.max(1, Math.ceil(upcomingAd.start - currentTime))
+    : 0;
+
   const handleSkipAd = () => {
     if (!videoRef.current || !activeAd) return;
     videoRef.current.currentTime = activeAd.end;
@@ -655,6 +668,24 @@ export default function MoviePlayer({
             <span>{activeAd.label || "Bỏ qua quảng cáo"}</span>
             <SkipForward className="w-4 h-4" />
           </button>
+        )}
+
+        {/* Upcoming Ad Notice (YouTube-style countdown) */}
+        {upcomingAd && (
+          <div
+            className={cn(
+              "absolute right-4 z-30 flex items-center gap-2 px-3 py-2 rounded-md",
+              "bg-black/80 text-white text-xs md:text-sm font-medium",
+              "border border-white/20 backdrop-blur-sm shadow-lg",
+              "transition-all duration-200",
+              showControls || !isPlaying ? "bottom-24" : "bottom-6",
+            )}
+          >
+            <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold">
+              {upcomingAdCountdown}
+            </span>
+            <span>Quảng cáo sẽ hiện sau {upcomingAdCountdown}s</span>
+          </div>
         )}
 
         {/* Bottom Controls */}
