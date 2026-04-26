@@ -80,6 +80,7 @@ export default function MoviePlayer({
   onBack,
   selectedEp,
   startTime,
+  adSegments = [],
 }: MoviePlayerProps) {
   const hasResumed = useRef(false);
   const containerRef = useRef<HTMLDivElement>(null);
