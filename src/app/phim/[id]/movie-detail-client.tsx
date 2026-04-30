@@ -179,9 +179,7 @@ export default function MovieDetail({ id }: { id: string }) {
         quality: movie.quality,
         currentEpSlug: ep.slug,
         currentEpName: ep.name,
-        currentTime: 0,
         duration: 0,
-        watchedAt: Date.now(),
         source: isPhimApi ? "phimapi" : "ophim",
       });
     }

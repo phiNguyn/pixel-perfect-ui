@@ -1,0 +1,233 @@
+"use client";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+  type ReactNode,
+} from "react";
+import { useAuthStore, type User, type AuthTokens } from "@/stores/useAuthStore";
+import { useHistoryStore } from "@/stores/useHistoryStore";
+import { authApi } from "@/lib/api/auth/authApi";
+import {
+  loadGoogleScript,
+  initializeGoogleSignIn,
+  triggerGooglePrompt,
+} from "@/lib/google-auth";
+import { toast } from "sonner";
+
+interface AuthContextType {
+  user: User | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  loginWithGoogle: (credential?: string) => Promise<void>;
+  loginWithEmail: (email: string, password: string) => Promise<void>;
+  register: (email: string, password: string, name?: string) => Promise<void>;
+  logout: () => Promise<void>;
+  openLoginModal: () => void;
+  closeLoginModal: () => void;
+  isLoginModalOpen: boolean;
+}
+
+const AuthContext = createContext<AuthContextType | null>(null);
+
+export function useAuth(): AuthContextType {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAuth must be used within AuthProvider");
+  }
+  return context;
+}
+
+interface AuthProviderProps {
+  children: ReactNode;
+}
+
+export function AuthProvider({ children }: AuthProviderProps): JSX.Element {
+  const { user, tokens, isAuthenticated, isLoading, login, logout: clearAuth } =
+    useAuthStore();
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [localLoading, setLocalLoading] = useState(false);
+  const [googleReady, setGoogleReady] = useState(false);
+
+  const openLoginModal = useCallback(() => setIsLoginModalOpen(true), []);
+  const closeLoginModal = useCallback(() => setIsLoginModalOpen(false), []);
+
+  const handleGoogleCallback = useCallback(
+    async (googleToken: string) => {
+      setLocalLoading(true);
+      try {
+        const response = await authApi.googleAuth(googleToken);
+        login(
+          {
+            id: response.user.id,
+            email: response.user.email,
+            name: response.user.name,
+            avatar: response.user.avatar,
+            provider: response.user.provider,
+          },
+          {
+            accessToken: response.accessToken,
+            refreshToken: response.refreshToken,
+          }
+        );
+        toast.success("Đăng nhập thành công!");
+        closeLoginModal();
+      } catch (error) {
+        console.error("Google auth error:", error);
+        toast.error("Đăng nhập Google thất bại. Vui lòng thử lại.");
+      } finally {
+        setLocalLoading(false);
+      }
+    },
+    [login, closeLoginModal]
+  );
+
+  const loginWithGoogle = useCallback(async (credential?: string) => {
+    if (credential) {
+      await handleGoogleCallback(credential);
+    } else if (!googleReady) {
+      await initializeGoogleAndPrompt();
+    } else {
+      triggerGooglePrompt();
+    }
+  }, [googleReady, handleGoogleCallback]);
+
+  const initializeGoogleAndPrompt = useCallback(async () => {
+    const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+    if (!clientId) {
+      console.error("NEXT_PUBLIC_GOOGLE_CLIENT_ID not configured");
+      toast.error("Google OAuth chưa được cấu hình");
+      return;
+    }
+
+    try {
+      await loadGoogleScript();
+      initializeGoogleSignIn(clientId, handleGoogleCallback, {
+        autoSelect: false,
+      });
+      setGoogleReady(true);
+      triggerGooglePrompt();
+    } catch (error) {
+      console.error("Failed to initialize Google Sign-In:", error);
+      toast.error("Không thể khởi tạo đăng nhập Google");
+    }
+  }, [handleGoogleCallback]);
+
+  const loginWithEmail = useCallback(
+    async (email: string, password: string) => {
+      setLocalLoading(true);
+      try {
+        const response = await authApi.login(email, password);
+        login(
+          {
+            id: response.user.id,
+            email: response.user.email,
+            name: response.user.name,
+            avatar: response.user.avatar,
+            provider: response.user.provider,
+          },
+          {
+            accessToken: response.accessToken,
+            refreshToken: response.refreshToken,
+          }
+        );
+        toast.success("Đăng nhập thành công!");
+        closeLoginModal();
+      } catch (error) {
+        console.error("Login error:", error);
+        toast.error("Đăng nhập thất bại. Vui lòng kiểm tra email và mật khẩu.");
+        throw error;
+      } finally {
+        setLocalLoading(false);
+      }
+    },
+    [login, closeLoginModal]
+  );
+
+  const register = useCallback(
+    async (email: string, password: string, name?: string) => {
+      setLocalLoading(true);
+      try {
+        const response = await authApi.register(email, password, name);
+        login(
+          {
+            id: response.user.id,
+            email: response.user.email,
+            name: response.user.name,
+            avatar: response.user.avatar,
+            provider: response.user.provider,
+          },
+          {
+            accessToken: response.accessToken,
+            refreshToken: response.refreshToken,
+          }
+        );
+        toast.success("Đăng ký thành công!");
+        closeLoginModal();
+      } catch (error) {
+        console.error("Register error:", error);
+        toast.error("Đăng ký thất bại. Email có thể đã được sử dụng.");
+        throw error;
+      } finally {
+        setLocalLoading(false);
+      }
+    },
+    [login, closeLoginModal]
+  );
+
+  const logout = useCallback(async () => {
+    try {
+      await authApi.logout();
+    } catch {
+      // Ignore logout API errors
+    } finally {
+      clearAuth();
+      toast.success("Đã đăng xuất");
+    }
+  }, [clearAuth]);
+
+  // Sync watch history when authentication state changes
+  useEffect(() => {
+    if (isAuthenticated) {
+      useHistoryStore.getState().syncFromDatabase();
+    }
+  }, [isAuthenticated]);
+
+  useEffect(() => {
+    const initGoogle = async () => {
+      const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+      if (!clientId) return;
+
+      try {
+        await loadGoogleScript();
+        initializeGoogleSignIn(clientId, handleGoogleCallback, {
+          autoSelect: true,
+        });
+        setGoogleReady(true);
+      } catch (error) {
+        console.error("Failed to initialize Google:", error);
+      }
+    };
+
+    initGoogle();
+  }, [handleGoogleCallback]);
+
+  const value: AuthContextType = {
+    user,
+    isAuthenticated,
+    isLoading: isLoading || localLoading,
+    loginWithGoogle,
+    loginWithEmail,
+    register,
+    logout,
+    openLoginModal,
+    closeLoginModal,
+    isLoginModalOpen,
+  };
+
+  return (
+    <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
+  );
+}

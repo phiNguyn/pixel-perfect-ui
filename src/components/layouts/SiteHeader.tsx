@@ -7,6 +7,10 @@ import {
   XIcon,
   ChevronDown,
   ArrowLeft,
+  User,
+  Settings,
+  LogOut,
+  History,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
@@ -36,6 +40,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "../ui/button";
@@ -44,10 +49,12 @@ import fallback from "@/assets/fallback.png";
 import { ThemeSelector } from "../theme/ThemeSelector";
 import { motion, AnimatePresence } from "framer-motion";
 import { useDisclaimerNotice } from "./DisclaimerNotice";
+import { useAuth } from "@/components/auth/AuthProvider";
 export default function SiteHeader() {
   const router = useRouter();
   const pathname = usePathname();
   const { openDisclaimer } = useDisclaimerNotice();
+  const { user, isAuthenticated, logout, openLoginModal } = useAuth();
   const wrapperRef = useRef<HTMLDivElement>(null);
   const { slug } = useParams();
   const [searchOpen, setSearchOpen] = useState(false);
@@ -314,6 +321,67 @@ export default function SiteHeader() {
               <span className="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full" />
             </button>
             <ThemeSelector />
+            {isAuthenticated ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className="relative h-9 w-9 rounded-full"
+                  >
+                    <Avatar className="h-9 w-9">
+                      <AvatarImage
+                        src={user?.avatar || ""}
+                        alt={user?.name || "User"}
+                      />
+                      <AvatarFallback className="bg-primary text-primary-foreground">
+                        {user?.name?.charAt(0).toUpperCase() || "U"}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56" align="end" forceMount>
+                  <div className="flex flex-col space-y-1 p-2">
+                    <p className="text-sm font-medium leading-none">
+                      {user?.name || "Người dùng"}
+                    </p>
+                    <p className="text-xs leading-none text-muted-foreground">
+                      {user?.email}
+                    </p>
+                  </div>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link href="/lich-su-xem" className="cursor-pointer">
+                      <History className="mr-2 h-4 w-4" />
+                      <span>Lịch sử xem</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/cai-dat" className="cursor-pointer">
+                      <Settings className="mr-2 h-4 w-4" />
+                      <span>Cài đặt</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={() => logout()}
+                    className="cursor-pointer text-destructive focus:text-destructive"
+                  >
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Đăng xuất</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button
+                variant="default"
+                size="sm"
+                onClick={openLoginModal}
+                className="ml-2"
+              >
+                <User className="w-4 h-4 mr-2" />
+                Đăng nhập
+              </Button>
+            )}
           </div>
           <div className="md:hidden">
             <ThemeSelector />

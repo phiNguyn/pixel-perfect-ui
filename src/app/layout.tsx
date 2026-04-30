@@ -9,6 +9,7 @@ import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import Script from "next/script";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { DisclaimerNoticeProvider } from "@/components/layouts/DisclaimerNotice";
+import { LoginModal } from "@/components/auth/LoginModal";
 // Force dynamic rendering to prevent prerendering issues with /_not-found
 export const dynamic = "force-dynamic";
 
@@ -90,6 +91,7 @@ export default function RootLayout({
               <SiteHeader />
               <main className="flex-1 mt-16">{children}</main>
               <SiteFooter />
+              <LoginModal />
             </DisclaimerNoticeProvider>
           </ThemeProvider>
         </Providers>
