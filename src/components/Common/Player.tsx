@@ -40,6 +40,15 @@ import { Slider } from "@/components/ui/slider";
 import { useIsMobile } from "@/hooks/use-mobile";
 import useDebounce from "@/hooks/useDebounce";
 
+export interface AdSegment {
+  /** Start time in seconds */
+  start: number;
+  /** End time in seconds (player will seek to this when skipped) */
+  end: number;
+  /** Optional label for the skip button */
+  label?: string;
+}
+
 interface MoviePlayerProps {
   src: string;
   title?: string;
@@ -47,6 +56,7 @@ interface MoviePlayerProps {
   onBack?: () => void;
   selectedEp?: string;
   startTime?: number;
+  adSegments?: AdSegment[];
 }
 
 const formatTime = (seconds: number): string => {
@@ -70,6 +80,7 @@ export default function MoviePlayer({
   onBack,
   selectedEp,
   startTime,
+  adSegments = [],
 }: MoviePlayerProps) {
   const hasResumed = useRef(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -541,6 +552,29 @@ export default function MoviePlayer({
   const progress = duration ? (currentTime / duration) * 100 : 0;
   const bufferedProgress = duration ? (buffered / duration) * 100 : 0;
 
+  // Detect if current playback is inside an ad segment
+  const activeAd = adSegments.find(
+    (ad) => currentTime >= ad.start && currentTime < ad.end,
+  );
+
+  // Detect upcoming ad within next 5 seconds (YouTube-style countdown)
+  const UPCOMING_AD_WINDOW = 5;
+  const upcomingAd = !activeAd && currentTime > 0
+    ? adSegments.find(
+        (ad) =>
+          currentTime < ad.start &&
+          ad.start - currentTime < UPCOMING_AD_WINDOW,
+      )
+    : undefined;
+  const upcomingAdCountdown = upcomingAd
+    ? Math.max(1, Math.ceil(upcomingAd.start - currentTime))
+    : 0;
+
+  const handleSkipAd = () => {
+    if (!videoRef.current || !activeAd) return;
+    videoRef.current.currentTime = activeAd.end;
+  };
+
   return (
     <TooltipProvider>
       <div
@@ -617,6 +651,42 @@ export default function MoviePlayer({
             </div>
           ) : null}
         </div>
+
+        {/* Skip Ad Button */}
+        {activeAd && (
+          <button
+            type="button"
+            onClick={handleSkipAd}
+            className={cn(
+              "absolute right-4 z-30 flex items-center gap-2 px-4 py-2 rounded-md",
+              "bg-black/80 hover:bg-black text-white text-sm font-medium",
+              "border border-white/30 backdrop-blur-sm shadow-lg",
+              "transition-all duration-200 hover:scale-105",
+              showControls || !isPlaying ? "bottom-24" : "bottom-6",
+            )}
+          >
+            <span>{activeAd.label || "Bỏ qua quảng cáo"}</span>
+            <SkipForward className="w-4 h-4" />
+          </button>
+        )}
+
+        {/* Upcoming Ad Notice (YouTube-style countdown) */}
+        {upcomingAd && (
+          <div
+            className={cn(
+              "absolute right-4 z-30 flex items-center gap-2 px-3 py-2 rounded-md",
+              "bg-black/80 text-white text-xs md:text-sm font-medium",
+              "border border-white/20 backdrop-blur-sm shadow-lg",
+              "transition-all duration-200",
+              showControls || !isPlaying ? "bottom-24" : "bottom-6",
+            )}
+          >
+            <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold">
+              {upcomingAdCountdown}
+            </span>
+            <span>Quảng cáo sẽ hiện sau {upcomingAdCountdown}s</span>
+          </div>
+        )}
 
         {/* Bottom Controls */}
         <div
