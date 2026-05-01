@@ -383,8 +383,69 @@ export default function SiteHeader() {
               </Button>
             )}
           </div>
-          <div className="md:hidden">
+          <div className="md:hidden flex items-center gap-1">
             <ThemeSelector />
+            {isAuthenticated ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="relative size-6 rounded-full"
+                  >
+                    <Avatar className="size-6">
+                      <AvatarImage
+                        src={user?.avatar || ""}
+                        alt={user?.name || "User"}
+                      />
+                      <AvatarFallback className="bg-primary text-primary-foreground">
+                        {user?.name?.charAt(0).toUpperCase() || "U"}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56" align="end" forceMount>
+                  <div className="flex flex-col space-y-1 p-2">
+                    <p className="text-sm font-medium leading-none">
+                      {user?.name || "Người dùng"}
+                    </p>
+                    <p className="text-xs leading-none text-muted-foreground">
+                      {user?.email}
+                    </p>
+                  </div>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link href="/watch-histories" className="cursor-pointer">
+                      <History className="mr-2 h-4 w-4" />
+                      <span>Lịch sử xem</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/settings" className="cursor-pointer">
+                      <Settings className="mr-2 h-4 w-4" />
+                      <span>Cài đặt</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={() => logout()}
+                    className="cursor-pointer text-destructive focus:text-destructive"
+                  >
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Đăng xuất</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button
+                variant="default"
+                size="sm"
+                onClick={openLoginModal}
+                className="h-9"
+              >
+                <User className="w-4 h-4" />
+              </Button>
+            )}
             <button
               aria-label="Menu"
               name="menu"
@@ -501,18 +562,6 @@ export default function SiteHeader() {
                 />
               </div>
             )}
-
-            {/* User Actions */}
-            {/* <div className="flex items-center gap-2 py-2 border-b border-border/50">
-              <button className="flex-1 flex items-center justify-center gap-2 p-3 rounded-lg bg-secondary text-foreground hover:bg-muted transition-colors">
-                <Bell className="w-5 h-5" />
-                <span className="text-sm">Thông báo</span>
-              </button>
-              <button className="flex-1 flex items-center justify-center gap-2 p-3 rounded-lg bg-secondary text-foreground hover:bg-muted transition-colors">
-                <User className="w-5 h-5" />
-                <span className="text-sm">Tài khoản</span>
-              </button>
-            </div> */}
 
             {/* Categories */}
             <div className="flex flex-col gap-2">

@@ -60,7 +60,7 @@ export default function WatchHistoriesClient() {
   const [showClearDialog, setShowClearDialog] = useState(false);
 
   const sortedHistory = [...watchHistory].sort(
-    (a, b) => b.watchedAt - a.watchedAt
+    (a, b) => b.watchedAt - a.watchedAt,
   );
 
   const handleClearAll = () => {
@@ -178,7 +178,9 @@ export default function WatchHistoriesClient() {
               <div className="col-span-2 hidden md:block">Tập</div>
               <div className="col-span-2">Tiến độ</div>
               <div className="col-span-3 md:col-span-2">Xem lúc</div>
-              <div className="col-span-2 md:col-span-2 text-right">Hành động</div>
+              <div className="col-span-2 md:col-span-2 text-right">
+                Hành động
+              </div>
             </div>
           </div>
           <ScrollArea className="max-h-[600px]">
@@ -269,7 +271,8 @@ function WatchHistoryGridCard({
           {item.currentTime > 0 && item.duration > 0 && (
             <div className="absolute bottom-1.5 left-2 right-2">
               <span className="text-[9px] text-foreground/80 bg-background/40 backdrop-blur-sm px-1 rounded">
-                {formatDuration(item.currentTime)} / {formatDuration(item.duration)}
+                {formatDuration(item.currentTime)} /{" "}
+                {formatDuration(item.duration)}
               </span>
             </div>
           )}
@@ -372,7 +375,10 @@ function WatchHistoryListRow({
 
         {/* Watched time */}
         <div className="col-span-3 md:col-span-2">
-          <p className="text-xs text-muted-foreground" title={formatDate(item.watchedAt)}>
+          <p
+            className="text-xs text-muted-foreground"
+            title={formatDate(item.watchedAt)}
+          >
             {formatTimeAgo(item.watchedAt)}
           </p>
         </div>
