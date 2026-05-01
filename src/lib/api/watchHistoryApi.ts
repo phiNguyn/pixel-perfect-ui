@@ -1,15 +1,29 @@
 import axios, { AxiosInstance } from "axios";
+import { getAuthHeader, createAuthInterceptor } from "@/lib/auth/tokenManager";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api/v1";
+
+export type WatchHistorySource = "ophim" | "phimapi" | "nguonc";
 
 export interface WatchHistoryResponse {
   id: string;
   movieId: string;
   movieTitle: string;
   moviePoster?: string;
+  // Additional movie info
+  originName?: string;
+  episodeCurrent?: string;
+  year?: number;
+  quality?: string;
+  // Progress info
   progress: number;
   duration: number;
   completed: boolean;
+  // Episode info
+  currentEpSlug?: string;
+  currentEpName?: string;
+  // Source
+  source: WatchHistorySource;
   watchedAt: string;
 }
 
@@ -25,6 +39,7 @@ export interface PaginatedWatchHistory {
 
 class WatchHistoryApiClient {
   private client: AxiosInstance;
+  private static interceptorAdded = false;
 
   constructor(baseURL: string) {
     this.client = axios.create({
@@ -34,23 +49,28 @@ class WatchHistoryApiClient {
       },
     });
 
+    // Add interceptors only once
+    this.setupInterceptors();
+  }
+
+  private setupInterceptors() {
+    if (WatchHistoryApiClient.interceptorAdded) return;
+    WatchHistoryApiClient.interceptorAdded = true;
+
+    // Request interceptor - add auth header
     this.client.interceptors.request.use((config) => {
-      if (typeof window !== "undefined") {
-        const tokens = localStorage.getItem("pinuss-flix-auth");
-        if (tokens) {
-          try {
-            const parsed = JSON.parse(tokens);
-            const accessToken = parsed?.state?.tokens?.accessToken;
-            if (accessToken) {
-              config.headers.Authorization = `Bearer ${accessToken}`;
-            }
-          } catch {
-            // Ignore parse errors
-          }
-        }
+      const authHeader = getAuthHeader();
+      if (authHeader) {
+        config.headers.Authorization = authHeader;
       }
       return config;
     });
+
+    // Response interceptor - handle 401 and refresh token
+    this.client.interceptors.response.use(
+      (response) => response,
+      createAuthInterceptor()
+    );
   }
 
   async getWatchHistory(
@@ -95,9 +115,16 @@ class WatchHistoryApiClient {
     movieId: string;
     movieTitle: string;
     moviePoster?: string;
+    originName?: string;
+    episodeCurrent?: string;
+    year?: number;
+    quality?: string;
     progress: number;
     duration: number;
     completed?: boolean;
+    currentEpSlug?: string;
+    currentEpName?: string;
+    source?: WatchHistorySource;
   }): Promise<WatchHistoryResponse> {
     const response = await this.client.post<WatchHistoryResponse>(
       "/watch-history",
@@ -112,6 +139,15 @@ class WatchHistoryApiClient {
       progress?: number;
       duration?: number;
       completed?: boolean;
+      movieTitle?: string;
+      moviePoster?: string;
+      originName?: string;
+      episodeCurrent?: string;
+      year?: number;
+      quality?: string;
+      currentEpSlug?: string;
+      currentEpName?: string;
+      source?: WatchHistorySource;
     }
   ): Promise<WatchHistoryResponse> {
     const response = await this.client.patch<WatchHistoryResponse>(
@@ -123,6 +159,13 @@ class WatchHistoryApiClient {
 
   async deleteWatchHistory(movieId: string): Promise<void> {
     await this.client.delete(`/watch-history/${movieId}`);
+  }
+
+  async restoreWatchHistory(movieId: string): Promise<WatchHistoryResponse> {
+    const response = await this.client.post<WatchHistoryResponse>(
+      `/watch-history/restore/${movieId}`
+    );
+    return response.data;
   }
 
   async deleteAllWatchHistory(): Promise<{ deletedCount: number }> {

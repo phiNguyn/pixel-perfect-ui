@@ -1,4 +1,12 @@
 import axios, { AxiosInstance } from "axios";
+import {
+  getAuthHeader,
+  createAuthInterceptor,
+  getTokens,
+  saveTokens,
+  clearTokens,
+  type AuthTokens,
+} from "@/lib/auth/tokenManager";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api/v1";
 
@@ -47,6 +55,7 @@ export interface PaginatedWatchHistory {
 
 class AuthApiClient {
   private client: AxiosInstance;
+  private static interceptorAdded = false;
 
   constructor(baseURL: string) {
     this.client = axios.create({
@@ -56,30 +65,43 @@ class AuthApiClient {
       },
     });
 
+    // Add interceptors only once
+    this.setupInterceptors();
+  }
+
+  private setupInterceptors() {
+    if (AuthApiClient.interceptorAdded) return;
+    AuthApiClient.interceptorAdded = true;
+
+    // Request interceptor - add auth header
     this.client.interceptors.request.use((config) => {
-      if (typeof window !== "undefined") {
-        const tokens = localStorage.getItem("pinuss-flix-auth");
-        if (tokens) {
-          try {
-            const parsed = JSON.parse(tokens);
-            const accessToken = parsed?.state?.tokens?.accessToken;
-            if (accessToken) {
-              config.headers.Authorization = `Bearer ${accessToken}`;
-            }
-          } catch {
-            // Ignore parse errors
-          }
-        }
+      const authHeader = getAuthHeader();
+      if (authHeader) {
+        config.headers.Authorization = authHeader;
       }
       return config;
     });
+
+    // Response interceptor - handle 401 and refresh token
+    this.client.interceptors.response.use(
+      (response) => response,
+      createAuthInterceptor()
+    );
   }
 
   async googleAuth(googleToken: string): Promise<AuthResponse> {
     const response = await this.client.post<AuthResponse>("/auth/google", {
       token: googleToken,
     });
-    return response.data;
+    const data = response.data;
+
+    // Save tokens
+    saveTokens({
+      accessToken: data.accessToken,
+      refreshToken: data.refreshToken,
+    });
+
+    return data;
   }
 
   async register(
@@ -92,7 +114,15 @@ class AuthApiClient {
       password,
       name,
     });
-    return response.data;
+    const data = response.data;
+
+    // Save tokens
+    saveTokens({
+      accessToken: data.accessToken,
+      refreshToken: data.refreshToken,
+    });
+
+    return data;
   }
 
   async login(email: string, password: string): Promise<AuthResponse> {
@@ -100,7 +130,15 @@ class AuthApiClient {
       email,
       password,
     });
-    return response.data;
+    const data = response.data;
+
+    // Save tokens
+    saveTokens({
+      accessToken: data.accessToken,
+      refreshToken: data.refreshToken,
+    });
+
+    return data;
   }
 
   async refreshToken(refreshToken: string): Promise<{ accessToken: string }> {
@@ -112,7 +150,11 @@ class AuthApiClient {
   }
 
   async logout(): Promise<void> {
-    await this.client.post("/auth/logout");
+    try {
+      await this.client.post("/auth/logout");
+    } finally {
+      clearTokens();
+    }
   }
 
   async getProfile(): Promise<UserProfile> {

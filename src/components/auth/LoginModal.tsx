@@ -9,6 +9,7 @@ import {
   renderGoogleButton,
 } from "@/lib/google-auth";
 import { Loader2 } from "lucide-react";
+import Link from "next/link";
 
 export function LoginModal(): JSX.Element | null {
   const { isLoginModalOpen, closeLoginModal, loginWithGoogle, isLoading } =
@@ -86,7 +87,7 @@ export function LoginModal(): JSX.Element | null {
           {/* Google Button */}
           <div ref={googleButtonRef} />
 
-          {isSubmitting || isLoading ? (
+          {isSubmitting ? (
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Loader2 className="w-4 h-4 animate-spin" />
               <span>Đang đăng nhập...</span>
@@ -95,9 +96,9 @@ export function LoginModal(): JSX.Element | null {
 
           <p className="text-xs text-muted-foreground text-center">
             Bằng cách đăng nhập, bạn đồng ý với{" "}
-            <a href="/terms" className="underline hover:text-foreground">
+            <Link href="/terms" className="underline hover:text-foreground">
               Điều khoản sử dụng
-            </a>{" "}
+            </Link>{" "}
             và{" "}
             <a href="/privacy" className="underline hover:text-foreground">
               Chính sách bảo mật

@@ -139,7 +139,7 @@ export default function MovieDetail({ id }: { id: string }) {
   const [selectedServer, setSelectedServer] = useState<any>(null);
   const [commentText, setCommentText] = useState("");
 
-  const { addWatchHistory, updateWatchProgress, watchHistory } =
+  const { addWatchHistory, updateWatchProgress, watchHistory, flushPendingUpdates } =
     useHistoryStore();
 
   // Get saved time for current episode from watch history
@@ -163,6 +163,9 @@ export default function MovieDetail({ id }: { id: string }) {
   }, [movie?.episodes?.length]);
 
   const handleSelectEp = (ep: Episode) => {
+    // Flush pending updates before changing episode
+    flushPendingUpdates();
+
     setSelectedEp(ep);
     const params = new URLSearchParams(searchParams.toString());
     params.set("ep", ep.slug ?? "");
@@ -213,6 +216,20 @@ export default function MovieDetail({ id }: { id: string }) {
         handleTimeUpdate as EventListener,
       );
   }, [movie, updateWatchProgress]);
+
+  // Flush pending updates when user changes episode or leaves page
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      flushPendingUpdates();
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      // Flush on component unmount (e.g., route change)
+      flushPendingUpdates();
+    };
+  }, [flushPendingUpdates]);
 
   useEffect(() => {
     if (!movie || !selectedServer) return;

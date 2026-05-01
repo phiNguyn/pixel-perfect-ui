@@ -16,6 +16,7 @@ import {
   triggerGooglePrompt,
 } from "@/lib/google-auth";
 import { toast } from "sonner";
+import { getTokens } from "@/lib/auth/tokenManager";
 
 interface AuthContextType {
   user: User | null;
@@ -186,6 +187,21 @@ export function AuthProvider({ children }: AuthProviderProps): JSX.Element {
       clearAuth();
       toast.success("Đã đăng xuất");
     }
+  }, [clearAuth]);
+
+  // Check for expired tokens on mount and handle refresh failure
+  useEffect(() => {
+    const handleTokenRefreshFailure = () => {
+      clearAuth();
+      toast.error("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+    };
+
+    // Listen for custom event from tokenManager when refresh fails
+    window.addEventListener("auth:token-refresh-failed", handleTokenRefreshFailure);
+
+    return () => {
+      window.removeEventListener("auth:token-refresh-failed", handleTokenRefreshFailure);
+    };
   }, [clearAuth]);
 
   // Sync watch history when authentication state changes

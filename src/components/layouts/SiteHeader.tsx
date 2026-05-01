@@ -350,13 +350,13 @@ export default function SiteHeader() {
                   </div>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
-                    <Link href="/lich-su-xem" className="cursor-pointer">
+                    <Link href="/watch-histories" className="cursor-pointer">
                       <History className="mr-2 h-4 w-4" />
                       <span>Lịch sử xem</span>
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link href="/cai-dat" className="cursor-pointer">
+                    <Link href="/settings" className="cursor-pointer">
                       <Settings className="mr-2 h-4 w-4" />
                       <span>Cài đặt</span>
                     </Link>
