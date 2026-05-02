@@ -5,7 +5,6 @@ import { Play, Heart, Share2, BookmarkPlus, Star } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useEffect, useMemo, useState } from "react";
 import { featuredMovies, topMovies } from "@/data/movies";
 import { useQueryMovie, useQueryPhimApi } from "@/lib/api/movies/movieQuery";
@@ -17,62 +16,11 @@ import MoviePlayer from "@/components/Common/Player";
 import Cast from "@/components/features/Movies/Cast";
 import { useHistoryStore } from "@/stores/useHistoryStore";
 import MovieImage from "@/components/features/Movies/MovieImage";
-import Comment from "@/components/features/Movies/Comment";
 import { Modal } from "@/components/Common/Modal";
 import MovieDetailSkeleton from "@/components/features/Movies/Skeletons/MovieDetailSkeleton";
 import MovieNotFound from "@/components/features/Movies/MovieNotFound";
 import { normalizeEpisode } from "@/lib/utils";
-
-const sampleComments = [
-  {
-    user: "khanhchi1",
-    time: "3 ngày trước",
-    text: "Phim hay quá, xem mãi không chán 😍",
-    likes: 12,
-  },
-  {
-    user: "hải",
-    time: "5 ngày trước",
-    text: "Mới xem tới tập 12 chưa biết sau thế nào",
-    likes: 8,
-  },
-  {
-    user: "Rose81",
-    time: "1 tuần trước",
-    text: "Phim hay thật sự, ai chưa xem thì xem đi 👍",
-    likes: 15,
-  },
-  {
-    user: "phacodemap",
-    time: "2 tuần trước",
-    text: "Vừa xem tập 15 và nó quá rất sốc nhé mọi người!",
-    likes: 24,
-  },
-  {
-    user: "Nguyễn Anh Thư",
-    time: "3 tuần trước",
-    text: "uuuuuuuu film này coi cực nghiện luôn nha mng ơi",
-    likes: 6,
-  },
-  {
-    user: "bạch loan hồng",
-    time: "1 tháng trước",
-    text: "Film này quá đỉnh",
-    likes: 3,
-  },
-  {
-    user: "khánh lý",
-    time: "2 tháng trước",
-    text: "mới xem phim, chiếu ở mọc 🫠",
-    likes: 9,
-  },
-  {
-    user: "my",
-    time: "2 tháng trước",
-    text: "Coi là bị lọt 'hole' luôn!",
-    likes: 31,
-  },
-];
+import { CommentComponent } from "@/components/features/Movies/Comment";
 
 export default function MovieDetail({ id }: { id: string }) {
   const searchParams = useSearchParams();
@@ -137,10 +85,14 @@ export default function MovieDetail({ id }: { id: string }) {
 
   const [selectedEp, setSelectedEp] = useState<Episode>();
   const [selectedServer, setSelectedServer] = useState<any>(null);
-  const [commentText, setCommentText] = useState("");
+  const [commentCount, setCommentCount] = useState(0);
 
-  const { addWatchHistory, updateWatchProgress, watchHistory, flushPendingUpdates } =
-    useHistoryStore();
+  const {
+    addWatchHistory,
+    updateWatchProgress,
+    watchHistory,
+    flushPendingUpdates,
+  } = useHistoryStore();
 
   // Get saved time for current episode from watch history
   const savedStartTime = (() => {
@@ -567,57 +519,13 @@ export default function MovieDetail({ id }: { id: string }) {
               <div className="mb-8">
                 <div className="flex items-center gap-3 mb-4">
                   <h3 className="text-base font-semibold text-foreground">
-                    💬 Bình luận ({sampleComments.length * 8})
+                    💬 Bình luận ({commentCount})
                   </h3>
-                  <Button
-                    aria-label="Tốt nhất"
-                    name="best"
-                    variant="default"
-                    size="sm"
-                    className="text-xs rounded-full"
-                  >
-                    Tốt nhất
-                  </Button>
-                  <Button
-                    aria-label="Gần gần"
-                    name="near"
-                    variant="ghost"
-                    size="sm"
-                    className="text-xs rounded-full text-muted-foreground"
-                  >
-                    Gần gần
-                  </Button>
                 </div>
-                <div className="flex gap-3 mb-6">
-                  <Avatar className="w-8 h-8 flex-shrink-0">
-                    <AvatarFallback className="bg-muted text-muted-foreground text-xs">
-                      U
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1">
-                    <textarea
-                      value={commentText}
-                      onChange={(e) => setCommentText(e.target.value)}
-                      placeholder="Viết bình luận..."
-                      className="w-full bg-secondary border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground resize-none outline-none focus:border-primary/50 transition-colors min-h-[60px]"
-                    />
-                    <div className="flex items-center gap-2 mt-2">
-                      <span className="text-xs text-muted-foreground">
-                        Tìm kiếm
-                      </span>
-                      <span className="text-xs text-muted-foreground">GIF</span>
-                      <Button
-                        aria-label="Gửi"
-                        name="send"
-                        size="sm"
-                        className="ml-auto rounded-full text-xs px-4"
-                      >
-                        Gửi
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-                <Comment movieSlug={movie.slug} />
+                <CommentComponent
+                  movieSlug={movie.slug}
+                  onCommentCountChange={setCommentCount}
+                />
               </div>
             </div>
 
