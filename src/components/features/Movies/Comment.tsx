@@ -75,20 +75,27 @@ export function CommentComponent({
   const { user } = useAuth();
 
   const fetchComments = useCallback(
-    async (page = 1, parentId: string | null = null) => {
+    async (page = 1) => {
       try {
+        // Fetch all comments and filter only root comments (no parentId)
         const response = await commentApi.getComments(movieSlug, {
           page,
-          limit: 20,
-          parentId,
+          limit: 50,
         });
 
-        if (parentId === null) {
-          setComments(response.data);
-          setPagination(response.pagination);
-          if (onCommentCountChange) {
-            onCommentCountChange(response.pagination.total);
-          }
+        // Filter only root comments (parentId is null)
+        const rootComments = response.data.filter(
+          (comment: Comment) => comment.parentId === null
+        );
+
+        setComments(rootComments);
+        setPagination({
+          page: response.pagination.page,
+          totalPages: response.pagination.totalPages,
+          total: rootComments.length,
+        });
+        if (onCommentCountChange) {
+          onCommentCountChange(rootComments.length);
         }
 
         return response;
@@ -106,12 +113,17 @@ export function CommentComponent({
 
       setLoadingReplies((prev) => ({ ...prev, [parentId]: true }));
       try {
+        // Fetch all comments and filter by parentId
         const response = await commentApi.getComments(movieSlug, {
           page: 1,
-          limit: 50,
-          parentId,
+          limit: 100,
         });
-        setReplies((prev) => ({ ...prev, [parentId]: response.data }));
+
+        const replyComments = response.data.filter(
+          (comment: Comment) => comment.parentId === parentId
+        );
+
+        setReplies((prev) => ({ ...prev, [parentId]: replyComments }));
       } catch (error) {
         console.error("Error fetching replies:", error);
       } finally {
@@ -173,6 +185,9 @@ export function CommentComponent({
           [parentId]: [response.data, ...(prev[parentId] || [])],
         }));
         setReplyingTo(null);
+
+        // Auto-expand replies section when new reply is added
+        setExpandedReplies((prev) => ({ ...prev, [parentId]: true }));
 
         setComments((prev) =>
           prev.map((c) =>
@@ -318,7 +333,7 @@ export function CommentComponent({
                         : { parentId: comment._id, text: "" },
                     )
                   }
-                  className="flex items-center gap-1 text-[10px] hover:text-foreground transition-colors"
+                  className="flex items-center gap-1 hover:text-foreground transition-colors"
                 >
                   <Reply className="w-3 h-3" /> Trả lời
                 </Button>
@@ -363,7 +378,7 @@ export function CommentComponent({
             </div>
           )}
 
-          {!isReply && comment.replyCount && comment.replyCount > 0 && (
+          {!isReply && comment.replyCount > 0 && (
             <button
               onClick={() => toggleReplies(comment._id)}
               className="mt-2 text-xs text-primary hover:underline flex items-center gap-1"
@@ -371,7 +386,7 @@ export function CommentComponent({
               <MessageCircle className="w-3 h-3" />
               {expandedReplies[comment._id]
                 ? "Ẩn phản hồi"
-                : `Xem ${comment.replyCount} phản hồi`}
+                : `Xem ${comment.replyCount ?? 0} phản hồi`}
             </button>
           )}
 
@@ -415,7 +430,8 @@ export function CommentComponent({
         </p>
       )}
 
-      {pagination.page < pagination.totalPages && (
+      {/* Load more disabled since we're fetching all comments at once */}
+      {/* {pagination.page < pagination.totalPages && (
         <Button
           variant="outline"
           size="sm"
@@ -424,7 +440,7 @@ export function CommentComponent({
         >
           Xem thêm bình luận
         </Button>
-      )}
+      )} */}
 
       <div className="pt-4 border-t border-border">
         {user ? (

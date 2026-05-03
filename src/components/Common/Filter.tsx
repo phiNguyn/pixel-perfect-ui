@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { FC, useState } from "react"
+import { FC, useState, useCallback } from "react"
 import { Filter as FilterIcon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -10,6 +10,7 @@ import { useIsMobile } from "@/hooks/use-mobile"
 import { useQueryCategories } from "@/lib/api/categories/categorieQuery"
 import { useQueryMovies } from "@/lib/api/movies/movieQuery"
 import { ItemQueryField } from "@/hooks/useQueryResult"
+import { analytics } from "@/lib/analytics"
 
 interface OrderFilterProps {
     getFilterValue: (key: string, type?: 'string' | 'array') => any;
@@ -27,10 +28,17 @@ const btnClass = (active: boolean) =>
         : "bg-secondary text-secondary-foreground hover:bg-muted"
     }`
 
-const buildToggle = (selected: string[], addQuery: (p: ItemQueryField) => void, key: FilterKey) => (value: string) => {
-    const next = selected.includes(value)
-        ? selected.filter((s) => s !== value)
-        : [...selected, value]
+const buildToggle = (
+    selected: string[],
+    addQuery: (p: ItemQueryField) => void,
+    key: FilterKey,
+    trackAnalytics: (key: FilterKey, value: string, action: "add" | "remove") => void
+) => (value: string) => {
+    const isAdding = !selected.includes(value);
+    trackAnalytics(key, value, isAdding ? "add" : "remove");
+    const next = isAdding
+        ? [...selected, value]
+        : selected.filter((s) => s !== value)
     addQuery({ key, value: next.join(","), query: next.length ? `${key}=${next.join(",")}` : "" })
 }
 
@@ -95,9 +103,10 @@ interface FilterContentProps {
     selectedCategories: string[]
     selectedCountries: string[]
     selectedYears: string[]
-    onToggleCategory: ReturnType<typeof buildToggle>
-    onToggleCountry: ReturnType<typeof buildToggle>
-    onToggleYear: ReturnType<typeof buildToggle>
+    onToggleCategory: (value: string) => void
+    onToggleCountry: (value: string) => void
+    onToggleYear: (value: string) => void
+    onClearAll?: () => void
 }
 
 const FilterContent: FC<FilterContentProps> = ({
@@ -160,11 +169,28 @@ export const Filter: FC<OrderFilterProps> = ({ addQuery, getFilterValue, clearAl
     const selectedCountries = (getFilterValue("country", "array") as string[]) ?? []
     const selectedYears = (getFilterValue("year", "array") as string[]) ?? []
 
-    const onToggleCategory = buildToggle(selectedCategories, addQuery, 'category')
-    const onToggleCountry = buildToggle(selectedCountries, addQuery, 'country')
-    const onToggleYear = buildToggle(selectedYears, addQuery, 'year')
+    // Analytics tracking function
+    const trackFilterAnalytics = useCallback((key: FilterKey, value: string, action: "add" | "remove") => {
+        analytics.filter({
+            filter_type: key,
+            filter_value: value,
+            action,
+        });
+    }, []);
 
-    const handleClearAll = () => { clearAll(); setOpen(false) }
+    // Analytics for clear all
+    const handleClearAll = () => {
+        const hadFilters = selectedCategories.length > 0 || selectedCountries.length > 0 || selectedYears.length > 0;
+        if (hadFilters) {
+            analytics.filterClear();
+        }
+        clearAll();
+        setOpen(false);
+    };
+
+    const onToggleCategory = buildToggle(selectedCategories, addQuery, 'category', trackFilterAnalytics)
+    const onToggleCountry = buildToggle(selectedCountries, addQuery, 'country', trackFilterAnalytics)
+    const onToggleYear = buildToggle(selectedYears, addQuery, 'year', trackFilterAnalytics)
 
     const contentProps = {
         categoriesData, categoriesLoading,

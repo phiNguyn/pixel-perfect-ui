@@ -17,18 +17,35 @@ import {
   Moon,
   Save,
   Check,
+  Pencil,
+  X,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { authApi } from "@/lib/api/auth/authApi";
 
 export default function SettingsClient() {
-  const { user, isAuthenticated, logout, openLoginModal } = useAuth();
+  const { user, isAuthenticated, logout, openLoginModal, updateUser } = useAuth();
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [notifications, setNotifications] = useState(true);
   const [autoPlay, setAutoPlay] = useState(false);
   const [selectedTheme, setSelectedTheme] = useState<string>("");
+
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [editingField, setEditingField] = useState<"name" | "username" | null>(null);
+  const [editValue, setEditValue] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -48,6 +65,45 @@ export default function SettingsClient() {
 
   const handleSaveNotifications = () => {
     toast.success("Đã lưu cài đặt thông báo!");
+  };
+
+  const openEditDialog = (field: "name" | "username") => {
+    setEditingField(field);
+    setEditValue(field === "name" ? (user?.name || "") : (user?.username || ""));
+    setEditDialogOpen(true);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingField || !editValue.trim()) {
+      toast.error("Vui lòng nhập giá trị hợp lệ");
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      const updateData = editingField === "name"
+        ? { name: editValue.trim() }
+        : { username: editValue.trim() };
+
+      const updatedUser = await authApi.updateProfile(updateData);
+
+      updateUser({
+        name: updatedUser.name,
+        username: updatedUser.username,
+      });
+
+      toast.success(`Đã cập nhật ${editingField === "name" ? "họ tên" : "tên người dùng"}!`);
+      setEditDialogOpen(false);
+      setEditingField(null);
+      setEditValue("");
+    } catch (error: any) {
+      const message = error.response?.data?.details?.[0]?.message
+        || error.response?.data?.message
+        || "Đã xảy ra lỗi";
+      toast.error(message);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   if (!mounted) {
@@ -137,7 +193,29 @@ export default function SettingsClient() {
                       {user?.name || "Chưa cập nhật"}
                     </p>
                   </div>
-                  <Button variant="outline" size="sm">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => openEditDialog("name")}
+                  >
+                    <Pencil className="w-4 h-4 mr-1" />
+                    Chỉnh sửa
+                  </Button>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium text-foreground">Tên người dùng</p>
+                    <p className="text-sm text-muted-foreground">
+                      {user?.username ? `@${user.username}` : "Chưa cập nhật"}
+                    </p>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => openEditDialog("username")}
+                  >
+                    <Pencil className="w-4 h-4 mr-1" />
                     Chỉnh sửa
                   </Button>
                 </div>
@@ -402,6 +480,47 @@ export default function SettingsClient() {
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* Edit Dialog */}
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>
+              {editingField === "name" ? "Chỉnh sửa họ và tên" : "Chỉnh sửa tên người dùng"}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <Label htmlFor="edit-value" className="sr-only">
+              {editingField === "name" ? "Họ và tên" : "Tên người dùng"}
+            </Label>
+            <Input
+              id="edit-value"
+              value={editValue}
+              onChange={(e) => setEditValue(e.target.value)}
+              placeholder={
+                editingField === "name"
+                  ? "Nhập họ và tên của bạn"
+                  : "Nhập tên người dùng (3-30 ký tự)"
+              }
+              disabled={isSaving}
+            />
+            {editingField === "username" && (
+              <p className="text-xs text-muted-foreground mt-2">
+                Chỉ sử dụng chữ cái, số và dấu gạch dưới. Tối thiểu 3 ký tự.
+              </p>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditDialogOpen(false)} disabled={isSaving}>
+              <X className="w-4 h-4 mr-1" />
+              Hủy
+            </Button>
+            <Button onClick={handleSaveEdit} disabled={isSaving || !editValue.trim()}>
+              {isSaving ? "Đang lưu..." : "Lưu"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

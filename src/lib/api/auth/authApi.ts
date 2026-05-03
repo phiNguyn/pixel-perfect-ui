@@ -15,6 +15,7 @@ export interface AuthResponse {
     id: string;
     email: string;
     name?: string;
+    username?: string;
     avatar?: string;
     provider: "local" | "google";
   };
@@ -26,6 +27,7 @@ export interface UserProfile {
   id: string;
   email: string;
   name?: string;
+  username?: string;
   avatar?: string;
   provider: "local" | "google";
   createdAt?: string;
@@ -162,7 +164,7 @@ class AuthApiClient {
     return response.data;
   }
 
-  async updateProfile(data: { name?: string; avatar?: string | null }): Promise<UserProfile> {
+  async updateProfile(data: { name?: string; username?: string; avatar?: string | null }): Promise<UserProfile> {
     const response = await this.client.patch<UserProfile>("/users/me", data);
     return response.data;
   }

@@ -7,7 +7,7 @@ import {
   useCallback,
   type ReactNode,
 } from "react";
-import { useAuthStore, type User, type AuthTokens } from "@/stores/useAuthStore";
+import { useAuthStore, type User } from "@/stores/useAuthStore";
 import { useHistoryStore } from "@/stores/useHistoryStore";
 import { authApi } from "@/lib/api/auth/authApi";
 import {
@@ -16,7 +16,7 @@ import {
   triggerGooglePrompt,
 } from "@/lib/google-auth";
 import { toast } from "sonner";
-import { getTokens } from "@/lib/auth/tokenManager";
+import { analytics } from "@/lib/analytics";
 
 interface AuthContextType {
   user: User | null;
@@ -26,6 +26,7 @@ interface AuthContextType {
   loginWithEmail: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, name?: string) => Promise<void>;
   logout: () => Promise<void>;
+  updateUser: (updates: Partial<User>) => void;
   openLoginModal: () => void;
   closeLoginModal: () => void;
   isLoginModalOpen: boolean;
@@ -46,8 +47,15 @@ interface AuthProviderProps {
 }
 
 export function AuthProvider({ children }: AuthProviderProps): JSX.Element {
-  const { user, tokens, isAuthenticated, isLoading, login, logout: clearAuth } =
-    useAuthStore();
+  const {
+    user,
+    tokens,
+    isAuthenticated,
+    isLoading,
+    login,
+    logout: clearAuth,
+    updateUser: updateAuthUser,
+  } = useAuthStore();
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [localLoading, setLocalLoading] = useState(false);
   const [googleReady, setGoogleReady] = useState(false);
@@ -65,19 +73,22 @@ export function AuthProvider({ children }: AuthProviderProps): JSX.Element {
             id: response.user.id,
             email: response.user.email,
             name: response.user.name,
+            username: response.user.username,
             avatar: response.user.avatar,
             provider: response.user.provider,
           },
           {
             accessToken: response.accessToken,
             refreshToken: response.refreshToken,
-          }
+          },
         );
         toast.success("Đăng nhập thành công!");
+        analytics.loginAttempt({ method: "google", success: true });
         closeLoginModal();
       } catch (error) {
         console.error("Google auth error:", error);
         toast.error("Đăng nhập Google thất bại. Vui lòng thử lại.");
+        analytics.loginAttempt({ method: "google", success: false });
       } finally {
         setLocalLoading(false);
       }
@@ -126,19 +137,22 @@ export function AuthProvider({ children }: AuthProviderProps): JSX.Element {
             id: response.user.id,
             email: response.user.email,
             name: response.user.name,
+            username: response.user.username,
             avatar: response.user.avatar,
             provider: response.user.provider,
           },
           {
             accessToken: response.accessToken,
             refreshToken: response.refreshToken,
-          }
+          },
         );
         toast.success("Đăng nhập thành công!");
+        analytics.loginAttempt({ method: "email", success: true });
         closeLoginModal();
       } catch (error) {
         console.error("Login error:", error);
         toast.error("Đăng nhập thất bại. Vui lòng kiểm tra email và mật khẩu.");
+        analytics.loginAttempt({ method: "email", success: false });
         throw error;
       } finally {
         setLocalLoading(false);
@@ -157,19 +171,28 @@ export function AuthProvider({ children }: AuthProviderProps): JSX.Element {
             id: response.user.id,
             email: response.user.email,
             name: response.user.name,
+            username: response.user.username,
             avatar: response.user.avatar,
             provider: response.user.provider,
           },
           {
             accessToken: response.accessToken,
             refreshToken: response.refreshToken,
-          }
+          },
         );
         toast.success("Đăng ký thành công!");
+        analytics.customEvent("user_register", {
+          method: "email",
+          success: true,
+        });
         closeLoginModal();
       } catch (error) {
         console.error("Register error:", error);
         toast.error("Đăng ký thất bại. Email có thể đã được sử dụng.");
+        analytics.customEvent("user_register", {
+          method: "email",
+          success: false,
+        });
         throw error;
       } finally {
         setLocalLoading(false);
@@ -238,6 +261,7 @@ export function AuthProvider({ children }: AuthProviderProps): JSX.Element {
     loginWithEmail,
     register,
     logout,
+    updateUser: updateAuthUser,
     openLoginModal,
     closeLoginModal,
     isLoginModalOpen,

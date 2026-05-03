@@ -4,6 +4,7 @@
 import Hls from "hls.js";
 import { useEffect, useRef, useState, useCallback } from "react";
 import { cn, normalizeEpisode } from "@/lib/utils";
+import { analytics } from "@/lib/analytics";
 import {
   Play,
   Pause,
@@ -57,6 +58,10 @@ interface MoviePlayerProps {
   selectedEp?: string;
   startTime?: number;
   adSegments?: AdSegment[];
+  movieId?: string;
+  movieSlug?: string;
+  movieTitle?: string;
+  source?: string;
 }
 
 const formatTime = (seconds: number): string => {
@@ -81,12 +86,19 @@ export default function MoviePlayer({
   selectedEp,
   startTime,
   adSegments = [],
+  movieId = "",
+  movieSlug = "",
+  movieTitle = "",
+  source = "ophim",
 }: MoviePlayerProps) {
   const hasResumed = useRef(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const hlsRef = useRef<Hls | null>(null);
   const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const previousTimeRef = useRef(0);
+  const watchMilestonesRef = useRef<Set<string>>(new Set());
+  const hasTrackedPlayRef = useRef(false);
   const [isFakeFullscreen, setIsFakeFullscreen] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -118,6 +130,9 @@ export default function MoviePlayer({
 
     // Reset states when src changes
     hasResumed.current = false;
+    hasTrackedPlayRef.current = false;
+    watchMilestonesRef.current = new Set();
+    previousTimeRef.current = 0;
     setIsPlaying(false);
     setCurrentTime(0);
     setDuration(0);
@@ -200,16 +215,91 @@ export default function MoviePlayer({
     const video = videoRef.current;
     if (!video) return;
 
-    const handlePlay = () => setIsPlaying(true);
-    const handlePause = () => setIsPlaying(false);
+    const handlePlay = () => {
+      setIsPlaying(true);
+      if (!hasTrackedPlayRef.current && movieSlug) {
+        analytics.moviePlay({
+          movie_id: movieId,
+          movie_title: movieTitle,
+          movie_slug: movieSlug,
+          source,
+          episode_slug: selectedEp,
+        });
+        hasTrackedPlayRef.current = true;
+      }
+    };
+    const handlePause = () => {
+      setIsPlaying(false);
+      if (movieSlug) {
+        analytics.moviePause({
+          movie_id: movieId,
+          movie_title: movieTitle,
+          movie_slug: movieSlug,
+          source,
+          episode_slug: selectedEp,
+          pause_position_seconds: Math.floor(video.currentTime),
+        });
+      }
+    };
     const handleTimeUpdate = () => {
-      setCurrentTime(video.currentTime);
+      const currentProgress = video.currentTime;
+      setCurrentTime(currentProgress);
+
+      // Detect seek (jump more than 5 seconds)
+      if (Math.abs(currentProgress - previousTimeRef.current) > 5 && previousTimeRef.current > 0) {
+        analytics.movieSeek({
+          movie_id: movieId,
+          movie_title: movieTitle,
+          movie_slug: movieSlug,
+          source,
+          seek_from_seconds: Math.floor(previousTimeRef.current),
+          seek_to_seconds: Math.floor(currentProgress),
+        });
+      }
+      previousTimeRef.current = currentProgress;
+
+      // Track watch progress milestones (25%, 50%, 75%, 90%)
+      if (video.duration > 0 && movieSlug) {
+        const milestones = [0.25, 0.5, 0.75, 0.9];
+        const percentWatched = currentProgress / video.duration;
+        for (const milestone of milestones) {
+          const milestoneKey = `${movieSlug}-${selectedEp}-${milestone}`;
+          if (percentWatched >= milestone && !watchMilestonesRef.current.has(milestoneKey)) {
+            watchMilestonesRef.current.add(milestoneKey);
+            analytics.watchProgress({
+              movie_id: movieId,
+              movie_title: movieTitle,
+              movie_slug: movieSlug,
+              source,
+              episode_slug: selectedEp,
+              milestone: `${milestone * 100}%` as "25%" | "50%" | "75%" | "90%",
+              watch_time_seconds: Math.floor(currentProgress),
+            });
+          }
+        }
+        // Track completion (>90% watched)
+        if (percentWatched >= 0.9) {
+          const completionKey = `${movieSlug}-${selectedEp}-complete`;
+          if (!watchMilestonesRef.current.has(completionKey)) {
+            watchMilestonesRef.current.add(completionKey);
+            analytics.movieComplete({
+              movie_id: movieId,
+              movie_title: movieTitle,
+              movie_slug: movieSlug,
+              source,
+              episode_slug: selectedEp,
+              watch_time_seconds: Math.floor(currentProgress),
+            });
+          }
+        }
+      }
+
       // Dispatch time update for watch history tracking (throttled to every 5s)
-      if (Math.floor(video.currentTime) % 5 === 0 && video.duration > 0) {
+      if (Math.floor(currentProgress) % 5 === 0 && video.duration > 0) {
         window.dispatchEvent(
           new CustomEvent("player-time-update", {
             detail: {
-              currentTime: video.currentTime,
+              currentTime: currentProgress,
               duration: video.duration,
             },
           }),
@@ -452,6 +542,18 @@ export default function MoviePlayer({
       (document as any).msFullscreenElement ||
       (video as any).webkitDisplayingFullscreen;
 
+    const enteringFullscreen = !isCurrentlyFullscreen;
+
+    if (movieSlug) {
+      analytics.fullscreenToggle({
+        movie_id: movieId,
+        movie_title: movieTitle,
+        movie_slug: movieSlug,
+        source,
+        is_fullscreen: enteringFullscreen,
+      });
+    }
+
     if (!isCurrentlyFullscreen) {
       // Try to enter fullscreen
       try {
@@ -527,6 +629,19 @@ export default function MoviePlayer({
   const togglePiP = async () => {
     if (!videoRef.current) return;
 
+    const isCurrentlyInPiP = !!document.pictureInPictureElement;
+    const enteringPiP = !isCurrentlyInPiP;
+
+    if (movieSlug) {
+      analytics.pipToggle({
+        movie_id: movieId,
+        movie_title: movieTitle,
+        movie_slug: movieSlug,
+        source,
+        is_pip: enteringPiP,
+      });
+    }
+
     if (document.pictureInPictureElement) {
       await document.exitPictureInPicture();
     } else {
@@ -539,13 +654,36 @@ export default function MoviePlayer({
     const newSpeed = parseFloat(speed);
     videoRef.current.playbackRate = newSpeed;
     setPlaybackSpeed(newSpeed);
+    if (movieSlug) {
+      analytics.speedChange({
+        movie_id: movieId,
+        movie_title: movieTitle,
+        movie_slug: movieSlug,
+        source,
+        new_speed: newSpeed,
+      });
+    }
   };
 
   const handleQualityChange = (quality: string) => {
     const index = parseInt(quality);
+    const prevQuality = currentQuality;
     setCurrentQuality(index);
     if (hlsRef.current) {
       hlsRef.current.currentLevel = index;
+    }
+    if (movieSlug && qualityLevels.length > 0) {
+      const qualityLabel = index === -1
+        ? "Auto"
+        : `${qualityLevels.find((q) => q.index === index)?.height}p` || "Unknown";
+      analytics.qualityChange({
+        movie_id: movieId,
+        movie_title: movieTitle,
+        movie_slug: movieSlug,
+        source,
+        new_quality: qualityLabel,
+        auto_or_manual: prevQuality === -1 && index !== -1 ? "auto" : "manual",
+      });
     }
   };
 

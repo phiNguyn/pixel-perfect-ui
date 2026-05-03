@@ -5,16 +5,30 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { Movie } from "@/lib/api/movies/movieInterface";
 import { cn } from "@/lib/utils";
+import { analytics } from "@/lib/analytics";
 
 interface MovieCardProps {
   movie: Movie;
   rank?: number;
   className?: string;
+  listName?: string;
+  position?: number;
 }
 import MovieImage from "./MovieImage";
-export default function MovieCard({ movie, rank, className }: MovieCardProps) {
+export default function MovieCard({ movie, rank, className, listName, position }: MovieCardProps) {
+  const handleClick = () => {
+    analytics.movieClick({
+      movie_id: movie.tmdb?.id?.toString() || movie._id || movie.slug,
+      movie_title: movie.name,
+      movie_slug: movie.slug,
+      source: "ophim",
+      position: position || 0,
+      list_name: listName,
+    });
+  };
+
   return (
-    <Link href={`/phim/${movie.slug}`}>
+    <Link href={`/phim/${movie.slug}`} onClick={handleClick}>
       <motion.div
         whileHover={{ scale: 1.05 }}
         transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}

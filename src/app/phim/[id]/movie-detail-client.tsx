@@ -5,7 +5,7 @@ import { Play, Heart, Share2, BookmarkPlus, Star } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import { featuredMovies, topMovies } from "@/data/movies";
 import { useQueryMovie, useQueryPhimApi } from "@/lib/api/movies/movieQuery";
 import {
@@ -21,12 +21,14 @@ import MovieDetailSkeleton from "@/components/features/Movies/Skeletons/MovieDet
 import MovieNotFound from "@/components/features/Movies/MovieNotFound";
 import { normalizeEpisode } from "@/lib/utils";
 import { CommentComponent } from "@/components/features/Movies/Comment";
+import { analytics } from "@/lib/analytics";
 
 export default function MovieDetail({ id }: { id: string }) {
   const searchParams = useSearchParams();
   const router = useRouter();
   const source = searchParams?.get("source") ?? "ophim";
   const isPhimApi = source === "phimapi";
+  const previousEpRef = useRef<string | null>(null);
 
   const {
     data: rawData,
@@ -108,6 +110,18 @@ export default function MovieDetail({ id }: { id: string }) {
     return 0;
   })();
 
+  // Track movie view on mount
+  useEffect(() => {
+    if (movie) {
+      analytics.movieView({
+        movie_id: movie.tmdb?.id?.toString() || movie._id || movie.slug,
+        movie_title: movie.name,
+        movie_slug: movie.slug,
+        source: isPhimApi ? "phimapi" : "ophim",
+      });
+    }
+  }, [movie?.slug, isPhimApi]);
+
   useEffect(() => {
     if (movie?.episodes?.length) {
       setSelectedServer(movie.episodes[0]);
@@ -117,6 +131,19 @@ export default function MovieDetail({ id }: { id: string }) {
   const handleSelectEp = (ep: Episode) => {
     // Flush pending updates before changing episode
     flushPendingUpdates();
+
+    // Track episode change
+    if (movie && selectedEp?.slug) {
+      analytics.episodeChange({
+        movie_id: movie.tmdb?.id?.toString() || movie._id || movie.slug,
+        movie_title: movie.name,
+        movie_slug: movie.slug,
+        source: isPhimApi ? "phimapi" : "ophim",
+        from_episode: selectedEp.slug,
+        to_episode: ep.slug,
+      });
+    }
+    previousEpRef.current = selectedEp?.slug || null;
 
     setSelectedEp(ep);
     const params = new URLSearchParams(searchParams.toString());
@@ -250,6 +277,15 @@ export default function MovieDetail({ id }: { id: string }) {
                             aria-label="Trailer"
                             name="trailer"
                             variant="outline"
+                            onClick={() => {
+                              if (movie) {
+                                analytics.trailerView({
+                                  movie_id: movie.tmdb?.id?.toString() || movie._id || movie.slug,
+                                  movie_title: movie.name,
+                                  movie_slug: movie.slug,
+                                });
+                              }
+                            }}
                           >
                             <Play className="w-4 h-4 fill-current" /> Trailer
                           </Button>
@@ -272,10 +308,22 @@ export default function MovieDetail({ id }: { id: string }) {
                         aria-label="Chia sẻ"
                         name="share"
                         onClick={() => {
+                          if (movie) {
+                            analytics.share({
+                              movie_id: movie.tmdb?.id?.toString() || movie._id || movie.slug,
+                              movie_title: movie.name,
+                              movie_slug: movie.slug,
+                              source: isPhimApi ? "phimapi" : "ophim",
+                              share_method: "native",
+                            });
+                          }
                           navigator.share({
                             title: movie.name,
                             text: movie.name,
                             url: window.location.href,
+                          }).catch(() => {
+                            // Fallback: copy to clipboard
+                            navigator.clipboard.writeText(window.location.href);
                           });
                         }}
                         className="p-2 rounded-full bg-secondary text-secondary-foreground hover:bg-muted transition-colors"
@@ -365,6 +413,10 @@ export default function MovieDetail({ id }: { id: string }) {
                     selectedEp={selectedEp.name}
                     poster={movie.thumb_url}
                     startTime={savedStartTime}
+                    movieId={movie.tmdb?.id?.toString() || movie._id || movie.slug}
+                    movieSlug={movie.slug}
+                    movieTitle={movie.name}
+                    source={isPhimApi ? "phimapi" : "ophim"}
                     adSegments={
                       isPhimApi
                         ? [

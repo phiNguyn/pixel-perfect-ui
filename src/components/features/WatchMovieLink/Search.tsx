@@ -6,6 +6,7 @@ import MovieCardSeach from "../Movies/MovieCardSeach";
 import Empty from "@/components/Common/Empty";
 import SearchHistoryList from "../Home/SearchHistoryList";
 import { Button } from "@/components/ui/button";
+import { analytics } from "@/lib/analytics";
 
 const WatchMovieLinkSearch = () => {
   const [search, setSearch] = useState("");
@@ -17,6 +18,25 @@ const WatchMovieLinkSearch = () => {
     isLoading: searchLoading,
     isFetching: searchFetching,
   } = useQueryNguoncSearchMovie(value);
+
+  // Track search queries
+  useEffect(() => {
+    if (value && value.length >= 2) {
+      const count = movies?.items?.length || 0;
+      if (count === 0 && !searchLoading && !searchFetching) {
+        analytics.searchNoResults({
+          search_term: value,
+          source: "nguonc",
+        });
+      } else if (!searchLoading && !searchFetching) {
+        analytics.search({
+          search_term: value,
+          result_count: count,
+          source: "nguonc",
+        });
+      }
+    }
+  }, [value, movies?.items?.length, searchLoading, searchFetching]);
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (!wrapperRef.current?.contains(event.target as Node)) {
@@ -57,6 +77,15 @@ const WatchMovieLinkSearch = () => {
                         source={"nguonc"}
                         key={`nguonc-${item._id || index}`}
                         onSelect={() => {
+                          // Track search result click
+                          analytics.movieClick({
+                            movie_id: item.tmdb?.id?.toString() || item._id || item.slug,
+                            movie_title: item.name,
+                            movie_slug: item.slug,
+                            source: "nguonc",
+                            position: index + 1,
+                            list_name: "search_results",
+                          });
                           setSearch("");
                           setSearchOpen(false);
                         }}

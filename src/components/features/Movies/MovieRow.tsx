@@ -70,6 +70,8 @@ export default function MovieRow({
                   key={movie._id}
                   movie={movie}
                   rank={showRank ? i + 1 : undefined}
+                  listName={title}
+                  position={i + 1}
                 />
               ))
             )}
