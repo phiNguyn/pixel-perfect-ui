@@ -133,6 +133,28 @@ class WatchHistoryApiClient {
     return response.data;
   }
 
+  async bulkCreateWatchHistory(items: Array<{
+    movieId: string;
+    movieTitle: string;
+    moviePoster?: string;
+    originName?: string;
+    episodeCurrent?: string;
+    year?: number;
+    quality?: string;
+    progress: number;
+    duration: number;
+    completed?: boolean;
+    currentEpSlug?: string;
+    currentEpName?: string;
+    source?: WatchHistorySource;
+  }>): Promise<{ insertedCount: number; upsertedCount: number }> {
+    const response = await this.client.post<{ insertedCount: number; upsertedCount: number }>(
+      "/watch-history/bulk",
+      { items }
+    );
+    return response.data;
+  }
+
   async updateWatchHistory(
     movieId: string,
     data: {

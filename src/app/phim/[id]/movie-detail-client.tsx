@@ -280,7 +280,10 @@ export default function MovieDetail({ id }: { id: string }) {
                             onClick={() => {
                               if (movie) {
                                 analytics.trailerView({
-                                  movie_id: movie.tmdb?.id?.toString() || movie._id || movie.slug,
+                                  movie_id:
+                                    movie.tmdb?.id?.toString() ||
+                                    movie._id ||
+                                    movie.slug,
                                   movie_title: movie.name,
                                   movie_slug: movie.slug,
                                 });
@@ -310,21 +313,28 @@ export default function MovieDetail({ id }: { id: string }) {
                         onClick={() => {
                           if (movie) {
                             analytics.share({
-                              movie_id: movie.tmdb?.id?.toString() || movie._id || movie.slug,
+                              movie_id:
+                                movie.tmdb?.id?.toString() ||
+                                movie._id ||
+                                movie.slug,
                               movie_title: movie.name,
                               movie_slug: movie.slug,
                               source: isPhimApi ? "phimapi" : "ophim",
                               share_method: "native",
                             });
                           }
-                          navigator.share({
-                            title: movie.name,
-                            text: movie.name,
-                            url: window.location.href,
-                          }).catch(() => {
-                            // Fallback: copy to clipboard
-                            navigator.clipboard.writeText(window.location.href);
-                          });
+                          navigator
+                            .share({
+                              title: movie.name,
+                              text: movie.name,
+                              url: window.location.href,
+                            })
+                            .catch(() => {
+                              // Fallback: copy to clipboard
+                              navigator.clipboard.writeText(
+                                window.location.href,
+                              );
+                            });
                         }}
                         className="p-2 rounded-full bg-secondary text-secondary-foreground hover:bg-muted transition-colors"
                       >
@@ -413,7 +423,9 @@ export default function MovieDetail({ id }: { id: string }) {
                     selectedEp={selectedEp.name}
                     poster={movie.thumb_url}
                     startTime={savedStartTime}
-                    movieId={movie.tmdb?.id?.toString() || movie._id || movie.slug}
+                    movieId={
+                      movie.tmdb?.id?.toString() || movie._id || movie.slug
+                    }
                     movieSlug={movie.slug}
                     movieTitle={movie.name}
                     source={isPhimApi ? "phimapi" : "ophim"}
@@ -450,6 +462,12 @@ export default function MovieDetail({ id }: { id: string }) {
                     className="text-xs rounded-md data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
                   >
                     Chi tiết
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="cast"
+                    className="text-xs rounded-md data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                  >
+                    Diễn viên
                   </TabsTrigger>
                   <TabsTrigger
                     value="gallery"
@@ -528,16 +546,22 @@ export default function MovieDetail({ id }: { id: string }) {
                     Chưa có hình ảnh
                   </p>
                 </TabsContent>
-                {/* <TabsContent value="soundtrack" className="mt-4">
-                  <p className="text-sm text-muted-foreground">
-                    Chưa có soundtrack
-                  </p>
+                <TabsContent value="cast" className="mt-4">
+                  <Cast
+                    source={source}
+                    loading={loadingCast}
+                    peoples={
+                      isPhimApi
+                        ? movie?.actor
+                        : isErrorCast
+                          ? movie?.actor
+                          : (castData as any)?.data?.peoples
+                    }
+                    profile_sizes={
+                      isPhimApi ? [] : (castData as any)?.data?.profile_sizes
+                    }
+                  />
                 </TabsContent>
-                <TabsContent value="giaisuat" className="mt-4">
-                  <p className="text-sm text-muted-foreground">
-                    Chưa có thông tin giải suất
-                  </p>
-                </TabsContent> */}
               </Tabs>
 
               {/* Info */}
@@ -551,21 +575,6 @@ export default function MovieDetail({ id }: { id: string }) {
                   value={movie.country.map((item) => item.name).join(", ")}
                 />
               </div>
-
-              <Cast
-                source={source}
-                loading={loadingCast}
-                peoples={
-                  isPhimApi
-                    ? movie?.actor
-                    : isErrorCast
-                      ? movie?.actor
-                      : (castData as any)?.data?.peoples
-                }
-                profile_sizes={
-                  isPhimApi ? [] : (castData as any)?.data?.profile_sizes
-                }
-              />
 
               {/* Comments */}
               <div className="mb-8">

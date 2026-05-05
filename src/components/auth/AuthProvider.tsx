@@ -230,7 +230,28 @@ export function AuthProvider({ children }: AuthProviderProps): JSX.Element {
   // Sync watch history when authentication state changes
   useEffect(() => {
     if (isAuthenticated) {
-      useHistoryStore.getState().syncFromDatabase();
+      const state = useHistoryStore.getState();
+      const currentLocalHistory = state.watchHistory;
+      const hasLocalItems = currentLocalHistory.some(item => item.id.startsWith("local-"));
+
+      if (hasLocalItems) {
+        // Save current local history before syncing (items with "local-" prefix are from before login)
+        const localOnlyItems = currentLocalHistory.filter(item => item.id.startsWith("local-"));
+        useHistoryStore.setState({ localHistoryBeforeSync: localOnlyItems });
+
+        // Merge local history with database history
+        useHistoryStore.getState().mergeWatchHistory().then(({ merged, localOnly }) => {
+          if (localOnly > 0 || merged > 0) {
+            toast.success(
+              `Đã đồng bộ ${localOnly + merged} phim vào lịch sử xem`,
+              { description: `${localOnly} phim từ trước khi đăng nhập` }
+            );
+          }
+        });
+      } else {
+        // No pending sync, just load from database
+        useHistoryStore.getState().syncFromDatabase();
+      }
     }
   }, [isAuthenticated]);
 

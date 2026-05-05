@@ -36,6 +36,8 @@ interface HistoryState {
   searchHistory: SearchHistoryItem[];
   isSyncing: boolean;
   lastSyncedAt: number | null;
+  localHistoryBeforeSync: WatchHistoryItem[];
+  localHistorySyncStartedAt: number | null;
   addWatchHistory: (item: Omit<WatchHistoryItem, "id" | "watchedAt" | "currentTime">) => Promise<void>;
   updateWatchProgress: (
     slug: string,
@@ -50,6 +52,8 @@ interface HistoryState {
   clearSearchHistory: () => void;
   syncFromDatabase: () => Promise<void>;
   syncToDatabase: () => Promise<void>;
+  syncLocalToDatabase: () => Promise<number>;
+  mergeWatchHistory: () => Promise<{ merged: number; localOnly: number }>;
   flushPendingUpdates: () => Promise<void>;
 }
 
@@ -146,6 +150,8 @@ export const useHistoryStore = create<HistoryState>()(
       searchHistory: [],
       isSyncing: false,
       lastSyncedAt: null,
+      localHistoryBeforeSync: [],
+      localHistorySyncStartedAt: null,
 
       addWatchHistory: async (item) => {
         const isAuthenticated = useAuthStore.getState().isAuthenticated;
@@ -359,6 +365,136 @@ export const useHistoryStore = create<HistoryState>()(
         }
       },
 
+      // Sync local history to database (for un-authenticated users who just logged in)
+      syncLocalToDatabase: async () => {
+        const isAuthenticated = useAuthStore.getState().isAuthenticated;
+        if (!isAuthenticated) return 0;
+
+        const { localHistoryBeforeSync, watchHistory } = get();
+        const itemsToSync = localHistoryBeforeSync.length > 0
+          ? localHistoryBeforeSync
+          : watchHistory.filter(item => !item.id.startsWith("local-") === false);
+
+        if (itemsToSync.length === 0) return 0;
+
+        set({ isSyncing: true });
+
+        try {
+          const itemsToUpload = itemsToSync.map(item => ({
+            ...toDbFormat(item),
+            movieId: item.slug,
+          }));
+          const result = await watchHistoryApi.bulkCreateWatchHistory(itemsToUpload);
+          set({ lastSyncedAt: Date.now(), isSyncing: false });
+          return result.upsertedCount;
+        } catch (error) {
+          console.error("Failed to sync local history to database:", error);
+          set({ isSyncing: false });
+          return 0;
+        }
+      },
+
+      // Merge local history with database history on login
+      // Strategy: Keep the most recent/watched version of each movie
+      mergeWatchHistory: async () => {
+        const isAuthenticated = useAuthStore.getState().isAuthenticated;
+        if (!isAuthenticated) return { merged: 0, localOnly: 0 };
+
+        const { localHistoryBeforeSync } = get();
+        if (localHistoryBeforeSync.length === 0) return { merged: 0, localOnly: 0 };
+
+        set({ isSyncing: true });
+
+        try {
+          // Fetch database history
+          const response = await watchHistoryApi.getWatchHistory(1, 50);
+          const dbItems = response.data.map((item) =>
+            fromDbFormat(item, "ophim")
+          );
+          const dbHistoryMap = new Map(dbItems.map(item => [item.slug, item]));
+
+          // Separate local items into categories
+          const localOnly: WatchHistoryItem[] = []; // Only in local
+          const needUpdate: WatchHistoryItem[] = []; // In both, local is newer
+          const keepDb: string[] = []; // In both, DB is newer (keep DB)
+
+          for (const localItem of localHistoryBeforeSync) {
+            const dbItem = dbHistoryMap.get(localItem.slug);
+
+            if (dbItem) {
+              if (localItem.watchedAt > dbItem.watchedAt) {
+                needUpdate.push(localItem);
+              } else {
+                keepDb.push(localItem.slug);
+              }
+            } else {
+              localOnly.push(localItem);
+            }
+          }
+
+          // Bulk upload localOnly items
+          if (localOnly.length > 0) {
+            const localOnlyToUpload = localOnly.map(toDbFormat);
+            await watchHistoryApi.bulkCreateWatchHistory(localOnlyToUpload);
+          }
+
+          // Bulk update needUpdate items
+          if (needUpdate.length > 0) {
+            const needUpdateToUpload = needUpdate.map(item => ({
+              ...toDbFormat(item),
+              movieId: item.slug,
+            }));
+            await watchHistoryApi.bulkCreateWatchHistory(needUpdateToUpload);
+          }
+
+          // Build final merged list
+          const merged: WatchHistoryItem[] = [];
+
+          // Add localOnly items (now in DB)
+          for (const item of localOnly) {
+            merged.push({ ...item });
+          }
+
+          // Add needUpdate items (updated in DB)
+          for (const item of needUpdate) {
+            const dbItem = dbHistoryMap.get(item.slug);
+            if (dbItem) {
+              merged.push({ ...item, id: dbItem.id });
+            }
+          }
+
+          // Add keepDb items from DB
+          for (const dbItem of dbItems) {
+            if (keepDb.includes(dbItem.slug)) {
+              merged.push(dbItem);
+            }
+          }
+
+          // Add DB-only items (not in local)
+          for (const dbItem of dbItems) {
+            if (!localHistoryBeforeSync.find(l => l.slug === dbItem.slug)) {
+              merged.push(dbItem);
+            }
+          }
+
+          // Sort by watchedAt descending
+          merged.sort((a, b) => b.watchedAt - a.watchedAt);
+
+          set({
+            watchHistory: merged.slice(0, 50),
+            lastSyncedAt: Date.now(),
+            localHistoryBeforeSync: [],
+            isSyncing: false,
+          });
+
+          return { merged: needUpdate.length, localOnly: localOnly.length };
+        } catch (error) {
+          console.error("Failed to merge watch history:", error);
+          set({ isSyncing: false });
+          return { merged: 0, localOnly: localHistoryBeforeSync.length };
+        }
+      },
+
       flushPendingUpdates,
     }),
     {
@@ -367,6 +503,8 @@ export const useHistoryStore = create<HistoryState>()(
         watchHistory: state.watchHistory,
         removedHistory: state.removedHistory,
         searchHistory: state.searchHistory,
+        localHistoryBeforeSync: state.localHistoryBeforeSync,
+        localHistorySyncStartedAt: state.localHistorySyncStartedAt,
       }),
     },
   ),
