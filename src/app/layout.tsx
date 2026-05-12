@@ -86,12 +86,10 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <DisclaimerNoticeProvider>
-              <SiteHeader />
-              <main className="flex-1 mt-16">{children}</main>
-              <SiteFooter />
-              <LoginModal />
-            </DisclaimerNoticeProvider>
+            <SiteHeader />
+            <main className="flex-1 mt-16">{children}</main>
+            <SiteFooter />
+            <LoginModal />
           </ThemeProvider>
         </Providers>
         <Toaster />
