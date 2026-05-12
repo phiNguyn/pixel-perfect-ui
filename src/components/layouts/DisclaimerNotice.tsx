@@ -32,9 +32,7 @@ const DisclaimerNoticeContext =
 export function useDisclaimerNotice() {
   const ctx = useContext(DisclaimerNoticeContext);
   if (!ctx) {
-    throw new Error(
-      "useDisclaimerNotice must be used within DisclaimerNoticeProvider",
-    );
+    return { openDisclaimer: () => {} };
   }
   return ctx;
 }
