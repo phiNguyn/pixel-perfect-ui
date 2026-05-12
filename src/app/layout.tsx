@@ -8,7 +8,6 @@ import { Analytics } from "@vercel/analytics/next";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import Script from "next/script";
 import { SpeedInsights } from "@vercel/speed-insights/next";
-import { DisclaimerNoticeProvider } from "@/components/layouts/DisclaimerNotice";
 import { LoginModal } from "@/components/auth/LoginModal";
 // Force dynamic rendering to prevent prerendering issues with /_not-found
 export const dynamic = "force-dynamic";
