@@ -20,7 +20,7 @@ export class ViewLogApi {
    */
   async logView(
     data: CreateViewLogDto,
-    accessToken?: string
+    accessToken?: string,
   ): Promise<{ success: boolean }> {
     try {
       const headers: Record<string, string> = {
@@ -56,11 +56,11 @@ export class ViewLogApi {
    */
   async getTrendingMovies(
     limit = 10,
-    hoursBack = 24
+    hoursBack = 168, // 1 week
   ): Promise<TrendingMovieResponse> {
     try {
       const response = await fetch(
-        `${API_BASE_URL}/view-logs/trending?limit=${limit}&hoursBack=${hoursBack}`
+        `${API_BASE_URL}/view-logs/trending?limit=${limit}&hoursBack=${hoursBack}`,
       );
 
       if (!response.ok) {
@@ -82,7 +82,7 @@ export class ViewLogApi {
   }> {
     try {
       const response = await fetch(
-        `${API_BASE_URL}/view-logs/stats/${movieId}`
+        `${API_BASE_URL}/view-logs/stats/${movieId}`,
       );
 
       if (!response.ok) {
@@ -100,7 +100,7 @@ export class ViewLogApi {
    */
   async mergeSession(
     sessionId: string,
-    accessToken: string
+    accessToken: string,
   ): Promise<MergeResponse> {
     try {
       const response = await fetch(`${API_BASE_URL}/view-logs/merge`, {
@@ -118,7 +118,11 @@ export class ViewLogApi {
 
       return response.json();
     } catch {
-      return { success: false, message: "Failed to merge session", mergedCount: 0 };
+      return {
+        success: false,
+        message: "Failed to merge session",
+        mergedCount: 0,
+      };
     }
   }
 
@@ -128,7 +132,7 @@ export class ViewLogApi {
   async getUserHistory(
     accessToken: string,
     page = 1,
-    limit = 20
+    limit = 20,
   ): Promise<{ success: boolean; data?: any[]; pagination?: any }> {
     try {
       const response = await fetch(
@@ -137,7 +141,7 @@ export class ViewLogApi {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
-        }
+        },
       );
 
       if (!response.ok) {
