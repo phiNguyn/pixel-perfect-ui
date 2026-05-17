@@ -17,6 +17,7 @@ export interface AuthResponse {
     name?: string;
     username?: string;
     avatar?: string;
+    role: "user" | "admin";
     provider: "local" | "google";
   };
   accessToken: string;
@@ -29,6 +30,7 @@ export interface UserProfile {
   name?: string;
   username?: string;
   avatar?: string;
+  role: "user" | "admin";
   provider: "local" | "google";
   createdAt?: string;
   updatedAt?: string;

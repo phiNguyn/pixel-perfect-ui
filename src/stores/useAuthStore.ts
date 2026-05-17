@@ -7,6 +7,7 @@ export interface User {
   name?: string;
   username?: string;
   avatar?: string;
+  role: "user" | "admin";
   provider: "local" | "google";
 }
 
@@ -20,12 +21,14 @@ interface AuthState {
   tokens: AuthTokens | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  _hasHydrated: boolean;
   setUser: (user: User | null) => void;
   setTokens: (tokens: AuthTokens | null) => void;
   setLoading: (loading: boolean) => void;
   login: (user: User, tokens: AuthTokens) => void;
   logout: () => void;
   updateUser: (updates: Partial<User>) => void;
+  setHasHydrated: (state: boolean) => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -35,6 +38,7 @@ export const useAuthStore = create<AuthState>()(
       tokens: null,
       isAuthenticated: false,
       isLoading: true,
+      _hasHydrated: false,
 
       setUser: (user) =>
         set({ user, isAuthenticated: !!user }),
@@ -64,6 +68,8 @@ export const useAuthStore = create<AuthState>()(
         set((state) => ({
           user: state.user ? { ...state.user, ...updates } : null,
         })),
+
+      setHasHydrated: (state) => set({ _hasHydrated: state }),
     }),
     {
       name: "pinuss-flix-auth",
@@ -72,6 +78,9 @@ export const useAuthStore = create<AuthState>()(
         tokens: state.tokens,
         isAuthenticated: state.isAuthenticated,
       }),
+      onRehydrateStorage: () => (state) => {
+        state?.setHasHydrated(true);
+      },
     },
   ),
 );

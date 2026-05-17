@@ -203,12 +203,12 @@ export default function WatchHistoriesClient() {
   );
 }
 
-function WatchHistoryGridCard({
+export function WatchHistoryGridCard({
   item,
   onRemove,
 }: {
   item: WatchHistoryItem;
-  onRemove: (slug: string) => void;
+  onRemove?: (slug: string) => void;
 }) {
   const progress =
     item.duration > 0 ? (item.currentTime / item.duration) * 100 : 0;
@@ -292,12 +292,12 @@ function WatchHistoryGridCard({
   );
 }
 
-function WatchHistoryListRow({
+export function WatchHistoryListRow({
   item,
   onRemove,
 }: {
   item: WatchHistoryItem;
-  onRemove: (slug: string) => void;
+  onRemove?: (slug: string) => void;
 }) {
   const progress =
     item.duration > 0 ? (item.currentTime / item.duration) * 100 : 0;

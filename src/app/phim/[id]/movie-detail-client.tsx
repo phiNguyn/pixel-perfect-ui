@@ -21,7 +21,10 @@ import MovieDetailSkeleton from "@/components/features/Movies/Skeletons/MovieDet
 import MovieNotFound from "@/components/features/Movies/MovieNotFound";
 import { normalizeEpisode } from "@/lib/utils";
 import { CommentComponent } from "@/components/features/Movies/Comment";
+import MovieRecommendations from "@/components/features/Movies/MovieRecommendations";
+import TrendingMovies from "@/components/features/Movies/TrendingMovies";
 import { analytics } from "@/lib/analytics";
+import { trackMovieView } from "@/lib/hooks/useTrackMovieView";
 
 export default function MovieDetail({ id }: { id: string }) {
   const searchParams = useSearchParams();
@@ -110,17 +113,26 @@ export default function MovieDetail({ id }: { id: string }) {
     return 0;
   })();
 
-  // Track movie view on mount
+  // Track movie view on mount (analytics + database)
   useEffect(() => {
     if (movie) {
+      // Analytics
       analytics.movieView({
         movie_id: movie.tmdb?.id?.toString() || movie._id || movie.slug,
         movie_title: movie.name,
         movie_slug: movie.slug,
         source: isPhimApi ? "phimapi" : "ophim",
       });
+
+      // Track to database for trending
+      trackMovieView({
+        movieId: movie.slug,
+        source: isPhimApi ? "phimapi" : "ophim",
+        episodeSlug: selectedEp?.slug,
+        episodeName: selectedEp?.name,
+      });
     }
-  }, [movie?.slug, isPhimApi]);
+  }, [movie?.slug, isPhimApi, selectedEp?.slug, selectedEp?.name]);
 
   useEffect(() => {
     if (movie?.episodes?.length) {
@@ -143,6 +155,17 @@ export default function MovieDetail({ id }: { id: string }) {
         to_episode: ep.slug,
       });
     }
+
+    // Track view to database
+    if (movie) {
+      trackMovieView({
+        movieId: movie.slug,
+        source: isPhimApi ? "phimapi" : "ophim",
+        episodeSlug: ep.slug,
+        episodeName: ep.name,
+      });
+    }
+
     previousEpRef.current = selectedEp?.slug || null;
 
     setSelectedEp(ep);
@@ -262,9 +285,17 @@ export default function MovieDetail({ id }: { id: string }) {
                       disabled={
                         movie?.episodes[0]?.server_data[0]?.link_m3u8 === ""
                       }
-                      onClick={() =>
-                        handleSelectEp(movie.episodes[0].server_data[0])
-                      }
+                      onClick={() => {
+                        const firstEp = movie.episodes[0].server_data[0];
+                        // Track view
+                        trackMovieView({
+                          movieId: movie.slug,
+                          source: isPhimApi ? "phimapi" : "ophim",
+                          episodeSlug: firstEp.slug,
+                          episodeName: firstEp.name,
+                        });
+                        handleSelectEp(firstEp);
+                      }}
                       className="rounded-full gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-6"
                     >
                       <Play className="w-4 h-4 fill-current" /> Xem Ngay
@@ -277,18 +308,18 @@ export default function MovieDetail({ id }: { id: string }) {
                             aria-label="Trailer"
                             name="trailer"
                             variant="outline"
-                            onClick={() => {
-                              if (movie) {
-                                analytics.trailerView({
-                                  movie_id:
-                                    movie.tmdb?.id?.toString() ||
-                                    movie._id ||
-                                    movie.slug,
-                                  movie_title: movie.name,
-                                  movie_slug: movie.slug,
-                                });
-                              }
-                            }}
+                            // onClick={() => {
+                            //   if (movie) {
+                            //     analytics.trailerView({
+                            //       movie_id:
+                            //         movie.tmdb?.id?.toString() ||
+                            //         movie._id ||
+                            //         movie.slug,
+                            //       movie_title: movie.name,
+                            //       movie_slug: movie.slug,
+                            //     });
+                            //   }
+                            // }}
                           >
                             <Play className="w-4 h-4 fill-current" /> Trailer
                           </Button>
@@ -312,6 +343,7 @@ export default function MovieDetail({ id }: { id: string }) {
                         name="share"
                         onClick={() => {
                           if (movie) {
+                            // Analytics
                             analytics.share({
                               movie_id:
                                 movie.tmdb?.id?.toString() ||
@@ -321,6 +353,13 @@ export default function MovieDetail({ id }: { id: string }) {
                               movie_slug: movie.slug,
                               source: isPhimApi ? "phimapi" : "ophim",
                               share_method: "native",
+                            });
+
+                            // Track to database
+                            trackMovieView({
+                              movieId: movie.slug,
+                              action: "share",
+                              source: isPhimApi ? "phimapi" : "ophim",
                             });
                           }
                           navigator
@@ -588,50 +627,22 @@ export default function MovieDetail({ id }: { id: string }) {
                   onCommentCountChange={setCommentCount}
                 />
               </div>
+
+              {/* Recommendations */}
+              <MovieRecommendations
+                movieSlug={movie.slug}
+                movieName={movie.name}
+                categories={movie.category}
+                countries={movie.country}
+              />
             </div>
 
             {/* Sidebar */}
-            <aside className="lg:w-[300px] flex-shrink-0 hidden md:block">
-              <h3 className="text-base font-semibold text-foreground mb-4 flex items-center gap-2">
-                🔥Top phim tuần này (này ảo thui)
-              </h3>
-              <div className="space-y-3">
-                {topMovies.concat(featuredMovies.slice(0, 5)).map((m, i) => (
-                  <div
-                    key={`${m.id}-${i}`}
-                    className="flex items-center gap-3 group cursor-pointer"
-                  >
-                    <span
-                      className={`text-lg font-black w-6 text-center flex-shrink-0 ${i < 3 ? "text-primary" : "text-muted-foreground"}`}
-                    >
-                      {i + 1}
-                    </span>
-                    <img
-                      loading="lazy"
-                      width={48}
-                      height={64}
-                      // quality={80}
-                      src={m.image}
-                      alt={m.title}
-                      className="w-12 h-16 rounded object-cover flex-shrink-0"
-                    />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-medium text-foreground line-clamp-2 group-hover:text-primary transition-colors">
-                        {m.title}
-                      </p>
-                      <p className="text-[10px] text-muted-foreground mt-0.5">
-                        {m.year} · {m.country}
-                      </p>
-                      {m.episodes && (
-                        <p className="text-[10px] text-muted-foreground">
-                          {m.episodes}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </aside>
+            <TrendingMovies
+              title="🔥 Top phim được xem nhiều nhất"
+              excludeSlug={movie.slug}
+              limit={10}
+            />
           </div>
         </div>
       </div>

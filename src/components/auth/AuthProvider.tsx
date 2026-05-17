@@ -75,6 +75,7 @@ export function AuthProvider({ children }: AuthProviderProps): JSX.Element {
             name: response.user.name,
             username: response.user.username,
             avatar: response.user.avatar,
+            role: response.user.role || "user",
             provider: response.user.provider,
           },
           {
@@ -139,6 +140,7 @@ export function AuthProvider({ children }: AuthProviderProps): JSX.Element {
             name: response.user.name,
             username: response.user.username,
             avatar: response.user.avatar,
+            role: response.user.role || "user",
             provider: response.user.provider,
           },
           {
@@ -173,6 +175,7 @@ export function AuthProvider({ children }: AuthProviderProps): JSX.Element {
             name: response.user.name,
             username: response.user.username,
             avatar: response.user.avatar,
+            role: response.user.role || "user",
             provider: response.user.provider,
           },
           {
