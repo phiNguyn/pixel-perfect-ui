@@ -128,8 +128,8 @@ export interface IMovieDetail {
   category: Category[];
   country: Country[];
 
-  tmdb: TMDB;
-  imdb: IMDB;
+  tmdb?: TMDB;
+  imdb?: IMDB;
 
   created: TimeObject;
   modified: TimeObject;

@@ -1,3 +1,4 @@
+import { QueryResult } from "@/hooks/useQueryResult";
 import {
   AdminUser,
   AdminStats,
@@ -7,6 +8,7 @@ import {
   SingleResponse,
   PaginationInfo,
 } from "./adminInterface";
+import queryString from "query-string";
 
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/v1";
@@ -39,30 +41,24 @@ export class AdminApi {
    */
   async getUsers(
     accessToken: string,
-    options: {
-      page?: number;
-      limit?: number;
-      search?: string;
-      role?: "user" | "admin";
-      isActive?: boolean;
-    } = {}
+    query: QueryResult
+    
   ): Promise<PaginatedResponse<AdminUser> & { pagination: PaginationInfo }> {
     try {
-      const params = new URLSearchParams();
-      params.set("page", String(options.page || 1));
-      params.set("limit", String(options.limit || 20));
-
-      if (options.search) params.set("search", options.search);
-      if (options.role) params.set("role", options.role);
-      if (typeof options.isActive === "boolean") {
-        params.set("isActive", String(options.isActive));
-      }
-
-      const response = await fetch(`${API_BASE_URL}/admin/users?${params.toString()}`, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
+      const stringified = queryString.stringify(query, {
+        skipNull: true,
+        skipEmptyString: true,
       });
+
+
+      const response = await fetch(
+        `${API_BASE_URL}/admin/users?${stringified}`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        },
+      );
 
       if (!response.ok) {
         throw new Error("Failed to fetch users");

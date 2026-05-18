@@ -34,7 +34,7 @@ export default function WatchHistoryRow() {
 
   return (
     <section className="mb-6">
-      <div className="flex items-center justify-between mb-3 px-4 max-w-[1400px] mx-auto">
+      <div className="flex items-center justify-between mb-3 px-4 max-w-[1560px] mx-auto">
         <div className="flex items-center gap-2">
           <History className="w-4 h-4 text-primary" />
           <h2 className="text-base md:text-lg font-semibold text-foreground">
@@ -56,7 +56,7 @@ export default function WatchHistoryRow() {
         )}
       </div>
 
-      <ScrollArea className="w-full px-4 max-w-[1400px] mx-auto">
+      <ScrollArea className="w-full px-4 max-w-[1560px] mx-auto">
         <div className="flex gap-3 pb-4">
           <AnimatePresence>
             {watchHistory

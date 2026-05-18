@@ -17,6 +17,7 @@ export interface TrendingMovie {
   movieId: string;
   movieTitle?: string;
   moviePoster?: string;
+  movieThumb?: string;
   year?: number;
   quality?: string;
   viewCount: number;

@@ -28,7 +28,7 @@ export interface WatchHistoryItem {
   completed: boolean;
   currentEpSlug?: string;
   currentEpName?: string;
-  source: string;
+  source: "ophim" | "phimapi";
   watchedAt: string;
   deletedAt?: string;
   createdAt: string;
@@ -53,7 +53,7 @@ export interface Comment {
   };
   movieSlug: string;
   movieTitle?: string;
-  content: string;
+  text: string;
   likes: number;
   parentId?: string;
   createdAt: string;

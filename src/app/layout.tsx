@@ -88,7 +88,7 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             <SiteHeader />
-            <main className="flex-1 mt-16">{children}</main>
+            <main className="flex-1">{children}</main>
             <SiteFooter />
             <LoginModal />
             {/* <FeedbackChatbot source="floating" /> */}

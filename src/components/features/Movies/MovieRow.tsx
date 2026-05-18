@@ -36,7 +36,7 @@ export default function MovieRow({
   return (
     <>
       <section className="py-4">
-        <div className="max-w-[1400px] mx-auto px-4">
+        <div className="max-w-[1560px] mx-auto px-4">
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-lg font-semibold text-foreground tracking-tight">
               {title}
@@ -50,7 +50,7 @@ export default function MovieRow({
           </div>
         </div>
 
-        <div className="relative group/row max-w-[1400px] mx-auto px-4">
+        <div className="relative group/row max-w-[1560px] mx-auto px-4">
           <button
             onClick={() => scroll("left")}
             className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-8 h-16 bg-background/80 backdrop-blur-sm rounded-r-lg flex items-center justify-center text-foreground opacity-0 group-hover/row:opacity-100 transition-opacity"

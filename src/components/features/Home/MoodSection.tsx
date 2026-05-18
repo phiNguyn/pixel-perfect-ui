@@ -4,7 +4,7 @@ import Link from "next/link";
 export default function MoodSection() {
   return (
     <section className="py-4">
-      <div className="max-w-[1400px] mx-auto px-4">
+      <div className="max-w-[1560px] mx-auto px-4">
         <h2 className="text-lg font-semibold text-foreground tracking-tight mb-3">
           Danh sách
         </h2>

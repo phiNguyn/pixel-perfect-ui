@@ -127,10 +127,7 @@ export default function TrendingMovies({
     return null;
   }
 
-  // Filter out current movie if excludeSlug is provided
-  const filteredMovies = excludeSlug
-    ? trendingMovies.filter((m) => m.movieId !== excludeSlug)
-    : trendingMovies;
+
 
   return (
     <aside className="lg:w-[300px] flex-shrink-0 hidden md:block">
@@ -138,12 +135,8 @@ export default function TrendingMovies({
         {title}
       </h3>
       <div className="space-y-3">
-        {filteredMovies.map((movie, index) => (
-          <TrendingItem
-            key={movie.movieId}
-            movie={movie}
-            rank={index + 1}
-          />
+        {trendingMovies.map((movie, index) => (
+          <TrendingItem key={movie.movieId} movie={movie} rank={index + 1} />
         ))}
       </div>
     </aside>
