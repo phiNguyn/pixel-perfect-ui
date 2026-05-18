@@ -744,6 +744,16 @@ export default function MoviePlayer({
           playsInline
         />
 
+        {/* Ad overlay cover (ophim source, 5:27 - 5:57) */}
+        {source === "ophim" && currentTime >= 327 && currentTime <= 357 && (
+          <div
+            className="absolute left-0 right-0 top-0 z-[15] pointer-events-none bg-black/85 backdrop-blur-md"
+            style={{ height: "13%" }}
+            aria-hidden="true"
+          />
+        )}
+
+
         {/* Loading Spinner */}
         {isLoading && (
           <div className="absolute inset-0 flex items-center justify-center bg-black/50 z-10 pointer-events-none">
