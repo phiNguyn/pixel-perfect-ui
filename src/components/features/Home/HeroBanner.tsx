@@ -105,7 +105,7 @@ export default function HeroBanner() {
   return (
     <section className="relative w-full overflow-hidden">
       {/* Main Banner */}
-      <div className="relative h-[70vh] lg:h-[80vh] overflow-hidden">
+      <div className="relative h-[60vh] md:h-[calc(100vh-128px)] overflow-hidden">
         <AnimatePresence initial={false} custom={direction} mode="wait">
           <motion.div
             key={activeMovie.movieId + activeMovie.source}
@@ -132,7 +132,7 @@ export default function HeroBanner() {
             <div className="absolute inset-0 bg-gradient-to-t from-background via-background/70 to-transparent" />
 
             {/* Content */}
-            <div className="absolute bottom-16 inset-0 flex flex-col justify-end p-6 md:p-10 lg:p-14">
+            <div className="absolute bottom-14 md:bottom-16 inset-0 flex flex-col justify-end p-4 md:p-10 lg:p-14">
               <div className="max-w-xl lg:max-w-2xl">
                 {/* Badges */}
                 <div className="flex flex-wrap items-center gap-2 mb-3">
@@ -196,7 +196,7 @@ export default function HeroBanner() {
         </button>
 
         {/* Movie Slider - Bottom Center */}
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 md:bottom-6 md:right-6 md:left-auto md:translate-x-0 z-20">
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 md:bottom-6 md:right-6 md:left-auto md:translate-x-0 z-20">
           {/* Navigation Arrows for Slider */}
           <button
             onClick={(e) => {

@@ -159,7 +159,7 @@ export default function AdminDashboard() {
           value={activeTab}
           onValueChange={(v) => setActiveTab(v as TabValue)}
         >
-          <TabsList className="mb-6 max-w-full overflow-x-auto grid grid-cols-5 md:grid-cols-4 gap-2">
+          <TabsList className="mb-6 max-w-full overflow-x-auto grid grid-cols-3 md:grid-cols-5 gap-2 h-auto">
             <TabsTrigger value="dashboard" className="gap-2 shrink-0">
               <BarChart3 className="w-4 h-4" />
               Dashboard
@@ -225,7 +225,7 @@ function DashboardContent() {
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           title="Tổng người dùng"
           value={data?.data?.totalUsers || 0}
@@ -271,7 +271,7 @@ function StatCard({
   color?: string;
 }) {
   return (
-    <div className="rounded-lg border bg-card p-6">
+    <div className="rounded-lg border bg-card p-2 md:p-6">
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm text-muted-foreground">{title}</p>
@@ -287,7 +287,7 @@ function StatCard({
             </p>
           )}
         </div>
-        <Icon className={`w-8 h-8 ${color} opacity-80`} />
+        <Icon className={`size-6 md:size-8 ${color} opacity-80`} />
       </div>
     </div>
   );

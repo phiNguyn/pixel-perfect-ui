@@ -11,6 +11,7 @@ import {
   Settings,
   LogOut,
   History,
+  Shield,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
@@ -361,6 +362,14 @@ export default function SiteHeader() {
                       <span>Cài đặt</span>
                     </Link>
                   </DropdownMenuItem>
+                  {user?.role === "admin" && (
+                    <DropdownMenuItem asChild>
+                      <Link href="/admin" className="cursor-pointer">
+                        <Shield className="mr-2 h-4 w-4" />
+                        <span>Portal</span>
+                      </Link>
+                    </DropdownMenuItem>
+                  )}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
                     onClick={() => logout()}
@@ -426,6 +435,14 @@ export default function SiteHeader() {
                       <span>Cài đặt</span>
                     </Link>
                   </DropdownMenuItem>
+                  {user?.role === "admin" && (
+                    <DropdownMenuItem asChild>
+                      <Link href="/admin" className="cursor-pointer">
+                        <Shield className="mr-2 h-4 w-4" />
+                        <span>Portal</span>
+                      </Link>
+                    </DropdownMenuItem>
+                  )}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
                     onClick={() => logout()}
