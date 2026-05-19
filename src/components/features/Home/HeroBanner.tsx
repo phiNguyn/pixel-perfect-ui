@@ -17,7 +17,7 @@ export default function HeroBanner() {
 
   const { data: trendingMovies, isLoading } = useQueryTrendingMovies(
     "trending",
-    5,
+    10,
   );
 
   const activeMovie = trendingMovies?.[activeIndex];
@@ -105,7 +105,7 @@ export default function HeroBanner() {
   return (
     <section className="relative w-full overflow-hidden">
       {/* Main Banner */}
-      <div className="relative h-[60vh] md:h-[70vh] lg:h-[80vh] overflow-hidden">
+      <div className="relative h-[70vh] lg:h-[80vh] overflow-hidden">
         <AnimatePresence initial={false} custom={direction} mode="wait">
           <motion.div
             key={activeMovie.movieId + activeMovie.source}
@@ -152,14 +152,9 @@ export default function HeroBanner() {
                 </div>
 
                 {/* Title */}
-                <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-1">
+                <h2 className="text-xl md:text-3xl lg:text-4xl font-bold text-foreground mb-1">
                   {activeMovie.movieTitle || "Không có tiêu đề"}
                 </h2>
-
-                {/* View count */}
-                <p className="text-sm text-muted-foreground mb-4">
-                  {/* {activeMovie.viewCount} lượt xem */}
-                </p>
 
                 {/* Action Buttons */}
                 <div className="flex items-center gap-3">
@@ -169,7 +164,7 @@ export default function HeroBanner() {
                         `/phim/${activeMovie.movieId}?source=${activeMovie.source}`,
                       )
                     }
-                    className="bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-2.5 rounded-full text-sm font-semibold flex items-center gap-2 transition-all shadow-lg hover:shadow-xl hover:scale-105"
+                    className="bg-primary hover:bg-primary/90 text-primary-foreground md:px-6 md:py-2.5 px-4 py-2 rounded-full text-sm font-semibold flex items-center gap-2 transition-all shadow-lg hover:shadow-xl hover:scale-105"
                   >
                     <Play className="w-4 h-4 fill-current" />
                     Xem ngay
@@ -189,19 +184,19 @@ export default function HeroBanner() {
         {/* Navigation Arrows */}
         <button
           onClick={() => scroll("left")}
-          className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-12 md:h-12 rounded-full bg-black/50 hover:bg-black/70 text-white flex items-center justify-center transition-all duration-300 hover:scale-110 backdrop-blur-sm"
+          className="hidden md:flex absolute left-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-12 md:h-12 rounded-full bg-black/50 hover:bg-black/70 text-white  items-center justify-center transition-all duration-300 hover:scale-110 backdrop-blur-sm"
         >
           <ChevronLeft className="w-5 h-5 md:w-6 md:h-6" />
         </button>
         <button
           onClick={() => scroll("right")}
-          className="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-12 md:h-12 rounded-full bg-black/50 hover:bg-black/70 text-white flex items-center justify-center transition-all duration-300 hover:scale-110 backdrop-blur-sm"
+          className="hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-12 md:h-12 rounded-full bg-black/50 hover:bg-black/70 text-white  items-center justify-center transition-all duration-300 hover:scale-110 backdrop-blur-sm"
         >
           <ChevronRight className="w-5 h-5 md:w-6 md:h-6" />
         </button>
 
-        {/* Movie Slider - Bottom Right */}
-        <div className="absolute bottom-4 right-4 md:bottom-6 md:right-6 z-20">
+        {/* Movie Slider - Bottom Center */}
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 md:bottom-6 md:right-6 md:left-auto md:translate-x-0 z-20">
           {/* Navigation Arrows for Slider */}
           <button
             onClick={(e) => {
