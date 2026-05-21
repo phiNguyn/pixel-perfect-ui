@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { getImageSrc } from "../../../services/uploadFile";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export default function HeroBanner() {
   const router = useRouter();
@@ -15,7 +16,6 @@ export default function HeroBanner() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [direction, setDirection] = useState(0);
   const thumbnailRefs = useRef<(HTMLDivElement | null)[]>([]);
-
   const { data: trendingMovies, isLoading } = useQueryTrendingMovies(
     "trending",
     10,
@@ -213,11 +213,15 @@ export default function HeroBanner() {
         </button>
 
         {/* Thumbnail rail */}
-        <div className="absolute bottom-4 md:bottom-6 right-0 z-20 px-5 md:px-14 lg:px-20">
+        <div className="absolute bottom-0 md:bottom-6 left-0 right-0 md:left-auto md:ml-auto md:mr-0 z-20 px-5 md:px-14 lg:px-20">
           <div
             ref={scrollContainerRef}
-            className="flex gap-2.5 scrollbar-hide overflow-x-auto scroll-smooth"
-            style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+            className="flex gap-2.5 scrollbar-hide overflow-x-auto scroll-smooth w-full md:w-auto md:ml-auto py-2.5 px-1.5"
+            style={{
+              scrollbarWidth: "none",
+              msOverflowStyle: "none",
+              WebkitOverflowScrolling: "touch",
+            }}
           >
             {trendingMovies.map((movie, index) => {
               const isActive = activeIndex === index;
