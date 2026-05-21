@@ -291,10 +291,6 @@ export default function MovieDetail({ id }: { id: string }) {
                   </div>
                 </div>
                 <div className="flex flex-col justify-end gap-3">
-                  <span className="text-primary text-[10px] font-bold tracking-[0.25em] uppercase">
-                    {isPhimApi ? "PhimAPI" : "Ophim"} • Phim đề cử
-                  </span>
-
                   <h1 className="text-3xl md:text-5xl font-extrabold leading-[1.05] tracking-tight bg-clip-text text-transparent bg-gradient-to-br from-foreground via-foreground to-primary/80">
                     {movie.name}
                   </h1>

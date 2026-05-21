@@ -72,7 +72,7 @@ function TrendingItem({
       </span>
 
       {imageUrl ? (
-        <Image
+        <img
           loading="lazy"
           width={48}
           height={64}

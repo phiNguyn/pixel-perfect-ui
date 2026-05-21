@@ -7,6 +7,7 @@ import { useQueryTrendingMovies } from "@/lib/api/trending/trendingQuery";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import { getImageSrc } from "../../../services/uploadFile";
 
 export default function HeroBanner() {
   const router = useRouter();
@@ -212,10 +213,10 @@ export default function HeroBanner() {
         </button>
 
         {/* Thumbnail rail */}
-        <div className="absolute bottom-4 md:bottom-6 left-0 right-0 z-20 px-5 md:px-14 lg:px-20">
+        <div className="absolute bottom-4 md:bottom-6 right-0 z-20 px-5 md:px-14 lg:px-20">
           <div
             ref={scrollContainerRef}
-            className="flex gap-2.5 overflow-x-auto scrollbar-hide scroll-smooth"
+            className="flex gap-2.5 scrollbar-hide overflow-x-auto scroll-smooth"
             style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
           >
             {trendingMovies.map((movie, index) => {
@@ -235,7 +236,7 @@ export default function HeroBanner() {
                 >
                   {movie.movieThumb || movie.moviePoster ? (
                     <img
-                      src={movie.movieThumb || movie.moviePoster}
+                      src={getImageSrc(movie.moviePoster, movie.source)}
                       alt={movie.movieTitle || "Movie thumbnail"}
                       className="w-full h-full object-cover"
                     />
