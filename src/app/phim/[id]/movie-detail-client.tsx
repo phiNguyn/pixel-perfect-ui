@@ -249,36 +249,113 @@ export default function MovieDetail({ id }: { id: string }) {
   return (
     <>
       <div className="mb-4">
-        {/* Hero backdrop */}
-        <div className="relative w-full h-[320px] md:h-[calc(100vh-128px)]">
+        {/* Cinematic backdrop */}
+        <div className="relative w-full h-[360px] md:h-[calc(100vh-128px)] overflow-hidden">
           <img
             width={1920}
             height={1080}
-            // quality={75}
             loading="lazy"
             src={getPosterUrl("poster")}
             alt={movie.name + " poster"}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover scale-105"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
-          {/* <div className="absolute inset-0 bg-gradient-to-r from-background/80 to-transparent" /> */}
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/70 to-background/10" />
+          <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-background/20 to-transparent" />
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background:
+                "radial-gradient(ellipse at center, transparent 30%, hsl(var(--background) / 0.85) 100%)",
+            }}
+          />
+          <div
+            className="absolute inset-0 opacity-[0.05] mix-blend-overlay pointer-events-none"
+            style={{
+              backgroundImage:
+                "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")",
+            }}
+          />
         </div>
 
-        <div className="max-w-[1400px] mx-auto px-4 -mt-48 relative z-10">
+        <div className="max-w-[1400px] mx-auto px-4 -mt-52 md:-mt-56 relative z-10">
           <div className="flex flex-col lg:flex-row gap-8">
             <div className="flex-1">
               {/* Movie header */}
-              <div className="flex mt-28 md:mt-0 flex-col md:flex-row gap-3 md:gap-5 mb-6">
-                <div className="w-100 flex items-center justify-center">
-                  <div className="w-[120px] md:w-[150px] aspect-[2/3] rounded-lg overflow-hidden shadow-[var(--shadow-card)] flex-shrink-0">
+              <div className="flex mt-20 md:mt-0 flex-col md:flex-row gap-5 md:gap-7 mb-8">
+                <div className="flex items-center md:items-end justify-center md:justify-start">
+                  <div className="w-[130px] md:w-[170px] aspect-[2/3] rounded-2xl overflow-hidden ring-2 ring-primary/30 shadow-2xl shadow-primary/20 flex-shrink-0">
                     <MovieImage
                       movie={movie}
                       source={isPhimApi ? "phimapi" : "ophim"}
                     />
                   </div>
                 </div>
-                <div className="flex flex-col justify-end">
-                  <div className="flex items-center gap-3 mb-3 flex-wrap">
+                <div className="flex flex-col justify-end gap-3">
+                  <span className="text-primary text-[10px] font-bold tracking-[0.25em] uppercase">
+                    {isPhimApi ? "PhimAPI" : "Ophim"} • Phim đề cử
+                  </span>
+
+                  <h1 className="text-3xl md:text-5xl font-extrabold leading-[1.05] tracking-tight bg-clip-text text-transparent bg-gradient-to-br from-foreground via-foreground to-primary/80">
+                    {movie.name}
+                  </h1>
+                  {movie?.origin_name && (
+                    <div className="text-base md:text-xl text-muted-foreground italic font-medium">
+                      {movie.origin_name}
+                    </div>
+                  )}
+
+                  <div className="flex flex-wrap items-center gap-3 text-xs md:text-sm text-muted-foreground font-medium">
+                    <span className="flex items-center gap-1 text-primary font-bold">
+                      <Star className="w-3.5 h-3.5 fill-current" />
+                      {movie.tmdb?.vote_average ?? "—"}
+                    </span>
+                    {movie.year && (
+                      <>
+                        <span className="w-1 h-1 rounded-full bg-primary/40" />
+                        <span>{movie.year}</span>
+                      </>
+                    )}
+                    {movie.episode_current && (
+                      <>
+                        <span className="w-1 h-1 rounded-full bg-primary/40" />
+                        <span>
+                          {movie.episode_current}
+                          {movie.episode_total === "1"
+                            ? ""
+                            : " / " + movie.episode_total}
+                        </span>
+                      </>
+                    )}
+                    {movie.quality && (
+                      <>
+                        <span className="w-1 h-1 rounded-full bg-primary/40" />
+                        <span className="border border-border/60 px-1.5 rounded text-[10px] uppercase tracking-widest text-primary">
+                          {movie.quality}
+                        </span>
+                      </>
+                    )}
+                    {movie.lang && (
+                      <>
+                        <span className="w-1 h-1 rounded-full bg-primary/40" />
+                        <span className="uppercase text-[10px] tracking-widest">
+                          {movie.lang}
+                        </span>
+                      </>
+                    )}
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-2">
+                    {movie.category.map((item, idx) => (
+                      <span
+                        key={item.id + idx}
+                        className="px-3 py-1 rounded-full border border-border/60 bg-background/40 backdrop-blur-md text-[11px] font-semibold text-foreground/80 hover:border-primary/50 hover:text-primary transition-colors"
+                      >
+                        {item.name}
+                      </span>
+                    ))}
+                  </div>
+
+                  <div className="flex items-center gap-3 flex-wrap pt-2">
                     <Button
                       aria-label="Xem ngay"
                       name="watch-now"
@@ -287,7 +364,6 @@ export default function MovieDetail({ id }: { id: string }) {
                       }
                       onClick={() => {
                         const firstEp = movie.episodes[0].server_data[0];
-                        // Track view
                         trackMovieView({
                           movieId: movie.slug,
                           source: isPhimApi ? "phimapi" : "ophim",
@@ -296,7 +372,7 @@ export default function MovieDetail({ id }: { id: string }) {
                         });
                         handleSelectEp(firstEp);
                       }}
-                      className="rounded-full gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-6"
+                      className="rounded-2xl gap-2 bg-gradient-to-r from-primary to-primary/85 hover:from-primary hover:to-primary text-primary-foreground px-7 py-6 font-bold shadow-2xl shadow-primary/30 hover:scale-[1.03] transition-transform"
                     >
                       <Play className="w-4 h-4 fill-current" /> Xem Ngay
                     </Button>
@@ -308,20 +384,9 @@ export default function MovieDetail({ id }: { id: string }) {
                             aria-label="Trailer"
                             name="trailer"
                             variant="outline"
-                            // onClick={() => {
-                            //   if (movie) {
-                            //     analytics.trailerView({
-                            //       movie_id:
-                            //         movie.tmdb?.id?.toString() ||
-                            //         movie._id ||
-                            //         movie.slug,
-                            //       movie_title: movie.name,
-                            //       movie_slug: movie.slug,
-                            //     });
-                            //   }
-                            // }}
+                            className="rounded-2xl gap-2 bg-background/40 backdrop-blur-md border-border/60 hover:border-primary/50 px-6 py-6 font-semibold"
                           >
-                            <Play className="w-4 h-4 fill-current" /> Trailer
+                            <Play className="w-4 h-4" /> Trailer
                           </Button>
                         }
                       >
@@ -343,7 +408,6 @@ export default function MovieDetail({ id }: { id: string }) {
                         name="share"
                         onClick={() => {
                           if (movie) {
-                            // Analytics
                             analytics.share({
                               movie_id:
                                 movie.tmdb?.id?.toString() ||
@@ -354,8 +418,6 @@ export default function MovieDetail({ id }: { id: string }) {
                               source: isPhimApi ? "phimapi" : "ophim",
                               share_method: "native",
                             });
-
-                            // Track to database
                             trackMovieView({
                               movieId: movie.slug,
                               action: "share",
@@ -369,13 +431,12 @@ export default function MovieDetail({ id }: { id: string }) {
                               url: window.location.href,
                             })
                             .catch(() => {
-                              // Fallback: copy to clipboard
                               navigator.clipboard.writeText(
                                 window.location.href,
                               );
                             });
                         }}
-                        className="p-2 rounded-full bg-secondary text-secondary-foreground hover:bg-muted transition-colors"
+                        className="w-12 h-12 rounded-2xl bg-background/40 backdrop-blur-md border border-border/60 hover:border-primary/50 text-foreground transition-all hover:scale-105"
                       >
                         <Share2 className="w-4 h-4" />
                       </Button>
@@ -384,72 +445,25 @@ export default function MovieDetail({ id }: { id: string }) {
                         disabled
                         aria-label="Yêu thích"
                         name="favorite"
-                        className="p-2 rounded-full bg-secondary text-secondary-foreground hover:bg-muted transition-colors"
+                        className="w-12 h-12 rounded-2xl bg-background/40 backdrop-blur-md border border-border/60 text-foreground"
                       >
                         <Heart className="w-4 h-4" />
                       </Button>
-
                       <Button
                         size="icon"
                         disabled
                         aria-label="Lưu"
                         name="bookmark"
-                        className="p-2 rounded-full bg-secondary text-secondary-foreground hover:bg-muted transition-colors"
+                        className="w-12 h-12 rounded-2xl bg-background/40 backdrop-blur-md border border-border/60 text-foreground"
                       >
                         <BookmarkPlus className="w-4 h-4" />
                       </Button>
                     </div>
                   </div>
 
-                  <div className="flex gap-2 items-start mb-2 flex-wrap">
-                    <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-1">
-                      {movie.name}
-                    </h1>
-                    <div className="text-2xl md:text-3xl text-primary   mb-2">
-                      {movie?.origin_name}
-                    </div>
-                  </div>
-
-                  <div className="flex flex-wrap items-center gap-2 mb-2">
-                    <Badge className="bg-accent text-accent-foreground text-xs">
-                      {movie.tmdb.vote_average}
-                    </Badge>
-                    {movie.episode_current && (
-                      <Badge variant="default" className="text-xs">
-                        {movie.episode_current}{" "}
-                        {movie.episode_total === "1"
-                          ? ""
-                          : " / " + movie.episode_total}
-                      </Badge>
-                    )}
-                    <Badge variant="secondary" className="text-xs">
-                      {movie.year}
-                    </Badge>
-                    {movie.category.map((item, idx) => (
-                      <Badge
-                        key={item.id + idx}
-                        variant="secondary"
-                        className="text-xs"
-                      >
-                        {item.name}
-                      </Badge>
-                    ))}
-                    <Badge variant="secondary" className="text-xs">
-                      {movie.quality}
-                    </Badge>
-                    <Badge variant="secondary" className="text-xs">
-                      {movie.lang}
-                    </Badge>
-                  </div>
-
-                  <p className="text-xs text-muted-foreground">
-                    Cập nhật: Tập mới nhất · Lịch chiếu
+                  <p className="text-[11px] text-muted-foreground/80 tracking-wider uppercase pt-1">
+                    Cập nhật: Tập mới nhất · {movie.view ?? 0} lượt xem
                   </p>
-                  <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
-                    <Star className="w-3 h-3 text-yellow-400 fill-current" />
-
-                    <span>Số lượt xem: {movie.view}</span>
-                  </div>
                 </div>
               </div>
 
