@@ -316,7 +316,7 @@ export default function MovieDetail({ id }: { id: string }) {
                         <span className="w-1 h-1 rounded-full bg-primary/40" />
                         <span>
                           {movie.episode_current}
-                          {movie.episode_total === "1"
+                          {movie.status === "completed"
                             ? ""
                             : " / " + movie.episode_total}
                         </span>
