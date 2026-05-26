@@ -6,12 +6,18 @@ export const useQueryTrendingMovies = (slug, limit = 10, enabled = true) => {
   return useQuery<TrendingMovie[]>({
     queryKey: ["trending", "view-logs", slug],
     enabled,
+
     queryFn: async () => {
       const response = await viewLogApi.getTrendingMovies(limit);
       return response.data || [];
     },
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 15 * 60 * 1000, // 15 minutes
+
+    staleTime: Infinity,
+    gcTime: Infinity,
+
     refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    refetchOnMount: false,
+    retry: false,
   });
 };
