@@ -112,9 +112,19 @@ export default function SiteHeader() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const shouldShowBackButton = !isHomePage && isScrolled;
+  const shouldShowBackButton = !isHomePage;
   return (
-    <header className="py-2 max-h-16 fixed w-full top-0 z-50 bg-background/50 backdrop-blur-md border-b border-border/50">
+    <header
+      className={`
+    py-2 max-h-16 fixed w-full top-0 z-50
+    transition-all duration-300
+    ${
+      isScrolled
+        ? "bg-background/50 backdrop-blur-md border-b border-border/50"
+        : "bg-transparent border-transparent"
+    }
+  `}
+    >
       <div className="max-w-[1400px] mx-auto px-4">
         {/* Top bar */}
         <div className="flex items-center justify-between h-14">
@@ -131,7 +141,7 @@ export default function SiteHeader() {
                     size="icon"
                     onClick={() => router.back()}
                     aria-label="Quay lại"
-                    className="rounded-full transition-colors hover:bg-secondary/50"
+                    className="rounded-full"
                   >
                     <ArrowLeft className="w-5 h-5" />
                   </Button>

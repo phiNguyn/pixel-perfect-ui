@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { getImageSrc } from "../../../services/uploadFile";
 import { useIsMobile } from "@/hooks/use-mobile";
+import Image from "next/image";
 
 export default function HeroBanner() {
   const router = useRouter();
@@ -95,10 +96,13 @@ export default function HeroBanner() {
           >
             {/* Backdrop */}
             {activeMovie.movieThumb ? (
-              <img
+              <Image
+                quality={100}
                 src={activeMovie.movieThumb}
                 alt={activeMovie.movieTitle || "Movie poster"}
-                className="w-full h-full object-cover"
+                className="w-full md:h-full object-cover h-[360px]"
+                width={1920}
+                height={1080}
               />
             ) : (
               <div className="absolute inset-0 bg-gradient-to-br from-primary/30 to-primary/5" />
@@ -144,7 +148,7 @@ export default function HeroBanner() {
                 </div>
 
                 {/* Title with gradient accent */}
-                <h2 className="font-bold leading-[1.05] tracking-tight text-foreground drop-shadow-2xl text-3xl md:text-5xl lg:text-6xl">
+                <h2 className="font-bold leading-[1.05] tracking-tight text-foreground drop-shadow-2xl text-3xl md:text-5xl">
                   <span className="bg-clip-text text-transparent bg-gradient-to-br from-foreground via-foreground to-primary/80">
                     {activeMovie.movieTitle || "Không có tiêu đề"}
                   </span>
@@ -239,10 +243,13 @@ export default function HeroBanner() {
                   }`}
                 >
                   {movie.movieThumb || movie.moviePoster ? (
-                    <img
+                    <Image
+                      width={64}
+                      height={64}
                       src={getImageSrc(movie.moviePoster, movie.source)}
                       alt={movie.movieTitle || "Movie thumbnail"}
                       className="w-full h-full object-cover"
+                      quality={100}
                     />
                   ) : (
                     <div className="absolute inset-0 bg-muted flex items-center justify-center">

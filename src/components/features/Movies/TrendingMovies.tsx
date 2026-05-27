@@ -29,24 +29,8 @@ function TrendingMovieSkeleton() {
   );
 }
 
-function TrendingItem({
-  movie,
-  rank,
-}: {
-  movie: TrendingMovie;
-  rank: number;
-}) {
+function TrendingItem({ movie, rank }: { movie: TrendingMovie; rank: number }) {
   const isTop3 = rank <= 3;
-
-  const slug = movie.movieTitle
-    ?.toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^\w\s-]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-")
-    .trim();
-
   // Image URL - có thể là full URL hoặc path tương đối
   const getImageUrl = () => {
     if (!movie.moviePoster) return null;
@@ -71,18 +55,15 @@ function TrendingItem({
         {rank}
       </span>
 
-      {imageUrl ? (
-        <img
-          loading="lazy"
-          width={48}
-          height={64}
-          src={imageUrl}
-          alt={movie.movieTitle || "Movie"}
-          className="w-12 h-16 rounded object-cover flex-shrink-0"
-        />
-      ) : (
-        <div className="w-12 h-16 rounded bg-muted flex-shrink-0" />
-      )}
+      <Image
+        loading="lazy"
+        width={48}
+        height={64}
+        src={imageUrl}
+        quality={100}
+        alt={movie.movieTitle || "Movie"}
+        className="w-12 h-16 rounded object-cover flex-shrink-0"
+      />
 
       <div className="flex-1 min-w-0">
         <p className="text-xs font-medium text-foreground line-clamp-2 group-hover:text-primary transition-colors">
@@ -94,7 +75,8 @@ function TrendingItem({
           {movie.quality}
         </p>
         <p className="text-[10px] text-muted-foreground flex items-center gap-1">
-          <span className="text-primary font-medium">{movie.viewCount}</span> lượt xem
+          <span className="text-primary font-medium">{movie.viewCount}</span>{" "}
+          lượt xem
         </p>
       </div>
     </Link>
@@ -127,10 +109,8 @@ export default function TrendingMovies({
     return null;
   }
 
-
-
   return (
-    <aside className="lg:w-[300px] flex-shrink-0 hidden md:block">
+    <aside className="lg:w-[300px] flex-shrink-0 hidden md:block sticky top-[80px] self-start">
       <h3 className="text-base font-semibold text-foreground mb-4 flex items-center gap-2">
         {title}
       </h3>

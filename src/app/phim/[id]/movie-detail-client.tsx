@@ -257,7 +257,7 @@ export default function MovieDetail({ id }: { id: string }) {
             loading="lazy"
             src={getPosterUrl("poster")}
             alt={movie.name + " poster"}
-            className="w-full h-full object-cover scale-105"
+            className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/70 to-background/10" />
           <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-background/20 to-transparent" />
@@ -639,12 +639,6 @@ export default function MovieDetail({ id }: { id: string }) {
               </div>
 
               {/* Recommendations */}
-              <MovieRecommendations
-                movieSlug={movie.slug}
-                movieName={movie.name}
-                categories={movie.category}
-                countries={movie.country}
-              />
             </div>
 
             {/* Sidebar */}
@@ -654,6 +648,12 @@ export default function MovieDetail({ id }: { id: string }) {
               limit={10}
             />
           </div>
+          <MovieRecommendations
+            movieSlug={movie.slug}
+            movieName={movie.name}
+            categories={movie.category}
+            countries={movie.country}
+          />
         </div>
       </div>
     </>

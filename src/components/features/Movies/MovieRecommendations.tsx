@@ -9,6 +9,8 @@ import {
   useQueryRecommendationsByCountry,
 } from "@/lib/api/recommendations/recommendationsQuery";
 import { RecommendationItem } from "@/lib/api/recommendations/recommendationsInterface";
+import { Movie } from "@/lib/api/movies/movieInterface";
+import MovieCard from "./MovieCard";
 
 interface MovieRecommendationsProps {
   movieSlug: string;
@@ -38,7 +40,7 @@ function RecommendationCard({
   movie,
   source = "ophim",
 }: {
-  movie: RecommendationItem;
+  movie: RecommendationItem | Movie;
   source?: string;
 }) {
   const imageUrl = movie.thumb_url?.startsWith("http")
@@ -102,7 +104,7 @@ function RecommendationSection({
 }: {
   title: string;
   icon?: string;
-  movies: RecommendationItem[];
+  movies: any[] | Movie[];
   source?: string;
 }) {
   if (!movies || movies.length === 0) return null;
@@ -114,8 +116,8 @@ function RecommendationSection({
         {title}
       </h3>
       <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
-        {movies.slice(0, 6).map((movie) => (
-          <RecommendationCard key={movie._id} movie={movie} source={source} />
+        {movies.map((movie) => (
+          <MovieCard key={movie._id} movie={movie} />
         ))}
       </div>
     </div>
