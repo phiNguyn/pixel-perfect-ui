@@ -115,7 +115,7 @@ function RecommendationSection({
         {icon && <span>{icon}</span>}
         {title}
       </h3>
-      <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
         {movies.map((movie) => (
           <MovieCard key={movie._id} movie={movie} />
         ))}
