@@ -104,7 +104,7 @@ export default function MovieCard({ movie, rank, className, listName, position }
           {movie.name}
         </h3>
         <p className="text-[10px] text-muted-foreground mt-0.5">
-          {movie.year} · {movie?.country?.map((item) => item.name)}
+          {movie.year} · {movie?.country?.map((item) => item.name).join(", ")}
         </p>
       </motion.div>
     </Link>
