@@ -14,8 +14,8 @@ export type Theme = {
 export const THEMES: Theme[] = [
   {
     id: "light",
-    name: "Vieone Channel",
-    description: "Vieone channel",
+    name: "Vietwo Channel",
+    description: "Không phải Vieon",
     color: "#aff33e",
     bgColor: "#0b1519",
   },

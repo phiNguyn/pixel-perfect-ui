@@ -17,6 +17,7 @@ interface MovieCardProps {
 
 const serverNameMap: Record<string, string> = {
   vietsub: "PĐ",
+  "subteam #1": "PĐ",
   "lồng tiếng": "LT",
   "long tieng": "LT",
   "thuyết minh": "TM",
@@ -34,7 +35,13 @@ const getEpisodeBadge = (serverName: string, episodeName: string): string => {
 };
 
 import MovieImage from "./MovieImage";
-export default function MovieCard({ movie, rank, className, listName, position }: MovieCardProps) {
+export default function MovieCard({
+  movie,
+  rank,
+  className,
+  listName,
+  position,
+}: MovieCardProps) {
   const handleClick = () => {
     analytics.movieClick({
       movie_id: movie.tmdb?.id?.toString() || movie._id || movie.slug,
@@ -72,27 +79,32 @@ export default function MovieCard({ movie, rank, className, listName, position }
               <Play className="w-4 h-4 text-primary-foreground fill-current ml-0.5" />
             </div>
           </div>
-          {movie.last_episodes && movie.last_episodes.length > 0 && (
-            <>
-              <div className="absolute top-2 left-2 flex gap-1">
-                {movie.quality && (
-                  <span className="bg-primary text-primary-foreground text-[10px] font-bold px-1.5 py-0.5 rounded">
-                    {movie.quality}
-                  </span>
-                )}
-              </div>
-              <div className="absolute top-2 right-2 flex flex-col gap-1">
-                {movie.last_episodes.slice(0, 2).map((ep, idx) => (
+          {}
+          <>
+            <div className="absolute top-2 left-2 flex gap-1">
+              {movie.quality && (
+                <span className="bg-primary text-primary-foreground text-[10px] font-bold px-1.5 py-0.5 rounded">
+                  {movie.quality}
+                </span>
+              )}
+            </div>
+            <div className="absolute top-2 right-2 flex flex-col gap-1">
+              {movie.episode_current === "Trailer" ? (
+                <span className="bg-background/80 backdrop-blur-sm text-foreground text-[10px] font-medium px-1.5 py-0.5 rounded">
+                  {movie.episode_current}
+                </span>
+              ) : (
+                movie.last_episodes.slice(0, 2).map((ep, idx) => (
                   <span
                     key={idx}
                     className="bg-background/80 backdrop-blur-sm text-foreground text-[10px] font-medium px-1.5 py-0.5 rounded"
                   >
                     {getEpisodeBadge(ep.server_name, ep.name)}
                   </span>
-                ))}
-              </div>
-            </>
-          )}
+                ))
+              )}
+            </div>
+          </>
           <div className="absolute bottom-0 left-0 right-0 p-2">
             <div className="w-fit flex items-center gap-1 text-yellow-400 text-[10px] bg-background/30 backdrop-blur-sm px-1.5 py-0.5 rounded">
               <Star className="w-2.5 h-2.5 fill-current" />

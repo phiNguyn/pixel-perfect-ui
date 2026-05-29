@@ -109,7 +109,7 @@ export default function HeroBanner() {
             )}
 
             {/* Cinematic layered gradients + vignette for deeper edges */}
-            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/70 to-background/10" />
+            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-background/10" />
             <div className="absolute inset-0 bg-gradient-to-r from-background/85 via-background/30 to-transparent" />
             <div
               className="absolute inset-0 pointer-events-none"
