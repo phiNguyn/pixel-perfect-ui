@@ -264,67 +264,38 @@ export function CommentComponent({
     setExpandedReplies((prev) => ({ ...prev, [commentId]: !isExpanded }));
   };
 
-  const renderComment = (comment: Comment, level: number = 0) => {
+  const renderRootComment = (comment: Comment) => {
     const isOwner = user?.id === comment.userId;
-    const isLiking = likingComments.has(comment._id);
     const isDeleting = deletingComments.has(comment._id);
-    const isReply = level > 0;
-    const isLevel2Reply = level === 2;
-
-    // Get nested replies (max 2 levels)
-    const nestedReplies =
-      level < 2 ? getRepliesForComment(comment._id) : [];
-
-    // Find parent comment info for @ tag (for level 1 and 2 replies)
-    let parentComment: Comment | undefined;
-    if (isReply && level === 1) {
-      parentComment = allComments.find((c) => c._id === comment.parentId);
-    } else if (isReply && level === 2) {
-      const directParent = allComments.find((c) => c._id === comment.parentId);
-      if (directParent?.parentId) {
-        parentComment = allComments.find((c) => c._id === directParent.parentId);
-      }
-    }
+    const replies = getRepliesForComment(comment._id);
 
     return (
-      <div
-        key={comment._id}
-        className={`flex gap-3 ${
-          isReply ? "mt-3" : ""
-        } ${level > 0 ? "ml-4 pl-3 border-l-2 border-border" : ""}`}
-      >
-        <Avatar className="size-8 flex-shrink-0">
-          <AvatarImage
-            src={comment?.userAvatar || ""}
-            alt={comment?.userName || "User"}
-          />
-          <AvatarFallback>
-            {comment?.userName?.charAt(0).toUpperCase() || "U"}
-          </AvatarFallback>
-        </Avatar>
-        <div className="flex-1">
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-xs font-semibold text-foreground">
-              {comment.userName}
-            </span>
-            <span className="text-[10px] text-muted-foreground">
-              {formatTimeAgo(comment.createdAt)}
-            </span>
-          </div>
-
-          {/* Show @ tag if replying to someone */}
-          {parentComment && isReply && (
-            <div className="text-[11px] text-primary mb-1">
-              @{parentComment.userName}
+      <div key={comment._id} className="space-y-3">
+        {/* Root comment */}
+        <div className="flex gap-3">
+          <Avatar className="size-8 flex-shrink-0">
+            <AvatarImage
+              src={comment?.userAvatar || ""}
+              alt={comment?.userName || "User"}
+            />
+            <AvatarFallback>
+              {comment?.userName?.charAt(0).toUpperCase() || "U"}
+            </AvatarFallback>
+          </Avatar>
+          <div className="flex-1">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-xs font-semibold text-foreground">
+                {comment.userName}
+              </span>
+              <span className="text-[10px] text-muted-foreground">
+                {formatTimeAgo(comment.createdAt)}
+              </span>
             </div>
-          )}
 
-          <p className="text-sm mb-1.5 text-foreground/90">{comment.text}</p>
+            <p className="text-sm mb-1.5 text-foreground/90">{comment.text}</p>
 
-          {user && (
-            <div className="flex items-center gap-1.5 text-muted-foreground">
-              {/* Allow reply on all comments (root + level 1), but not on level 2 */}
-              {!isLevel2Reply && (
+            {user && (
+              <div className="flex items-center gap-1.5 text-muted-foreground">
                 <Button
                   variant="ghost"
                   onClick={() =>
@@ -342,68 +313,125 @@ export function CommentComponent({
                 >
                   <Reply className="w-3 h-3" /> Trả lời
                 </Button>
-              )}
-              {isOwner && (
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  onClick={() => handleDelete(comment._id)}
-                  disabled={isDeleting}
-                  className="size-8 flex items-center gap-1 text-[10px] hover:text-destructive transition-colors disabled:opacity-50"
-                >
-                  <Trash2 className="w-3 h-3" />
-                </Button>
-              )}
-            </div>
-          )}
-
-          {/* Reply form */}
-          {!isLevel2Reply && replyingTo?.parentId === comment._id && (
-            <div className="mt-3 flex gap-2">
-              <Textarea
-                value={replyingTo.text}
-                onChange={(e) =>
-                  setReplyingTo((prev) =>
-                    prev ? { ...prev, text: e.target.value } : null,
-                  )
-                }
-                placeholder={`Trả lời @${comment.userName}...`}
-                className="min-h-[60px] text-sm resize-none"
-              />
-              <div className="flex flex-col gap-1.5">
-                <Button
-                  onClick={() => handleSubmitReply(comment._id)}
-                  disabled={!replyingTo.text.trim() || submitting}
-                >
-                  Gửi <Send />
-                </Button>
-                <Button variant="outline" onClick={() => setReplyingTo(null)}>
-                  Hủy
-                </Button>
+                {isOwner && (
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={() => handleDelete(comment._id)}
+                    disabled={isDeleting}
+                    className="size-8 flex items-center gap-1 text-[10px] hover:text-destructive transition-colors disabled:opacity-50"
+                  >
+                    <Trash2 className="w-3 h-3" />
+                  </Button>
+                )}
               </div>
-            </div>
-          )}
+            )}
 
-          {/* Show nested replies button (only for root and level 1 comments) */}
-          {!isLevel2Reply && nestedReplies.length > 0 && (
-            <button
-              onClick={() => toggleReplies(comment._id)}
-              className="mt-2 text-xs text-primary hover:underline flex items-center gap-1"
-            >
-              <MessageCircle className="w-3 h-3" />
-              {expandedReplies[comment._id]
-                ? "Ẩn phản hồi"
-                : `Xem ${nestedReplies.length} phản hồi`}
-            </button>
-          )}
+            {/* Reply form */}
+            {replyingTo?.parentId === comment._id && (
+              <div className="mt-3 flex gap-2">
+                <Textarea
+                  value={replyingTo.text}
+                  onChange={(e) =>
+                    setReplyingTo((prev) =>
+                      prev ? { ...prev, text: e.target.value } : null,
+                    )
+                  }
+                  placeholder={`Trả lời @${comment.userName}...`}
+                  className="min-h-[60px] text-sm resize-none"
+                />
+                <div className="flex flex-col gap-1.5">
+                  <Button
+                    onClick={() => handleSubmitReply(comment._id)}
+                    disabled={!replyingTo.text.trim() || submitting}
+                  >
+                    Gửi <Send />
+                  </Button>
+                  <Button variant="outline" onClick={() => setReplyingTo(null)}>
+                    Hủy
+                  </Button>
+                </div>
+              </div>
+            )}
 
-          {/* Render nested replies (max 2 levels) */}
-          {!isLevel2Reply && expandedReplies[comment._id] && (
-            <div className="">
-              {nestedReplies.map((reply) => renderComment(reply, level + 1))}
-            </div>
-          )}
+            {/* Show replies button */}
+            {replies.length > 0 && (
+              <button
+                onClick={() => toggleReplies(comment._id)}
+                className="mt-2 text-xs text-primary hover:underline flex items-center gap-1"
+              >
+                <MessageCircle className="w-3 h-3" />
+                {expandedReplies[comment._id]
+                  ? "Ẩn phản hồi"
+                  : `Xem ${replies.length} phản hồi`}
+              </button>
+            )}
+          </div>
         </div>
+
+        {/* Render all replies (flat - same level) */}
+        {expandedReplies[comment._id] && (
+          <div className="ml-4 pl-3 border-l-2 border-border space-y-3">
+            {replies.map((reply) => {
+              const isOwner = user?.id === reply.userId;
+              const isDeleting = deletingComments.has(reply._id);
+              
+              // Find who this reply is responding to (could be root comment or another reply)
+              const parentReplyComment = allComments.find(
+                (c) => c._id === reply.parentId,
+              );
+
+              return (
+                <div key={reply._id} className="flex gap-3">
+                  <Avatar className="size-8 flex-shrink-0">
+                    <AvatarImage
+                      src={reply?.userAvatar || ""}
+                      alt={reply?.userName || "User"}
+                    />
+                    <AvatarFallback>
+                      {reply?.userName?.charAt(0).toUpperCase() || "U"}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-xs font-semibold text-foreground">
+                        {reply.userName}
+                      </span>
+                      <span className="text-[10px] text-muted-foreground">
+                        {formatTimeAgo(reply.createdAt)}
+                      </span>
+                    </div>
+
+                    {/* Show @ tag to indicate who they're replying to */}
+                    {parentReplyComment && (
+                      <div className="text-[11px] text-primary mb-1">
+                        @{parentReplyComment.userName}
+                      </div>
+                    )}
+
+                    <p className="text-sm mb-1.5 text-foreground/90">
+                      {reply.text}
+                    </p>
+
+                    {user && isOwner && (
+                      <div className="flex items-center gap-1.5 text-muted-foreground">
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => handleDelete(reply._id)}
+                          disabled={isDeleting}
+                          className="size-8 flex items-center gap-1 text-[10px] hover:text-destructive transition-colors disabled:opacity-50"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
     );
   };
@@ -427,7 +455,7 @@ export function CommentComponent({
   return (
     <div className="space-y-4">
       {comments && comments.length > 0 ? (
-        comments.map((comment) => renderComment(comment, 0))
+        comments.map((comment) => renderRootComment(comment))
       ) : (
         <p className="text-sm text-muted-foreground text-center py-4">
           Chưa có bình luận nào. Hãy là người đầu tiên bình luận!
