@@ -413,17 +413,66 @@ export function CommentComponent({
                       {reply.text}
                     </p>
 
-                    {user && isOwner && (
+                    {user && (
                       <div className="flex items-center gap-1.5 text-muted-foreground">
                         <Button
-                          size="icon"
                           variant="ghost"
-                          onClick={() => handleDelete(reply._id)}
-                          disabled={isDeleting}
-                          className="size-8 flex items-center gap-1 text-[10px] hover:text-destructive transition-colors disabled:opacity-50"
+                          onClick={() =>
+                            setReplyingTo(
+                              replyingTo?.parentId === reply._id
+                                ? null
+                                : {
+                                    parentId: reply._id,
+                                    parentUserName: reply.userName,
+                                    text: "",
+                                  },
+                            )
+                          }
+                          className="flex items-center gap-1 hover:text-foreground transition-colors"
                         >
-                          <Trash2 className="w-3 h-3" />
+                          <Reply className="w-3 h-3" /> Trả lời
                         </Button>
+                        {isOwner && (
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            onClick={() => handleDelete(reply._id)}
+                            disabled={isDeleting}
+                            className="size-8 flex items-center gap-1 text-[10px] hover:text-destructive transition-colors disabled:opacity-50"
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </Button>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Reply form for nested replies */}
+                    {replyingTo?.parentId === reply._id && (
+                      <div className="mt-3 flex gap-2">
+                        <Textarea
+                          value={replyingTo.text}
+                          onChange={(e) =>
+                            setReplyingTo((prev) =>
+                              prev ? { ...prev, text: e.target.value } : null,
+                            )
+                          }
+                          placeholder={`Trả lời @${reply.userName}...`}
+                          className="min-h-[60px] text-sm resize-none"
+                        />
+                        <div className="flex flex-col gap-1.5">
+                          <Button
+                            onClick={() => handleSubmitReply(reply._id)}
+                            disabled={!replyingTo.text.trim() || submitting}
+                          >
+                            Gửi <Send />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            onClick={() => setReplyingTo(null)}
+                          >
+                            Hủy
+                          </Button>
+                        </div>
                       </div>
                     )}
                   </div>
