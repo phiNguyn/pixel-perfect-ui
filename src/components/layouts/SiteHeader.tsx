@@ -57,8 +57,10 @@ export default function SiteHeader() {
   const { openDisclaimer } = useDisclaimerNotice();
   const { user, isAuthenticated, logout, openLoginModal } = useAuth();
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const mobileSearchRef = useRef<HTMLDivElement>(null);
   const { slug } = useParams();
   const [searchOpen, setSearchOpen] = useState(false);
+  const [mobileResultsOpen, setMobileResultsOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const isHomePage = pathname === "/";
@@ -93,6 +95,9 @@ export default function SiteHeader() {
     const handleClickOutside = (event: MouseEvent) => {
       if (!wrapperRef.current?.contains(event.target as Node)) {
         setSearchOpen(false);
+      }
+      if (!mobileSearchRef.current?.contains(event.target as Node)) {
+        setMobileResultsOpen(false);
       }
     };
 
