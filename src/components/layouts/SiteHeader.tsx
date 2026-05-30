@@ -433,53 +433,55 @@ export default function SiteHeader() {
             )}
 
             {/* Mobile Search Results */}
-          </div>
-          {mobileResultsOpen && (
-            <div className="absolute top-16 left-1/2 -translate-x-1/2 right-0 w-[80vw] max-h-[70dvh] bg-background rounded-lg border border-border/50 shadow-lg overflow-y-auto z-50 p-3 flex flex-col gap-2">
-              {search && value ? (
-                searchLoaing ||
-                searchFetching ||
-                phimApiSearchLoading ||
-                phimApiSearchFetching ? (
-                  <div className="flex items-center justify-center py-6">
-                    <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-                  </div>
-                ) : searchMovieData.length > 0 ? (
-                  <div className="flex flex-col gap-2">
-                    {searchMovieData
-                      .filter(
-                        (item) =>
-                          !item.category.some((cat) => cat.slug === "phim-18"),
-                      )
-                      .map((item) => (
-                        <MovieCardSeach
-                          movie={item}
-                          source={item.source}
-                          key={`mobile-${item.source}-${item._id}`}
-                          onSelect={() => {
-                            setSearch("");
-                            setMobileResultsOpen(false);
-                          }}
-                        />
-                      ))}
-                  </div>
+            {mobileResultsOpen && (
+              <div className="absolute top-10 -left-10 right-0 w-[80vw] max-h-[70dvh] bg-background rounded-lg border border-border/50 shadow-lg overflow-y-auto z-50 p-3 flex flex-col gap-2">
+                {search && value ? (
+                  searchLoaing ||
+                  searchFetching ||
+                  phimApiSearchLoading ||
+                  phimApiSearchFetching ? (
+                    <div className="flex items-center justify-center py-6">
+                      <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                    </div>
+                  ) : searchMovieData.length > 0 ? (
+                    <div className="flex flex-col gap-2">
+                      {searchMovieData
+                        .filter(
+                          (item) =>
+                            !item.category.some(
+                              (cat) => cat.slug === "phim-18",
+                            ),
+                        )
+                        .map((item) => (
+                          <MovieCardSeach
+                            movie={item}
+                            source={item.source}
+                            key={`mobile-${item.source}-${item._id}`}
+                            onSelect={() => {
+                              setSearch("");
+                              setMobileResultsOpen(false);
+                            }}
+                          />
+                        ))}
+                    </div>
+                  ) : (
+                    <Empty
+                      icon={Search}
+                      title="Không tìm thấy"
+                      description={`Không có kết quả cho "${value}"`}
+                    />
+                  )
                 ) : (
-                  <Empty
-                    icon={Search}
-                    title="Không tìm thấy"
-                    description={`Không có kết quả cho "${value}"`}
+                  <SearchHistoryList
+                    onSelect={() => {
+                      setSearch("");
+                      setMobileResultsOpen(false);
+                    }}
                   />
-                )
-              ) : (
-                <SearchHistoryList
-                  onSelect={() => {
-                    setSearch("");
-                    setMobileResultsOpen(false);
-                  }}
-                />
-              )}
-            </div>
-          )}
+                )}
+              </div>
+            )}
+          </div>
           <div className="md:hidden flex items-center gap-1 shrink-0">
             <ThemeSelector />
             {isAuthenticated ? (
