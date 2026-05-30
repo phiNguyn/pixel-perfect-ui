@@ -407,7 +407,86 @@ export default function SiteHeader() {
               </Button>
             )}
           </div>
-          <div className="md:hidden flex items-center gap-1">
+          {/* Mobile Search */}
+          <div
+            className="flex md:hidden flex-1 mx-2 items-center relative"
+            ref={mobileSearchRef}
+          >
+            <input
+              type="text"
+              placeholder="Tìm phim..."
+              className="bg-secondary text-foreground px-3 py-1.5 pr-8 rounded-full text-sm w-full outline-none border border-border focus:border-primary/50 transition-colors"
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setMobileResultsOpen(true);
+              }}
+              onFocus={() => setMobileResultsOpen(true)}
+            />
+            {search ? (
+              <XIcon
+                onClick={() => {
+                  setSearch("");
+                  setMobileResultsOpen(false);
+                }}
+                className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground cursor-pointer"
+              />
+            ) : (
+              <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+            )}
+
+            {/* Mobile Search Results */}
+            {mobileResultsOpen && (
+              <div className="absolute top-10 left-0 right-0 max-h-[70dvh] bg-background rounded-lg border border-border/50 shadow-lg overflow-y-auto z-50 p-3 flex flex-col gap-2">
+                {search && value ? (
+                  searchLoaing ||
+                  searchFetching ||
+                  phimApiSearchLoading ||
+                  phimApiSearchFetching ? (
+                    <div className="flex items-center justify-center py-6">
+                      <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                    </div>
+                  ) : searchMovieData.length > 0 ? (
+                    <div className="flex flex-col gap-2">
+                      {searchMovieData
+                        .filter(
+                          (item) =>
+                            !item.category.some(
+                              (cat) => cat.slug === "phim-18",
+                            ),
+                        )
+                        .map((item) => (
+                          <MovieCardSeach
+                            movie={item}
+                            source={item.source}
+                            key={`mobile-${item.source}-${item._id}`}
+                            onSelect={() => {
+                              setSearch("");
+                              setMobileResultsOpen(false);
+                            }}
+                          />
+                        ))}
+                    </div>
+                  ) : (
+                    <Empty
+                      icon={Search}
+                      title="Không tìm thấy"
+                      description={`Không có kết quả cho "${value}"`}
+                    />
+                  )
+                ) : (
+                  <SearchHistoryList
+                    onSelect={() => {
+                      setSearch("");
+                      setMobileResultsOpen(false);
+                    }}
+                  />
+                )}
+              </div>
+            )}
+          </div>
+
+          <div className="md:hidden flex items-center gap-1 shrink-0">
             <ThemeSelector />
             {isAuthenticated ? (
               <DropdownMenu>
