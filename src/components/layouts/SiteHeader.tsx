@@ -57,8 +57,10 @@ export default function SiteHeader() {
   const { openDisclaimer } = useDisclaimerNotice();
   const { user, isAuthenticated, logout, openLoginModal } = useAuth();
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const mobileSearchRef = useRef<HTMLDivElement>(null);
   const { slug } = useParams();
   const [searchOpen, setSearchOpen] = useState(false);
+  const [mobileResultsOpen, setMobileResultsOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const isHomePage = pathname === "/";
@@ -93,6 +95,9 @@ export default function SiteHeader() {
     const handleClickOutside = (event: MouseEvent) => {
       if (!wrapperRef.current?.contains(event.target as Node)) {
         setSearchOpen(false);
+      }
+      if (!mobileSearchRef.current?.contains(event.target as Node)) {
+        setMobileResultsOpen(false);
       }
     };
 
@@ -402,7 +407,86 @@ export default function SiteHeader() {
               </Button>
             )}
           </div>
-          <div className="md:hidden flex items-center gap-1">
+          {/* Mobile Search */}
+          <div
+            className="flex md:hidden flex-1 mx-2 items-center relative"
+            ref={mobileSearchRef}
+          >
+            <input
+              type="text"
+              placeholder="Tìm phim..."
+              className="bg-secondary text-foreground px-3 py-1.5 pr-8 rounded-full text-sm w-full outline-none border border-border focus:border-primary/50 transition-colors"
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setMobileResultsOpen(true);
+              }}
+              onFocus={() => setMobileResultsOpen(true)}
+            />
+            {search ? (
+              <XIcon
+                onClick={() => {
+                  setSearch("");
+                  setMobileResultsOpen(false);
+                }}
+                className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground cursor-pointer"
+              />
+            ) : (
+              <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+            )}
+
+            {/* Mobile Search Results */}
+            {mobileResultsOpen && (
+              <div className="absolute top-10 left-0 right-0 max-h-[70dvh] bg-background rounded-lg border border-border/50 shadow-lg overflow-y-auto z-50 p-3 flex flex-col gap-2">
+                {search && value ? (
+                  searchLoaing ||
+                  searchFetching ||
+                  phimApiSearchLoading ||
+                  phimApiSearchFetching ? (
+                    <div className="flex items-center justify-center py-6">
+                      <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                    </div>
+                  ) : searchMovieData.length > 0 ? (
+                    <div className="flex flex-col gap-2">
+                      {searchMovieData
+                        .filter(
+                          (item) =>
+                            !item.category.some(
+                              (cat) => cat.slug === "phim-18",
+                            ),
+                        )
+                        .map((item) => (
+                          <MovieCardSeach
+                            movie={item}
+                            source={item.source}
+                            key={`mobile-${item.source}-${item._id}`}
+                            onSelect={() => {
+                              setSearch("");
+                              setMobileResultsOpen(false);
+                            }}
+                          />
+                        ))}
+                    </div>
+                  ) : (
+                    <Empty
+                      icon={Search}
+                      title="Không tìm thấy"
+                      description={`Không có kết quả cho "${value}"`}
+                    />
+                  )
+                ) : (
+                  <SearchHistoryList
+                    onSelect={() => {
+                      setSearch("");
+                      setMobileResultsOpen(false);
+                    }}
+                  />
+                )}
+              </div>
+            )}
+          </div>
+
+          <div className="md:hidden flex items-center gap-1 shrink-0">
             <ThemeSelector />
             {isAuthenticated ? (
               <DropdownMenu>
@@ -517,79 +601,6 @@ export default function SiteHeader() {
             className="p-4 flex flex-col gap-4 overflow-y-auto"
             style={{ height: "calc(100dvh - 72px)" }}
           >
-            {/* Mobile Search */}
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Tìm phim, diễn viên..."
-                className="bg-secondary text-foreground px-4 py-3 pr-10 rounded-lg text-sm w-full outline-none border border-border focus:border-primary/50 transition-colors"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-              {search ? (
-                <XIcon
-                  onClick={() => setSearch("")}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"
-                ></XIcon>
-              ) : (
-                <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              )}
-            </div>
-
-            {/* Mobile Search Results */}
-            {search ? (
-              <div className="flex flex-col gap-3">
-                {searchLoaing ||
-                searchFetching ||
-                phimApiSearchLoading ||
-                phimApiSearchFetching ? (
-                  <div className="flex w-full max-w-xs flex-col gap-2">
-                    <Skeleton className="h-4 w-full" />
-                    <Skeleton className="h-4 w-full" />
-                    <Skeleton className="h-4 w-3/4" />
-                  </div>
-                ) : searchMovieData.length > 0 ? (
-                  <div
-                    className="flex flex-col gap-2"
-                    onClick={() => {
-                      setSearch("");
-                      setMobileMenuOpen(false);
-                    }}
-                  >
-                    {searchMovieData
-                      .filter(
-                        (item) =>
-                          !item.category.some((cat) => cat.slug === "phim-18"),
-                      )
-                      .map((item) => (
-                        <MovieCardSeach
-                          movie={item}
-                          source={item.source}
-                          key={`${item.source}-${item._id}`}
-                          onSelect={() => {
-                            setSearch("");
-                            setMobileMenuOpen(false);
-                          }}
-                        />
-                      ))}
-                  </div>
-                ) : (
-                  <div className="text-sm text-muted-foreground">
-                    Không có kết quả
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="bg-secondary/50 rounded-lg p-3">
-                <SearchHistoryList
-                  onSelect={() => {
-                    setSearch("");
-                    setMobileMenuOpen(false);
-                  }}
-                />
-              </div>
-            )}
-
             {/* Categories */}
             <div className="flex flex-col gap-2">
               <h3 className="text-sm font-semibold text-foreground">
