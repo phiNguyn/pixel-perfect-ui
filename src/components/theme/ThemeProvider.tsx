@@ -82,13 +82,6 @@ export const THEMES: Theme[] = [
     color: "#f07020",
     bgColor: "#141210",
   },
-  {
-    id: "buddy-calm",
-    name: "Buddy Calm",
-    description: "Kem dịu, xanh rừng, cam ấm",
-    color: "#f58a3e",
-    bgColor: "#f7ecd4",
-  },
 ];
 
 function ThemeColorUpdater() {
