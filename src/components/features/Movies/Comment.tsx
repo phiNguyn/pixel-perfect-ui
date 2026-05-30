@@ -26,6 +26,7 @@ interface CommentProps {
 
 interface ReplyState {
   parentId: string;
+  parentUserName?: string;
   text: string;
 }
 
@@ -51,6 +52,7 @@ export function CommentComponent({
   onCommentCountChange,
 }: CommentProps) {
   const [comments, setComments] = useState<Comment[]>([]);
+  const [allComments, setAllComments] = useState<Comment[]>([]);
   const [replies, setReplies] = useState<Record<string, Comment[]>>({});
   const [loading, setLoading] = useState(true);
   const [loadingReplies, setLoadingReplies] = useState<Record<string, boolean>>(
@@ -77,11 +79,14 @@ export function CommentComponent({
   const fetchComments = useCallback(
     async (page = 1) => {
       try {
-        // Fetch all comments and filter only root comments (no parentId)
+        // Fetch all comments (root + all nested replies)
         const response = await commentApi.getComments(movieSlug, {
           page,
-          limit: 50,
+          limit: 100,
         });
+
+        // Store all comments for nested structure building
+        setAllComments(response.data);
 
         // Filter only root comments (parentId is null)
         const rootComments = response.data.filter(
@@ -107,30 +112,12 @@ export function CommentComponent({
     [movieSlug, onCommentCountChange],
   );
 
-  const fetchReplies = useCallback(
-    async (parentId: string) => {
-      if (loadingReplies[parentId]) return;
-
-      setLoadingReplies((prev) => ({ ...prev, [parentId]: true }));
-      try {
-        // Fetch all comments and filter by parentId
-        const response = await commentApi.getComments(movieSlug, {
-          page: 1,
-          limit: 100,
-        });
-
-        const replyComments = response.data.filter(
-          (comment: Comment) => comment.parentId === parentId
-        );
-
-        setReplies((prev) => ({ ...prev, [parentId]: replyComments }));
-      } catch (error) {
-        console.error("Error fetching replies:", error);
-      } finally {
-        setLoadingReplies((prev) => ({ ...prev, [parentId]: false }));
-      }
+  const getRepliesForComment = useCallback(
+    (parentId: string): Comment[] => {
+      // Get all direct replies for a given parent comment
+      return allComments.filter((comment) => comment.parentId === parentId);
     },
-    [movieSlug],
+    [allComments],
   );
 
   useEffect(() => {
@@ -180,16 +167,24 @@ export function CommentComponent({
       });
 
       if (response.success) {
-        setReplies((prev) => ({
-          ...prev,
-          [parentId]: [response.data, ...(prev[parentId] || [])],
-        }));
+        // Add new comment to allComments
+        setAllComments((prev) => [response.data, ...prev]);
         setReplyingTo(null);
 
         // Auto-expand replies section when new reply is added
         setExpandedReplies((prev) => ({ ...prev, [parentId]: true }));
 
+        // Update parent's replyCount
         setComments((prev) =>
+          prev.map((c) =>
+            c._id === parentId
+              ? { ...c, replyCount: (c.replyCount || 0) + 1 }
+              : c,
+          ),
+        );
+
+        // Also update in allComments to reflect in nested replies
+        setAllComments((prev) =>
           prev.map((c) =>
             c._id === parentId
               ? { ...c, replyCount: (c.replyCount || 0) + 1 }
@@ -211,20 +206,16 @@ export function CommentComponent({
     try {
       const response = await commentApi.likeComment(commentId);
 
+      setAllComments((prev) =>
+        prev.map((c) =>
+          c._id === commentId ? { ...c, likes: response.data.likes } : c,
+        ),
+      );
       setComments((prev) =>
         prev.map((c) =>
           c._id === commentId ? { ...c, likes: response.data.likes } : c,
         ),
       );
-      setReplies((prev) => {
-        const updated = { ...prev };
-        Object.keys(updated).forEach((key) => {
-          updated[key] = updated[key].map((c) =>
-            c._id === commentId ? { ...c, likes: response.data.likes } : c,
-          );
-        });
-        return updated;
-      });
     } catch (error) {
       console.error("Error liking comment:", error);
     } finally {
@@ -244,21 +235,18 @@ export function CommentComponent({
     try {
       await commentApi.deleteComment(commentId);
 
-      // Backend đã filter isDeleted: false, nên xóa luôn khỏi state
-      setComments((prev) => prev.filter((c) => c._id !== commentId));
-      setReplies((prev) => {
-        const updated = { ...prev };
-        Object.keys(updated).forEach((key) => {
-          updated[key] = updated[key].filter((c) => c._id !== commentId);
-        });
-        return updated;
-      });
+      // Remove from allComments
+      setAllComments((prev) => prev.filter((c) => c._id !== commentId));
 
-      // Update count
-      const newTotal = pagination.total - 1;
-      setPagination((prev) => ({ ...prev, total: newTotal }));
-      if (onCommentCountChange) {
-        onCommentCountChange(newTotal);
+      // Remove from root comments
+      const isRootComment = comments.some((c) => c._id === commentId);
+      if (isRootComment) {
+        setComments((prev) => prev.filter((c) => c._id !== commentId));
+        const newTotal = pagination.total - 1;
+        setPagination((prev) => ({ ...prev, total: newTotal }));
+        if (onCommentCountChange) {
+          onCommentCountChange(newTotal);
+        }
       }
     } catch (error) {
       console.error("Error deleting comment:", error);
@@ -274,20 +262,38 @@ export function CommentComponent({
   const toggleReplies = (commentId: string) => {
     const isExpanded = expandedReplies[commentId];
     setExpandedReplies((prev) => ({ ...prev, [commentId]: !isExpanded }));
-
-    if (!isExpanded && !replies[commentId]) {
-      fetchReplies(commentId);
-    }
   };
 
-  const renderComment = (comment: Comment, isReply = false) => {
+  const renderComment = (comment: Comment, level: number = 0) => {
     const isOwner = user?.id === comment.userId;
     const isLiking = likingComments.has(comment._id);
     const isDeleting = deletingComments.has(comment._id);
+    const isReply = level > 0;
+    const isLevel2Reply = level === 2;
+
+    // Get nested replies (max 2 levels)
+    const nestedReplies =
+      level < 2 ? getRepliesForComment(comment._id) : [];
+
+    // Find parent comment info for @ tag (for level 1 and 2 replies)
+    let parentComment: Comment | undefined;
+    if (isReply && level === 1) {
+      parentComment = allComments.find((c) => c._id === comment.parentId);
+    } else if (isReply && level === 2) {
+      const directParent = allComments.find((c) => c._id === comment.parentId);
+      if (directParent?.parentId) {
+        parentComment = allComments.find((c) => c._id === directParent.parentId);
+      }
+    }
 
     return (
-      <div key={comment._id} className={`flex gap-3 ${isReply ? "mt-3" : ""}`}>
-        <Avatar className="size-8">
+      <div
+        key={comment._id}
+        className={`flex gap-3 ${
+          isReply ? "mt-3" : ""
+        } ${level > 0 ? "ml-4 pl-3 border-l-2 border-border" : ""}`}
+      >
+        <Avatar className="size-8 flex-shrink-0">
           <AvatarImage
             src={comment?.userAvatar || ""}
             alt={comment?.userName || "User"}
@@ -301,36 +307,35 @@ export function CommentComponent({
             <span className="text-xs font-semibold text-foreground">
               {comment.userName}
             </span>
-            {/* <Badge variant="secondary" className="text-[9px] px-1 py-0">
-              VIP
-            </Badge> */}
             <span className="text-[10px] text-muted-foreground">
               {formatTimeAgo(comment.createdAt)}
             </span>
           </div>
+
+          {/* Show @ tag if replying to someone */}
+          {parentComment && isReply && (
+            <div className="text-[11px] text-primary mb-1">
+              @{parentComment.userName}
+            </div>
+          )}
+
           <p className="text-sm mb-1.5 text-foreground/90">{comment.text}</p>
+
           {user && (
             <div className="flex items-center gap-1.5 text-muted-foreground">
-              {/* <Button
-                size="icon"
-                variant="ghost"
-                onClick={() => handleLike(comment._id)}
-                disabled={isLiking}
-                className="flex items-center gap-1 text-[10px] hover:text-foreground transition-colors disabled:opacity-50"
-              >
-                <ThumbsUp
-                  className={`w-3 h-3 ${isLiking ? "fill-current" : ""}`}
-                />
-                {comment.likes > 0 && comment.likes}
-              </Button> */}
-              {!isReply && (
+              {/* Allow reply on all comments (root + level 1), but not on level 2 */}
+              {!isLevel2Reply && (
                 <Button
                   variant="ghost"
                   onClick={() =>
                     setReplyingTo(
                       replyingTo?.parentId === comment._id
                         ? null
-                        : { parentId: comment._id, text: "" },
+                        : {
+                            parentId: comment._id,
+                            parentUserName: comment.userName,
+                            text: "",
+                          },
                     )
                   }
                   className="flex items-center gap-1 hover:text-foreground transition-colors"
@@ -340,7 +345,7 @@ export function CommentComponent({
               )}
               {isOwner && (
                 <Button
-                  size={"icon"}
+                  size="icon"
                   variant="ghost"
                   onClick={() => handleDelete(comment._id)}
                   disabled={isDeleting}
@@ -352,8 +357,9 @@ export function CommentComponent({
             </div>
           )}
 
-          {!isReply && replyingTo?.parentId === comment._id && (
-            <div className="mt-2 flex gap-2">
+          {/* Reply form */}
+          {!isLevel2Reply && replyingTo?.parentId === comment._id && (
+            <div className="mt-3 flex gap-2">
               <Textarea
                 value={replyingTo.text}
                 onChange={(e) =>
@@ -361,7 +367,7 @@ export function CommentComponent({
                     prev ? { ...prev, text: e.target.value } : null,
                   )
                 }
-                placeholder="Viết phản hồi..."
+                placeholder={`Trả lời @${comment.userName}...`}
                 className="min-h-[60px] text-sm resize-none"
               />
               <div className="flex flex-col gap-1.5">
@@ -378,7 +384,8 @@ export function CommentComponent({
             </div>
           )}
 
-          {!isReply && comment.replyCount > 0 && (
+          {/* Show nested replies button (only for root and level 1 comments) */}
+          {!isLevel2Reply && nestedReplies.length > 0 && (
             <button
               onClick={() => toggleReplies(comment._id)}
               className="mt-2 text-xs text-primary hover:underline flex items-center gap-1"
@@ -386,17 +393,14 @@ export function CommentComponent({
               <MessageCircle className="w-3 h-3" />
               {expandedReplies[comment._id]
                 ? "Ẩn phản hồi"
-                : `Xem ${comment.replyCount ?? 0} phản hồi`}
+                : `Xem ${nestedReplies.length} phản hồi`}
             </button>
           )}
 
-          {!isReply && expandedReplies[comment._id] && (
-            <div className="mt-2 pl-4 border-l-2 border-border">
-              {loadingReplies[comment._id] ? (
-                <p className="text-xs text-muted-foreground">Đang tải...</p>
-              ) : (
-                replies[comment._id]?.map((reply) => renderComment(reply, true))
-              )}
+          {/* Render nested replies (max 2 levels) */}
+          {!isLevel2Reply && expandedReplies[comment._id] && (
+            <div className="">
+              {nestedReplies.map((reply) => renderComment(reply, level + 1))}
             </div>
           )}
         </div>
@@ -423,24 +427,12 @@ export function CommentComponent({
   return (
     <div className="space-y-4">
       {comments && comments.length > 0 ? (
-        comments.map((comment) => renderComment(comment))
+        comments.map((comment) => renderComment(comment, 0))
       ) : (
         <p className="text-sm text-muted-foreground text-center py-4">
           Chưa có bình luận nào. Hãy là người đầu tiên bình luận!
         </p>
       )}
-
-      {/* Load more disabled since we're fetching all comments at once */}
-      {/* {pagination.page < pagination.totalPages && (
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => fetchComments(pagination.page + 1)}
-          className="w-full rounded-full text-xs"
-        >
-          Xem thêm bình luận
-        </Button>
-      )} */}
 
       <div className="pt-4 border-t border-border">
         {user ? (
