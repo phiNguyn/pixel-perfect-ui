@@ -257,9 +257,6 @@ export default function SiteHeader() {
                   placeholder="Tìm phim, diễn viên..."
                   className="bg-secondary text-foreground px-4 py-2 rounded-full text-sm w-64 outline-none border border-border focus:border-primary/50 transition-colors"
                   autoFocus
-                  // onBlur={() => {
-                  //   setTimeout(() => setSearchOpen(false), 200)
-                  // }}
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                 />
@@ -415,7 +412,7 @@ export default function SiteHeader() {
             <input
               type="text"
               placeholder="Tìm phim..."
-              className="bg-secondary text-foreground px-3 py-1.5 pr-8 rounded-full text-sm w-full outline-none border border-border focus:border-primary/50 transition-colors"
+              className=" bg-secondary/40 text-foreground px-3 py-1.5 pr-8 rounded-full text-sm w-full outline-none border border-border/10 focus:border-primary/50 transition-colors"
               value={search}
               onChange={(e) => {
                 setSearch(e.target.value);
@@ -436,56 +433,53 @@ export default function SiteHeader() {
             )}
 
             {/* Mobile Search Results */}
-            {mobileResultsOpen && (
-              <div className="absolute top-10 left-0 right-0 max-h-[70dvh] bg-background rounded-lg border border-border/50 shadow-lg overflow-y-auto z-50 p-3 flex flex-col gap-2">
-                {search && value ? (
-                  searchLoaing ||
-                  searchFetching ||
-                  phimApiSearchLoading ||
-                  phimApiSearchFetching ? (
-                    <div className="flex items-center justify-center py-6">
-                      <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-                    </div>
-                  ) : searchMovieData.length > 0 ? (
-                    <div className="flex flex-col gap-2">
-                      {searchMovieData
-                        .filter(
-                          (item) =>
-                            !item.category.some(
-                              (cat) => cat.slug === "phim-18",
-                            ),
-                        )
-                        .map((item) => (
-                          <MovieCardSeach
-                            movie={item}
-                            source={item.source}
-                            key={`mobile-${item.source}-${item._id}`}
-                            onSelect={() => {
-                              setSearch("");
-                              setMobileResultsOpen(false);
-                            }}
-                          />
-                        ))}
-                    </div>
-                  ) : (
-                    <Empty
-                      icon={Search}
-                      title="Không tìm thấy"
-                      description={`Không có kết quả cho "${value}"`}
-                    />
-                  )
-                ) : (
-                  <SearchHistoryList
-                    onSelect={() => {
-                      setSearch("");
-                      setMobileResultsOpen(false);
-                    }}
-                  />
-                )}
-              </div>
-            )}
           </div>
-
+          {mobileResultsOpen && (
+            <div className="absolute top-16 left-1/2 -translate-x-1/2 right-0 w-[80vw] max-h-[70dvh] bg-background rounded-lg border border-border/50 shadow-lg overflow-y-auto z-50 p-3 flex flex-col gap-2">
+              {search && value ? (
+                searchLoaing ||
+                searchFetching ||
+                phimApiSearchLoading ||
+                phimApiSearchFetching ? (
+                  <div className="flex items-center justify-center py-6">
+                    <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                  </div>
+                ) : searchMovieData.length > 0 ? (
+                  <div className="flex flex-col gap-2">
+                    {searchMovieData
+                      .filter(
+                        (item) =>
+                          !item.category.some((cat) => cat.slug === "phim-18"),
+                      )
+                      .map((item) => (
+                        <MovieCardSeach
+                          movie={item}
+                          source={item.source}
+                          key={`mobile-${item.source}-${item._id}`}
+                          onSelect={() => {
+                            setSearch("");
+                            setMobileResultsOpen(false);
+                          }}
+                        />
+                      ))}
+                  </div>
+                ) : (
+                  <Empty
+                    icon={Search}
+                    title="Không tìm thấy"
+                    description={`Không có kết quả cho "${value}"`}
+                  />
+                )
+              ) : (
+                <SearchHistoryList
+                  onSelect={() => {
+                    setSearch("");
+                    setMobileResultsOpen(false);
+                  }}
+                />
+              )}
+            </div>
+          )}
           <div className="md:hidden flex items-center gap-1 shrink-0">
             <ThemeSelector />
             {isAuthenticated ? (
