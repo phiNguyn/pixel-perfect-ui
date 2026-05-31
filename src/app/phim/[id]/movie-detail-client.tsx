@@ -1,4 +1,4 @@
-y/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Play, Heart, Share2, BookmarkPlus, Star } from "lucide-react";
