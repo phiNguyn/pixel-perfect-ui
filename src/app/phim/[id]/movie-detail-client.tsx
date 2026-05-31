@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+y/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Play, Heart, Share2, BookmarkPlus, Star } from "lucide-react";
@@ -250,7 +250,7 @@ export default function MovieDetail({ id }: { id: string }) {
     <>
       <div className="mb-4">
         {/* Cinematic backdrop */}
-        <div className="relative w-full h-[360px] md:h-[calc(100vh-128px)] overflow-hidden">
+        <div className="relative w-full h-[calc(56.25vw+64px)] md:h-[calc(100vh-128px)] overflow-hidden">
           <img
             width={1920}
             height={1080}
