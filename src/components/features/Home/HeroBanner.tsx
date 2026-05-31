@@ -12,6 +12,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import Image from "next/image";
 
 export default function HeroBanner() {
+  const isMobile = useIsMobile()
   const router = useRouter();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -19,7 +20,7 @@ export default function HeroBanner() {
   const thumbnailRefs = useRef<(HTMLDivElement | null)[]>([]);
   const { data: trendingMovies, isLoading } = useQueryTrendingMovies(
     "trending",
-    10,
+    8,
   );
 
   const activeMovie = trendingMovies?.[activeIndex];
@@ -96,7 +97,7 @@ export default function HeroBanner() {
             className="relative"
           >
             {/* Poster image */}
-            <div className="relative w-full aspect-[4/5] overflow-hidden">
+            <div className="mt-16 relative w-full aspect-[16/9] overflow-hidden">
               {activeMovie.movieThumb ? (
                 <Image
                   quality={100}
@@ -113,49 +114,44 @@ export default function HeroBanner() {
               {/* Gradient overlay for fade into content */}
               <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
               <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-background to-transparent" />
-            </div>
-
-            {/* Content below poster */}
-            <div className="relative -mt-16 px-5 pb-6 text-center space-y-3">
-              <h2 className="font-bold leading-tight tracking-tight text-2xl text-foreground drop-shadow-2xl">
-                <span className="bg-clip-text text-transparent bg-gradient-to-br from-foreground via-foreground to-primary">
-                  {activeMovie.movieTitle || "Không có tiêu đề"}
-                </span>
-              </h2>
-
-              <div className="flex flex-wrap items-center justify-center gap-2">
-                <span className="px-2.5 py-1 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground text-[10px] font-extrabold rounded uppercase tracking-[0.2em] shadow-lg shadow-primary/30">
-                  Hot
-                </span>
-                {activeMovie.quality && (
-                  <span className="px-2.5 py-1 bg-background/40 backdrop-blur-md border border-primary/30 text-primary text-[10px] font-bold rounded uppercase tracking-widest">
-                    {activeMovie.quality}
+              {/* content */}
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 px-2 text-center space-x-3 space-y-3 w-full">
+                <h2 className="w-full font-bold leading-tight tracking-tight text-xl text-foreground drop-shadow-2xl">
+                  <span className="bg-clip-text text-transparent bg-gradient-to-br from-foreground via-foreground to-primary">
+                    {activeMovie.movieTitle || "Không có tiêu đề"}
                   </span>
-                )}
-                {activeMovie.year && (
-                  <span className="px-2.5 py-1 bg-background/40 backdrop-blur-md border border-border/60 text-foreground/80 text-[10px] font-bold rounded uppercase tracking-widest">
-                    {activeMovie.year}
+                </h2>
+
+                <div className="flex flex-wrap items-center justify-center gap-2">
+                  <Button
+                    onClick={() =>
+                      router.push(
+                        `/phim/${activeMovie.movieId}?source=${activeMovie.source}`,
+                      )
+                    }
+                    size="icon"
+                    className="rounded-full gap-2 bg-gradient-to-r from-primary to-primary/85 hover:from-primary hover:to-primary text-primary-foreground px-1.5 py-1 text-sm font-bold shadow-2xl shadow-primary/30 transition-transform"
+                  >
+                    <Play className="size-3.5 fill-current" />
+                  </Button>
+                  {activeMovie.quality && (
+                    <span className="px-2.5 py-1 bg-background/40 backdrop-blur-md border border-primary/30 text-primary text-[10px] font-bold rounded uppercase tracking-widest">
+                      {activeMovie.quality}
+                    </span>
+                  )}
+                  {activeMovie.year && (
+                    <span className="px-2.5 py-1 bg-background/40 backdrop-blur-md border border-border/60 text-foreground/80 text-[10px] font-bold rounded uppercase tracking-widest">
+                      {activeMovie.year}
+                    </span>
+                  )}
+                  <span className="flex items-center gap-1 text-primary">
+                    <Star className="size-3.5 fill-current" />
+                    <span className="font-bold text-md">
+                      {activeMovie.viewCount ?? "—"}
+                    </span>
                   </span>
-                )}
+                </div>
               </div>
-
-              <div className="flex items-center justify-center gap-3 pt-2">
-                <Button
-                  onClick={() =>
-                    router.push(
-                      `/phim/${activeMovie.movieId}?source=${activeMovie.source}`,
-                    )
-                  }
-                  className="rounded-2xl gap-2 bg-gradient-to-r from-primary to-primary/85 text-primary-foreground px-5 py-5 text-sm font-bold shadow-2xl shadow-primary/30"
-                >
-                  <Play className="size-4 fill-current" />
-                  Xem Ngay
-                </Button>
-                <button className="w-11 h-11 rounded-2xl bg-background/40 backdrop-blur-md border border-border/60 text-foreground flex items-center justify-center">
-                  <Plus className="w-5 h-5" />
-                </button>
-              </div>
-
             </div>
           </motion.div>
         </AnimatePresence>
@@ -163,7 +159,7 @@ export default function HeroBanner() {
         {/* Thumbnail circles - outside AnimatePresence so they don't slide */}
         <div
           ref={scrollContainerRef}
-          className="flex gap-2.5 scrollbar-hide overflow-x-auto scroll-smooth px-5 pb-4"
+          className="flex gap-2.5 scrollbar-hide overflow-x-auto scroll-smooth mt-4 px-5 py-4 justify-center"
           style={{
             scrollbarWidth: "none",
             msOverflowStyle: "none",
@@ -172,9 +168,6 @@ export default function HeroBanner() {
         >
           {trendingMovies.map((movie, index) => {
             const isActive = activeIndex === index;
-            const imgUrl =
-              getImageSrc(movie.moviePoster, movie.source) ||
-              getImageSrc(movie.movieThumb, movie.source);
             return (
               <div
                 key={`${movie.movieId}-${movie.source}-m`}
@@ -182,32 +175,25 @@ export default function HeroBanner() {
                   thumbnailRefs.current[index] = el;
                 }}
                 onClick={() => selectMovie(index)}
-                className={`w-12 h-12 relative shrink-0 cursor-pointer rounded-full overflow-hidden transition-all duration-300 bg-muted ${
+                className={`size-8 relative shrink-0 cursor-pointer rounded-full overflow-hidden transition-all duration-300 bg-muted ${
                   isActive
                     ? "ring-2 ring-primary scale-110"
                     : "opacity-50 border border-border/40"
                 }`}
               >
-                {imgUrl ? (
-                  <Image
-                    width={96}
-                    height={96}
-                    src={imgUrl}
-                    alt={movie.movieTitle || "Movie thumbnail"}
-                    className="w-full h-full object-cover"
-                    quality={90}
-                  />
-                ) : (
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <Play className="w-3 h-3 text-muted-foreground/40" />
-                  </div>
-                )}
+                <Image
+                  width={96}
+                  height={96}
+                  src={getImageSrc(movie.moviePoster, movie.source)}
+                  alt={movie.movieTitle || "Movie thumbnail"}
+                  className="w-full h-full object-cover"
+                  quality={100}
+                />
               </div>
             );
           })}
         </div>
       </div>
-
 
       {/* DESKTOP LAYOUT */}
       <div className="hidden md:block relative h-[calc(100vh-128px)] overflow-hidden">
@@ -256,28 +242,17 @@ export default function HeroBanner() {
 
             {/* Content */}
             <div className="absolute inset-0 flex flex-col justify-end pb-24 px-14 lg:px-20">
-              <div className="max-w-xl lg:max-w-2xl space-y-4">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="px-2.5 py-1 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground text-[10px] font-extrabold rounded uppercase tracking-[0.2em] shadow-lg shadow-primary/30">
-                    Hot
-                  </span>
-                  {activeMovie.quality && (
-                    <span className="px-2.5 py-1 bg-background/40 backdrop-blur-md border border-primary/30 text-primary text-[10px] font-bold rounded uppercase tracking-widest">
-                      {activeMovie.quality}
-                    </span>
-                  )}
-                  {activeMovie.year && (
-                    <span className="px-2.5 py-1 bg-background/40 backdrop-blur-md border border-border/60 text-foreground/80 text-[10px] font-bold rounded uppercase tracking-widest">
-                      {activeMovie.year}
-                    </span>
-                  )}
-                </div>
-
-                <h2 className="font-bold leading-[1.05] tracking-tight text-foreground drop-shadow-2xl text-5xl">
+              <div className="max-w-xl lg:max-w-2xl space-y-2">
+                <h2 className="font-bold leading-[1.05] tracking-tight text-foreground drop-shadow-2xl md:text-2xl lg:text-5xl">
                   <span className="bg-clip-text text-transparent bg-gradient-to-br from-foreground via-foreground to-primary/80">
                     {activeMovie.movieTitle || "Không có tiêu đề"}
                   </span>
                 </h2>
+                <div className="flex flex-wrap items-center gap-2">
+                  {/* <span className="px-2.5 py-1 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground text-[10px] font-extrabold rounded uppercase tracking-[0.2em] shadow-lg shadow-primary/30">
+                    Hot
+                  </span> */}
+                </div>
 
                 <div className="flex items-center gap-3 text-sm text-muted-foreground font-medium">
                   <span className="flex items-center gap-1 text-primary">
@@ -338,7 +313,7 @@ export default function HeroBanner() {
           <ChevronRight className="w-5 h-5" />
         </button>
 
-        <div className="absolute bottom-6 left-auto ml-auto mr-0 z-20 px-14 lg:px-20 right-0">
+        <div className="absolute md:bottom-2 lg:bottom-6 left-auto ml-auto mr-0 z-20 px-14 lg:px-20 right-0">
           <div
             className="flex gap-2.5 scrollbar-hide overflow-x-auto scroll-smooth ml-auto py-2.5 px-1.5"
             style={{
@@ -353,26 +328,20 @@ export default function HeroBanner() {
                 <div
                   key={`${movie.movieId}-${movie.source}-d`}
                   onClick={() => selectMovie(index)}
-                  className={`w-16 h-24 relative shrink-0 cursor-pointer rounded-xl overflow-hidden transition-all duration-500 ${
+                  className={`md:w-12 md:h-16 xl:w-16 xl:h-24 relative shrink-0 cursor-pointer rounded-xl overflow-hidden transition-all duration-500 ${
                     isActive
                       ? "ring-2 ring-primary"
                       : "opacity-50 hover:opacity-100 border border-border/40 hover:border-primary/50"
                   }`}
                 >
-                  {movie.movieThumb || movie.moviePoster ? (
-                    <Image
-                      width={64}
-                      height={96}
-                      src={getImageSrc(movie.moviePoster, movie.source)}
-                      alt={movie.movieTitle || "Movie thumbnail"}
-                      className="w-full h-full object-cover"
-                      quality={100}
-                    />
-                  ) : (
-                    <div className="absolute inset-0 bg-muted flex items-center justify-center">
-                      <Play className="w-3 h-3 text-muted-foreground/40" />
-                    </div>
-                  )}
+                  <Image
+                    width={64}
+                    height={96}
+                    src={getImageSrc(movie.moviePoster, movie.source)}
+                    alt={movie.movieTitle || "Movie thumbnail"}
+                    className="w-full h-full object-cover"
+                    quality={100}
+                  />
                 </div>
               );
             })}
