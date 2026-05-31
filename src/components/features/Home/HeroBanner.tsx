@@ -82,7 +82,130 @@ export default function HeroBanner() {
 
   return (
     <section className="relative w-full overflow-hidden">
-      <div className="relative h-[78vh] md:h-[calc(100vh-128px)] overflow-hidden">
+      {/* MOBILE LAYOUT */}
+      <div className="md:hidden relative">
+        <AnimatePresence initial={false} custom={direction} mode="wait">
+          <motion.div
+            key={activeMovie.movieId + activeMovie.source + "-m"}
+            custom={direction}
+            variants={slideVariants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+            className="relative"
+          >
+            {/* Poster image */}
+            <div className="relative w-full aspect-[4/5] overflow-hidden">
+              {activeMovie.movieThumb ? (
+                <Image
+                  quality={100}
+                  src={activeMovie.movieThumb}
+                  alt={activeMovie.movieTitle || "Movie poster"}
+                  className="w-full h-full object-cover"
+                  width={1080}
+                  height={1350}
+                  priority
+                />
+              ) : (
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/30 to-primary/5" />
+              )}
+              {/* Gradient overlay for fade into content */}
+              <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
+              <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-background to-transparent" />
+            </div>
+
+            {/* Content below poster */}
+            <div className="relative -mt-16 px-5 pb-6 text-center space-y-3">
+              <h2 className="font-bold leading-tight tracking-tight text-2xl text-foreground drop-shadow-2xl">
+                <span className="bg-clip-text text-transparent bg-gradient-to-br from-foreground via-foreground to-primary">
+                  {activeMovie.movieTitle || "Không có tiêu đề"}
+                </span>
+              </h2>
+
+              <div className="flex flex-wrap items-center justify-center gap-2">
+                <span className="px-2.5 py-1 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground text-[10px] font-extrabold rounded uppercase tracking-[0.2em] shadow-lg shadow-primary/30">
+                  Hot
+                </span>
+                {activeMovie.quality && (
+                  <span className="px-2.5 py-1 bg-background/40 backdrop-blur-md border border-primary/30 text-primary text-[10px] font-bold rounded uppercase tracking-widest">
+                    {activeMovie.quality}
+                  </span>
+                )}
+                {activeMovie.year && (
+                  <span className="px-2.5 py-1 bg-background/40 backdrop-blur-md border border-border/60 text-foreground/80 text-[10px] font-bold rounded uppercase tracking-widest">
+                    {activeMovie.year}
+                  </span>
+                )}
+              </div>
+
+              <div className="flex items-center justify-center gap-3 pt-2">
+                <Button
+                  onClick={() =>
+                    router.push(
+                      `/phim/${activeMovie.movieId}?source=${activeMovie.source}`,
+                    )
+                  }
+                  className="rounded-2xl gap-2 bg-gradient-to-r from-primary to-primary/85 text-primary-foreground px-5 py-5 text-sm font-bold shadow-2xl shadow-primary/30"
+                >
+                  <Play className="size-4 fill-current" />
+                  Xem Ngay
+                </Button>
+                <button className="w-11 h-11 rounded-2xl bg-background/40 backdrop-blur-md border border-border/60 text-foreground flex items-center justify-center">
+                  <Plus className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Thumbnail circles */}
+              <div
+                ref={scrollContainerRef}
+                className="flex gap-2.5 scrollbar-hide overflow-x-auto scroll-smooth pt-4 -mx-5 px-5"
+                style={{
+                  scrollbarWidth: "none",
+                  msOverflowStyle: "none",
+                  WebkitOverflowScrolling: "touch",
+                }}
+              >
+                {trendingMovies.map((movie, index) => {
+                  const isActive = activeIndex === index;
+                  return (
+                    <div
+                      key={`${movie.movieId}-${movie.source}-m`}
+                      ref={(el) => {
+                        thumbnailRefs.current[index] = el;
+                      }}
+                      onClick={() => selectMovie(index)}
+                      className={`w-12 h-12 relative shrink-0 cursor-pointer rounded-full overflow-hidden transition-all duration-300 ${
+                        isActive
+                          ? "ring-2 ring-primary scale-110"
+                          : "opacity-50 border border-border/40"
+                      }`}
+                    >
+                      {movie.movieThumb || movie.moviePoster ? (
+                        <Image
+                          width={48}
+                          height={48}
+                          src={getImageSrc(movie.moviePoster, movie.source)}
+                          alt={movie.movieTitle || "Movie thumbnail"}
+                          className="w-full h-full object-cover"
+                          quality={90}
+                        />
+                      ) : (
+                        <div className="absolute inset-0 bg-muted flex items-center justify-center">
+                          <Play className="w-3 h-3 text-muted-foreground/40" />
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </motion.div>
+        </AnimatePresence>
+      </div>
+
+      {/* DESKTOP LAYOUT */}
+      <div className="hidden md:block relative h-[calc(100vh-128px)] overflow-hidden">
         <AnimatePresence initial={false} custom={direction} mode="wait">
           <motion.div
             key={activeMovie.movieId + activeMovie.source}
@@ -100,7 +223,7 @@ export default function HeroBanner() {
                 quality={100}
                 src={activeMovie.movieThumb}
                 alt={activeMovie.movieTitle || "Movie poster"}
-                className="w-full md:h-full object-cover h-[360px]"
+                className="w-full h-full object-cover"
                 width={1920}
                 height={1080}
               />
@@ -118,7 +241,6 @@ export default function HeroBanner() {
                   "radial-gradient(ellipse at center, transparent 35%, hsl(var(--background) / 0.85) 100%)",
               }}
             />
-            {/* Subtle film grain */}
             <div
               className="absolute inset-0 opacity-[0.06] mix-blend-overlay pointer-events-none"
               style={{
@@ -128,9 +250,8 @@ export default function HeroBanner() {
             />
 
             {/* Content */}
-            <div className="absolute inset-0 flex flex-col justify-end pb-28 md:pb-24 px-5 md:px-14 lg:px-20">
+            <div className="absolute inset-0 flex flex-col justify-end pb-24 px-14 lg:px-20">
               <div className="max-w-xl lg:max-w-2xl space-y-4">
-                {/* Badges */}
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="px-2.5 py-1 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground text-[10px] font-extrabold rounded uppercase tracking-[0.2em] shadow-lg shadow-primary/30">
                     Hot
@@ -147,15 +268,13 @@ export default function HeroBanner() {
                   )}
                 </div>
 
-                {/* Title with gradient accent */}
-                <h2 className="font-bold leading-[1.05] tracking-tight text-foreground drop-shadow-2xl text-xl md:text-5xl">
+                <h2 className="font-bold leading-[1.05] tracking-tight text-foreground drop-shadow-2xl text-5xl">
                   <span className="bg-clip-text text-transparent bg-gradient-to-br from-foreground via-foreground to-primary/80">
                     {activeMovie.movieTitle || "Không có tiêu đề"}
                   </span>
                 </h2>
 
-                {/* Meta dots */}
-                <div className="flex items-center gap-3 text-xs md:text-sm text-muted-foreground font-medium">
+                <div className="flex items-center gap-3 text-sm text-muted-foreground font-medium">
                   <span className="flex items-center gap-1 text-primary">
                     <Star className="w-3.5 h-3.5 fill-current" />
                     <span className="font-bold">
@@ -178,7 +297,6 @@ export default function HeroBanner() {
                   )}
                 </div>
 
-                {/* CTA */}
                 <div className="flex items-center gap-3 pt-2">
                   <Button
                     onClick={() =>
@@ -186,13 +304,13 @@ export default function HeroBanner() {
                         `/phim/${activeMovie.movieId}?source=${activeMovie.source}`,
                       )
                     }
-                    className="rounded-2xl gap-2 bg-gradient-to-r from-primary to-primary/85 hover:from-primary hover:to-primary text-primary-foreground px-4 py-2 md:py-6 text-sm md:text-base font-bold shadow-2xl shadow-primary/30 hover:scale-[1.03] transition-transform"
+                    className="rounded-2xl gap-2 bg-gradient-to-r from-primary to-primary/85 hover:from-primary hover:to-primary text-primary-foreground px-4 py-6 text-base font-bold shadow-2xl shadow-primary/30 hover:scale-[1.03] transition-transform"
                   >
-                    <Play className="size-3  md:size-5 fill-current" />
+                    <Play className="size-5 fill-current" />
                     Xem Ngay
                   </Button>
-                  <button className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-background/40 hover:bg-background/60 backdrop-blur-md border border-border/60 hover:border-primary/50 text-foreground flex items-center justify-center transition-all hover:scale-105">
-                    <Plus className="w-5 h-5 md:w-6 md:h-6" />
+                  <button className="w-14 h-14 rounded-2xl bg-background/40 hover:bg-background/60 backdrop-blur-md border border-border/60 hover:border-primary/50 text-foreground flex items-center justify-center transition-all hover:scale-105">
+                    <Plus className="w-6 h-6" />
                   </button>
                 </div>
               </div>
@@ -200,27 +318,24 @@ export default function HeroBanner() {
           </motion.div>
         </AnimatePresence>
 
-        {/* Nav arrows (desktop) */}
         <button
           onClick={() => scroll("left")}
           aria-label="Previous"
-          className="hidden md:flex absolute left-5 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-background/40 hover:bg-background/70 border border-border/60 hover:border-primary/50 text-foreground items-center justify-center backdrop-blur-md transition-all hover:scale-110"
+          className="flex absolute left-5 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-background/40 hover:bg-background/70 border border-border/60 hover:border-primary/50 text-foreground items-center justify-center backdrop-blur-md transition-all hover:scale-110"
         >
           <ChevronLeft className="w-5 h-5" />
         </button>
         <button
           onClick={() => scroll("right")}
           aria-label="Next"
-          className="hidden md:flex absolute right-5 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-background/40 hover:bg-background/70 border border-border/60 hover:border-primary/50 text-foreground items-center justify-center backdrop-blur-md transition-all hover:scale-110"
+          className="flex absolute right-5 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-background/40 hover:bg-background/70 border border-border/60 hover:border-primary/50 text-foreground items-center justify-center backdrop-blur-md transition-all hover:scale-110"
         >
           <ChevronRight className="w-5 h-5" />
         </button>
 
-        {/* Thumbnail rail */}
-        <div className="absolute bottom-10 md:bottom-6 left-0 right-0 md:left-auto md:ml-auto md:mr-0 z-20 px-5 md:px-14 lg:px-20">
+        <div className="absolute bottom-6 left-auto ml-auto mr-0 z-20 px-14 lg:px-20 right-0">
           <div
-            ref={scrollContainerRef}
-            className="flex gap-2.5 scrollbar-hide overflow-x-auto scroll-smooth w-full md:w-auto md:ml-auto py-2.5 px-1.5"
+            className="flex gap-2.5 scrollbar-hide overflow-x-auto scroll-smooth ml-auto py-2.5 px-1.5"
             style={{
               scrollbarWidth: "none",
               msOverflowStyle: "none",
@@ -231,12 +346,9 @@ export default function HeroBanner() {
               const isActive = activeIndex === index;
               return (
                 <div
-                  key={`${movie.movieId}-${movie.source}`}
-                  ref={(el) => {
-                    thumbnailRefs.current[index] = el;
-                  }}
+                  key={`${movie.movieId}-${movie.source}-d`}
                   onClick={() => selectMovie(index)}
-                  className={`size-6 md:w-16 md:h-24 relative shrink-0 cursor-pointer md:rounded-xl overflow-hidden transition-all duration-500 rounded-full ${
+                  className={`w-16 h-24 relative shrink-0 cursor-pointer rounded-xl overflow-hidden transition-all duration-500 ${
                     isActive
                       ? "ring-2 ring-primary"
                       : "opacity-50 hover:opacity-100 border border-border/40 hover:border-primary/50"
@@ -245,7 +357,7 @@ export default function HeroBanner() {
                   {movie.movieThumb || movie.moviePoster ? (
                     <Image
                       width={64}
-                      height={64}
+                      height={96}
                       src={getImageSrc(movie.moviePoster, movie.source)}
                       alt={movie.movieTitle || "Movie thumbnail"}
                       className="w-full h-full object-cover"
@@ -265,3 +377,4 @@ export default function HeroBanner() {
     </section>
   );
 }
+
