@@ -64,13 +64,10 @@ export const  UserDetailDialog =({
 
   return (
     <Dialog open={!!user} onOpenChange={() => onClose()}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+      <DialogContent className="max-w-4xl min-h-screen max-h-dvh overflow-y-auto flex flex-col">
         <DialogHeader className="flex-shrink-0">
           <div className="flex items-center justify-between">
             <DialogTitle>Chi tiết người dùng</DialogTitle>
-            <Button variant="ghost" size="sm" onClick={onClose}>
-              <X className="w-4 h-4" />
-            </Button>
           </div>
         </DialogHeader>
 
@@ -134,7 +131,7 @@ export const  UserDetailDialog =({
                 : "border-transparent text-muted-foreground hover:text-foreground"
             }`}
           >
-            Lịch sử xem ({user.email})
+            Lịch sử xem
           </button>
         </div>
 

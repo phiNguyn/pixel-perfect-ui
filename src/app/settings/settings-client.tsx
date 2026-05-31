@@ -116,7 +116,7 @@ export default function SettingsClient() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
+    <div className="max-w-4xl mx-auto px-4 py-8 mt-16">
       <div className="mb-8">
         <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
           Cài đặt
@@ -511,13 +511,15 @@ export default function SettingsClient() {
             )}
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setEditDialogOpen(false)} disabled={isSaving}>
-              <X className="w-4 h-4 mr-1" />
-              Hủy
-            </Button>
-            <Button onClick={handleSaveEdit} disabled={isSaving || !editValue.trim()}>
-              {isSaving ? "Đang lưu..." : "Lưu"}
-            </Button>
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={() => setEditDialogOpen(false)} disabled={isSaving}>
+                <X className="w-4 h-4 mr-1" />
+                Hủy
+              </Button>
+              <Button  onClick={handleSaveEdit} disabled={isSaving || !editValue.trim()}>
+                {isSaving ? "Đang lưu..." : "Lưu"}
+              </Button>
+            </div>
           </DialogFooter>
         </DialogContent>
       </Dialog>

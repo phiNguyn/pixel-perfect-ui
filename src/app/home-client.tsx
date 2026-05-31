@@ -52,40 +52,42 @@ export default function HomeClient() {
   return (
     <>
       <HeroBanner />
-      <MoodSection />
-      <WatchHistoryRow />
-      <MovieRow
-        title="Phim Mới Cập Nhật"
-        movies={movieData?.data?.items}
-        loading={isLoading}
-        type={`danh-sach`}
-        type_list={movieData?.data?.type_list}
-      />
-      <MovieRow
-        title="Phim Hàn Quốc Mới"
-        movies={koreanData?.data?.items}
-        loading={koreanMoviesLoading}
-        type_list={koreanData?.data?.type_list}
-      />
-      <MovieRow
-        title="Phim Nhật Bản mới"
-        movies={japanData?.data?.items}
-        loading={japanMoviesLoading}
-        type_list={japanData?.data?.type_list}
-      />
-      <MovieRow
-        title="Phim Mỹ, Âu Mới"
-        movies={usData?.data?.items}
-        loading={usMoviesLoading}
-        type_list={usData?.data?.type_list}
-      />
-      <MovieRow
-        title="Phim Hoạt Hình"
-        type={`danh-sach`}
-        movies={animeData?.data?.items}
-        loading={animeMoviesLoading}
-        type_list={animeData?.data?.type_list}
-      />
+     <div className="md:px-16">
+        <MoodSection />
+        <WatchHistoryRow />
+        <MovieRow
+          title="Phim Mới Cập Nhật"
+          movies={movieData?.data?.items}
+          loading={isLoading}
+          type={`danh-sach`}
+          type_list={movieData?.data?.type_list}
+        />
+        <MovieRow
+          title="Phim Hàn Quốc Mới"
+          movies={koreanData?.data?.items}
+          loading={koreanMoviesLoading}
+          type_list={koreanData?.data?.type_list}
+        />
+        <MovieRow
+          title="Phim Nhật Bản mới"
+          movies={japanData?.data?.items}
+          loading={japanMoviesLoading}
+          type_list={japanData?.data?.type_list}
+        />
+        <MovieRow
+          title="Phim Mỹ, Âu Mới"
+          movies={usData?.data?.items}
+          loading={usMoviesLoading}
+          type_list={usData?.data?.type_list}
+        />
+        <MovieRow
+          title="Phim Hoạt Hình"
+          type={`danh-sach`}
+          movies={animeData?.data?.items}
+          loading={animeMoviesLoading}
+          type_list={animeData?.data?.type_list}
+        />
+     </div>
     </>
   );
 }

@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { UserDetailDialog } from "./UserDetailDialog";
 import { useState } from "react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 
 const AdminUsers = () => {
@@ -118,25 +119,26 @@ const AdminUsers = () => {
                      <td className="px-4 py-3">
                        <div className="flex items-center gap-3">
                          <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
-                           {user.avatar ? (
-                             <img
-                               src={user.avatar}
-                               alt=""
-                               className="w-8 h-8 rounded-full"
-                             />
-                           ) : (
-                             <span className="text-primary font-medium">
-                               {user.name?.[0] || user.email[0]}
-                             </span>
+                           {user.avatar && (
+                             <Avatar className="size-8">
+                               <AvatarImage 
+                                 src={user.avatar}
+                                 className="object-cover"
+                                 alt="Pinuss Flix"
+                               />
+                               <AvatarFallback className="bg-muted text-muted-foreground text-xs">
+                                 {user.name}
+                               </AvatarFallback>
+                             </Avatar>
                            )}
                          </div>
-                         <span className="font-medium">
-                           {user.name || "Chưa đặt tên"}
-                         </span>
                        </div>
                      </td>
                      <td className="px-4 py-3 text-sm text-muted-foreground">
-                       {user.email}
+                       <p>{user.email}</p>
+                       <span className="font-medium">
+                         {user.name || "Chưa đặt tên"}
+                       </span>
                      </td>
                      <td className="px-4 py-3">
                        <Badge

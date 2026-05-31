@@ -53,7 +53,7 @@ export default function WatchByLinkClient() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-6 max-w-5xl">
+    <div className="container mx-auto px-4 py-6 max-w-5xl mt-16">
       <div className="py-4 md:py-0 flex-col md:flex-row flex items-start justify-between gap-2">
         <h1 className="text-2xl font-bold text-foreground mb-6 flex items-center gap-2">
           <Play className="h-6 w-6 text-primary" />

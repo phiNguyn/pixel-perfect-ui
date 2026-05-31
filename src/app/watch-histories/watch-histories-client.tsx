@@ -70,7 +70,7 @@ export default function WatchHistoriesClient() {
 
   if (watchHistory.length === 0) {
     return (
-      <div className="max-w-4xl mx-auto px-4 py-8">
+      <div className="max-w-4xl mx-auto px-4 py-8 mt-16">
         <div className="mb-8">
           <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
             Lịch sử xem

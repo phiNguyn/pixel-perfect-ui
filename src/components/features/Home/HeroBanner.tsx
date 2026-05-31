@@ -148,7 +148,7 @@ export default function HeroBanner() {
                 </div>
 
                 {/* Title with gradient accent */}
-                <h2 className="font-bold leading-[1.05] tracking-tight text-foreground drop-shadow-2xl text-3xl md:text-5xl">
+                <h2 className="font-bold leading-[1.05] tracking-tight text-foreground drop-shadow-2xl text-xl md:text-5xl">
                   <span className="bg-clip-text text-transparent bg-gradient-to-br from-foreground via-foreground to-primary/80">
                     {activeMovie.movieTitle || "Không có tiêu đề"}
                   </span>
@@ -186,9 +186,9 @@ export default function HeroBanner() {
                         `/phim/${activeMovie.movieId}?source=${activeMovie.source}`,
                       )
                     }
-                    className="rounded-2xl gap-2 bg-gradient-to-r from-primary to-primary/85 hover:from-primary hover:to-primary text-primary-foreground px-7 py-6 md:py-6 text-sm md:text-base font-bold shadow-2xl shadow-primary/30 hover:scale-[1.03] transition-transform"
+                    className="rounded-2xl gap-2 bg-gradient-to-r from-primary to-primary/85 hover:from-primary hover:to-primary text-primary-foreground px-4 py-2 md:py-6 text-sm md:text-base font-bold shadow-2xl shadow-primary/30 hover:scale-[1.03] transition-transform"
                   >
-                    <Play className="w-4 h-4 md:w-5 md:h-5 fill-current" />
+                    <Play className="size-3  md:size-5 fill-current" />
                     Xem Ngay
                   </Button>
                   <button className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-background/40 hover:bg-background/60 backdrop-blur-md border border-border/60 hover:border-primary/50 text-foreground flex items-center justify-center transition-all hover:scale-105">
@@ -217,7 +217,7 @@ export default function HeroBanner() {
         </button>
 
         {/* Thumbnail rail */}
-        <div className="absolute bottom-0 md:bottom-6 left-0 right-0 md:left-auto md:ml-auto md:mr-0 z-20 px-5 md:px-14 lg:px-20">
+        <div className="absolute bottom-10 md:bottom-6 left-0 right-0 md:left-auto md:ml-auto md:mr-0 z-20 px-5 md:px-14 lg:px-20">
           <div
             ref={scrollContainerRef}
             className="flex gap-2.5 scrollbar-hide overflow-x-auto scroll-smooth w-full md:w-auto md:ml-auto py-2.5 px-1.5"
@@ -236,10 +236,10 @@ export default function HeroBanner() {
                     thumbnailRefs.current[index] = el;
                   }}
                   onClick={() => selectMovie(index)}
-                  className={`relative shrink-0 cursor-pointer rounded-xl overflow-hidden transition-all duration-500 ${
+                  className={`size-6 md:w-16 md:h-24 relative shrink-0 cursor-pointer md:rounded-xl overflow-hidden transition-all duration-500 rounded-full ${
                     isActive
-                      ? "w-14 h-20 md:w-16 md:h-24 ring-2 ring-primary shadow-xl shadow-primary/30 scale-105"
-                      : "w-12 h-16 md:w-14 md:h-20 opacity-50 hover:opacity-100 border border-border/40 hover:border-primary/50"
+                      ? "ring-2 ring-primary"
+                      : "opacity-50 hover:opacity-100 border border-border/40 hover:border-primary/50"
                   }`}
                 >
                   {movie.movieThumb || movie.moviePoster ? (
@@ -255,9 +255,6 @@ export default function HeroBanner() {
                     <div className="absolute inset-0 bg-muted flex items-center justify-center">
                       <Play className="w-3 h-3 text-muted-foreground/40" />
                     </div>
-                  )}
-                  {isActive && (
-                    <div className="absolute inset-x-1 bottom-1 h-0.5 rounded-full bg-gradient-to-r from-primary to-primary/60" />
                   )}
                 </div>
               );

@@ -91,20 +91,22 @@ function MoviesListContent({ type, slug, initialPage }: MoviesListClientProps) {
   }, [slug, router]);
 
   return (
-    <div className="px-8 mt-16 mx-auto  py-6">
-      <BreadCrumb breadCrumb={breadCrumb} />
-
-      <div className="w-full flex justify-end mt-4">
-        <Filter
-          clearAll={clearAll}
-          addQuery={addQuery}
-          getFilterValue={getFilterValue}
-        />
+    <div className="px-4 md:px-16 mt-16 mx-auto py-6">
+      <div className="px-2 flex justify-between items-center">
+        <BreadCrumb  breadCrumb={breadCrumb} />
+  
+        <div className="flex justify-end mt-4">
+          <Filter
+            clearAll={clearAll}
+            addQuery={addQuery}
+            getFilterValue={getFilterValue}
+          />
+        </div>
       </div>
 
-      <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-6 items-stretch">
+      <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-2.5 md:gap-4 items-stretch">
         {isLoading ? (
-          <SkeletonCard className="!w-full h-[320px] w" count={24} />
+          <SkeletonCard className="!w-full h-[320px]" count={24} /> 
         ) : items.length > 0 ? (
           items.map((item) => (
             <MovieCard movie={item as any} key={item._id} className="!w-full" />
