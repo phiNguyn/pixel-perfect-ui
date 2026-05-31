@@ -156,53 +156,58 @@ export default function HeroBanner() {
                 </button>
               </div>
 
-              {/* Thumbnail circles */}
-              <div
-                ref={scrollContainerRef}
-                className="flex gap-2.5 scrollbar-hide overflow-x-auto scroll-smooth pt-4 -mx-5 px-5"
-                style={{
-                  scrollbarWidth: "none",
-                  msOverflowStyle: "none",
-                  WebkitOverflowScrolling: "touch",
-                }}
-              >
-                {trendingMovies.map((movie, index) => {
-                  const isActive = activeIndex === index;
-                  return (
-                    <div
-                      key={`${movie.movieId}-${movie.source}-m`}
-                      ref={(el) => {
-                        thumbnailRefs.current[index] = el;
-                      }}
-                      onClick={() => selectMovie(index)}
-                      className={`w-12 h-12 relative shrink-0 cursor-pointer rounded-full overflow-hidden transition-all duration-300 ${
-                        isActive
-                          ? "ring-2 ring-primary scale-110"
-                          : "opacity-50 border border-border/40"
-                      }`}
-                    >
-                      {movie.movieThumb || movie.moviePoster ? (
-                        <Image
-                          width={48}
-                          height={48}
-                          src={getImageSrc(movie.moviePoster, movie.source)}
-                          alt={movie.movieTitle || "Movie thumbnail"}
-                          className="w-full h-full object-cover"
-                          quality={90}
-                        />
-                      ) : (
-                        <div className="absolute inset-0 bg-muted flex items-center justify-center">
-                          <Play className="w-3 h-3 text-muted-foreground/40" />
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
             </div>
           </motion.div>
         </AnimatePresence>
+
+        {/* Thumbnail circles - outside AnimatePresence so they don't slide */}
+        <div
+          ref={scrollContainerRef}
+          className="flex gap-2.5 scrollbar-hide overflow-x-auto scroll-smooth px-5 pb-4"
+          style={{
+            scrollbarWidth: "none",
+            msOverflowStyle: "none",
+            WebkitOverflowScrolling: "touch",
+          }}
+        >
+          {trendingMovies.map((movie, index) => {
+            const isActive = activeIndex === index;
+            const imgUrl =
+              getImageSrc(movie.moviePoster, movie.source) ||
+              getImageSrc(movie.movieThumb, movie.source);
+            return (
+              <div
+                key={`${movie.movieId}-${movie.source}-m`}
+                ref={(el) => {
+                  thumbnailRefs.current[index] = el;
+                }}
+                onClick={() => selectMovie(index)}
+                className={`w-12 h-12 relative shrink-0 cursor-pointer rounded-full overflow-hidden transition-all duration-300 bg-muted ${
+                  isActive
+                    ? "ring-2 ring-primary scale-110"
+                    : "opacity-50 border border-border/40"
+                }`}
+              >
+                {imgUrl ? (
+                  <Image
+                    width={96}
+                    height={96}
+                    src={imgUrl}
+                    alt={movie.movieTitle || "Movie thumbnail"}
+                    className="w-full h-full object-cover"
+                    quality={90}
+                  />
+                ) : (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <Play className="w-3 h-3 text-muted-foreground/40" />
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
       </div>
+
 
       {/* DESKTOP LAYOUT */}
       <div className="hidden md:block relative h-[calc(100vh-128px)] overflow-hidden">
