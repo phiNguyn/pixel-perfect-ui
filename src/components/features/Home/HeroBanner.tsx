@@ -97,7 +97,7 @@ export default function HeroBanner() {
             className="relative"
           >
             {/* Poster image */}
-            <div className="mt-16 relative w-full aspect-[16/9] overflow-hidden">
+            <div className="relative w-full h-[calc(56.25vw+64px)] overflow-hidden">
               {activeMovie.movieThumb ? (
                 <Image
                   quality={100}
