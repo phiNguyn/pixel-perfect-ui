@@ -94,7 +94,18 @@ export default function HeroBanner() {
             animate="center"
             exit="exit"
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-            className="relative"
+            drag="x"
+            dragElastic={0.2}
+            dragConstraints={{ left: 0, right: 0 }}
+            onDragEnd={(_, info) => {
+              const threshold = 60;
+              if (info.offset.x < -threshold || info.velocity.x < -400) {
+                scroll("right");
+              } else if (info.offset.x > threshold || info.velocity.x > 400) {
+                scroll("left");
+              }
+            }}
+            className="relative touch-pan-y"
           >
             {/* Poster image */}
             <div className="relative w-full h-[calc(56.25vw+64px)] overflow-hidden">
