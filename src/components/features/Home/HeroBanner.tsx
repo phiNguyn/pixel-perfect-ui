@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { getImageSrc } from "../../../services/uploadFile";
 import { useIsMobile } from "@/hooks/use-mobile";
-import Image from "next/image";
+
 
 export default function HeroBanner() {
   const isMobile = useIsMobile()
@@ -110,14 +110,15 @@ export default function HeroBanner() {
             {/* Poster image */}
             <div className="relative w-full h-[calc(56.25vw+64px)] overflow-hidden">
               {activeMovie.movieThumb ? (
-                <Image
-                  quality={100}
+                <img
                   src={activeMovie.movieThumb}
                   alt={activeMovie.movieTitle || "Movie poster"}
                   className="w-full h-full object-cover"
                   width={1080}
                   height={1350}
-                  priority
+                  loading="eager"
+                  fetchPriority="high"
+                  decoding="async"
                 />
               ) : (
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/30 to-primary/5" />
@@ -192,13 +193,14 @@ export default function HeroBanner() {
                     : "opacity-50 border border-border/40"
                 }`}
               >
-                <Image
+                <img
                   width={96}
                   height={96}
                   src={getImageSrc(movie.moviePoster, movie.source)}
                   alt={movie.movieTitle || "Movie thumbnail"}
                   className="w-full h-full object-cover"
-                  quality={100}
+                  loading="lazy"
+                  decoding="async"
                 />
               </div>
             );
@@ -221,13 +223,15 @@ export default function HeroBanner() {
           >
             {/* Backdrop */}
             {activeMovie.movieThumb ? (
-              <Image
-                quality={100}
+              <img
                 src={activeMovie.movieThumb}
                 alt={activeMovie.movieTitle || "Movie poster"}
                 className="w-full h-full object-cover"
                 width={1920}
                 height={1080}
+                loading="eager"
+                fetchPriority="high"
+                decoding="async"
               />
             ) : (
               <div className="absolute inset-0 bg-gradient-to-br from-primary/30 to-primary/5" />
@@ -345,13 +349,14 @@ export default function HeroBanner() {
                       : "opacity-50 hover:opacity-100 border border-border/40 hover:border-primary/50"
                   }`}
                 >
-                  <Image
+                  <img
                     width={64}
                     height={96}
                     src={getImageSrc(movie.moviePoster, movie.source)}
                     alt={movie.movieTitle || "Movie thumbnail"}
                     className="w-full h-full object-cover"
-                    quality={100}
+                    loading="lazy"
+                    decoding="async"
                   />
                 </div>
               );
