@@ -18,11 +18,14 @@ interface WatchSessionTrackerOptions {
 }
 
 const HEARTBEAT_INTERVAL_MS = 30_000;
+const HEARTBEAT_SECONDS = HEARTBEAT_INTERVAL_MS / 1000;
+// Cap a single flush at heartbeat + small buffer to ignore seeks/pauses.
+const MAX_DELTA_PER_FLUSH = HEARTBEAT_SECONDS + 10; // 40s
 
 export function useWatchSessionTracker(options: WatchSessionTrackerOptions) {
   const { isAuthenticated } = useAuth();
-  const lastProgressRef = useRef(0);
-  const lastSentProgressRef = useRef(0);
+  const lastProgressRef = useRef<number | null>(null);
+  const lastSentProgressRef = useRef<number | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const optionsRef = useRef(options);
   optionsRef.current = options;
@@ -31,13 +34,30 @@ export function useWatchSessionTracker(options: WatchSessionTrackerOptions) {
     if (!isAuthenticated) return;
 
     const currentProgress = lastProgressRef.current;
-    const delta = Math.round(currentProgress - lastSentProgressRef.current);
+    const lastSent = lastSentProgressRef.current;
+    if (currentProgress == null || lastSent == null) return;
 
-    if (delta <= 0 || delta > 120) return;
+    const rawDelta = currentProgress - lastSent;
+
+    // Seek backward — reset baseline, don't record negative time.
+    if (rawDelta < 0) {
+      lastSentProgressRef.current = currentProgress;
+      return;
+    }
+
+    // Cap delta to ignore seeks forward / long pauses.
+    const delta = Math.min(Math.round(rawDelta), MAX_DELTA_PER_FLUSH);
+
+    if (delta <= 0) return;
     if (!force && delta < 5) return;
 
     const opts = optionsRef.current;
     if (!opts.movieId || !opts.episodeSlug) return;
+
+    const progressStart = lastSent;
+    const progressEnd = currentProgress;
+    // Optimistically advance baseline so concurrent flushes don't double-count.
+    lastSentProgressRef.current = currentProgress;
 
     try {
       await watchSessionApi.recordSession({
@@ -50,12 +70,12 @@ export function useWatchSessionTracker(options: WatchSessionTrackerOptions) {
         episodeSlug: opts.episodeSlug,
         episodeName: opts.episodeName,
         watchedSeconds: delta,
-        progressStart: lastSentProgressRef.current,
-        progressEnd: currentProgress,
+        progressStart,
+        progressEnd,
       });
-      lastSentProgressRef.current = currentProgress;
     } catch {
-      // Silent fail — watch time tracking is non-critical
+      // Rollback baseline so we retry on next heartbeat.
+      lastSentProgressRef.current = progressStart;
     }
   }, [isAuthenticated]);
 
@@ -63,6 +83,11 @@ export function useWatchSessionTracker(options: WatchSessionTrackerOptions) {
     const handleTimeUpdate = (e: Event) => {
       const detail = (e as CustomEvent).detail;
       if (typeof detail?.currentTime === "number") {
+        // Initialize baseline on first time-update so we don't treat the
+        // initial player time (e.g. resume position) as watched seconds.
+        if (lastSentProgressRef.current == null) {
+          lastSentProgressRef.current = detail.currentTime;
+        }
         lastProgressRef.current = detail.currentTime;
       }
     };
@@ -72,8 +97,8 @@ export function useWatchSessionTracker(options: WatchSessionTrackerOptions) {
   }, []);
 
   useEffect(() => {
-    lastProgressRef.current = 0;
-    lastSentProgressRef.current = 0;
+    lastProgressRef.current = null;
+    lastSentProgressRef.current = null;
 
     if (!options.enabled || !isAuthenticated) return;
 
