@@ -12,6 +12,8 @@ import {
   LogOut,
   History,
   Shield,
+  Trophy,
+  CalendarDays,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
@@ -369,6 +371,18 @@ export default function SiteHeader() {
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
+                    <Link href="/watch-calendar" className="cursor-pointer">
+                      <CalendarDays className="mr-2 h-4 w-4" />
+                      <span>Lịch xem phim</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/leaderboard" className="cursor-pointer">
+                      <Trophy className="mr-2 h-4 w-4" />
+                      <span>Bảng xếp hạng</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
                     <Link href="/settings" className="cursor-pointer">
                       <Settings className="mr-2 h-4 w-4" />
                       <span>Cài đặt</span>
@@ -517,6 +531,18 @@ export default function SiteHeader() {
                     <Link href="/watch-histories" className="cursor-pointer">
                       <History className="mr-2 h-4 w-4" />
                       <span>Lịch sử xem</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/watch-calendar" className="cursor-pointer">
+                      <CalendarDays className="mr-2 h-4 w-4" />
+                      <span>Lịch xem phim</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/leaderboard" className="cursor-pointer">
+                      <Trophy className="mr-2 h-4 w-4" />
+                      <span>Bảng xếp hạng</span>
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
