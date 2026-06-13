@@ -1,11 +1,12 @@
 export function formatWatchHours(hours: number): string {
-  if (hours >= 100) {
-    return `${hours.toFixed(1)}h`;
+  const totalSeconds = Math.round(hours * 3600);
+  const h = Math.floor(totalSeconds / 3600);
+  const m = Math.floor((totalSeconds % 3600) / 60);
+
+  if (h > 0) {
+    return `${h}g ${m}p`;
   }
-  if (hours >= 10) {
-    return `${hours.toFixed(2)}h`;
-  }
-  return `${hours.toFixed(2)}h`;
+  return `${m} phút`;
 }
 
 export function formatWatchDuration(seconds: number): string {
