@@ -25,6 +25,7 @@ import MovieRecommendations from "@/components/features/Movies/MovieRecommendati
 import TrendingMovies from "@/components/features/Movies/TrendingMovies";
 import { analytics } from "@/lib/analytics";
 import { trackMovieView } from "@/lib/hooks/useTrackMovieView";
+import { useWatchSessionTracker } from "@/lib/hooks/useWatchSessionTracker";
 
 export default function MovieDetail({ id }: { id: string }) {
   const searchParams = useSearchParams();
@@ -112,6 +113,18 @@ export default function MovieDetail({ id }: { id: string }) {
     }
     return 0;
   })();
+
+  useWatchSessionTracker({
+    enabled: !!movie && !!selectedEp,
+    movieId: movie?.slug ?? id,
+    movieTitle: movie?.name ?? "",
+    moviePoster: movie ? getPosterUrl("thumb") : undefined,
+    originName: movie?.origin_name,
+    year: movie?.year,
+    source: isPhimApi ? "phimapi" : "ophim",
+    episodeSlug: selectedEp?.slug ?? "",
+    episodeName: selectedEp?.name,
+  });
 
   // Track movie view on mount (analytics + database)
   useEffect(() => {

@@ -109,14 +109,6 @@ export default function RootLayout({
             gtag('config', '${process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID}');
           `}
         </Script>
-        <Script
-          defer
-          src="https://analytics.deplio.app/script.js"
-          data-website-id="0a4618cb-0f87-416a-bed5-742c736b7b87"
-          data-performance="true"
-          data-do-not-track="true"
-          data-domains="pinuss-flix.vercel.app"
-        />
       </body>
     </html>
   );
