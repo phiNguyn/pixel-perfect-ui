@@ -29,13 +29,12 @@ export default function LeaderboardClient() {
   const { data: myRankData } = useQueryMyRank(period, isAuthenticated);
 
   const myRank = data?.myRank ?? myRankData?.rank;
-  const myHours =
-    data?.myTotalWatchHours ?? myRankData?.totalWatchHours ?? 0;
+  const myHours = data?.myTotalWatchHours ?? myRankData?.totalWatchHours ?? 0;
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-8 mt-16">
       <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl overflow-hidden">
-        <div className="px-6 pt-6 pb-4 border-b border-white/10">
+        <div className="px-3 md:px-6 py-3 md:py-6 border-b border-white/10">
           <div className="flex items-center justify-center gap-2 mb-4">
             <Trophy className="h-5 w-5 text-amber-400" />
             <h1 className="text-xl font-bold">Bảng xếp hạng</h1>
@@ -47,7 +46,7 @@ export default function LeaderboardClient() {
                 <button
                   key={p}
                   onClick={() => setPeriod(p)}
-                  className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
+                  className={`px-2.5 md:px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
                     period === p
                       ? "bg-primary text-primary-foreground shadow-sm"
                       : "text-muted-foreground hover:text-foreground"
@@ -79,7 +78,7 @@ export default function LeaderboardClient() {
           )}
         </div>
 
-        <div className="px-4 md:px-6 py-4">
+        <div className="px-3 md:px-6 py-4">
           {isLoading && (
             <div className="space-y-4 py-8">
               <div className="flex justify-center gap-4">

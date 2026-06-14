@@ -5,6 +5,7 @@ import { CalendarDays, Clock, Film, Play } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { CalendarDayData } from "@/lib/api/watchCalendar/watchCalendarInterface";
 import { formatWatchDuration, formatWatchHours } from "@/lib/utils/watchTime";
+import { normalizeEpisode } from "../../../lib/utils";
 
 interface DayDetailPanelProps {
   data: CalendarDayData | undefined;
@@ -91,23 +92,30 @@ export default function DayDetailPanel({
                     {formatWatchDuration(movie.totalWatchSeconds)}
                   </p>
 
-                  <div className="mt-2 space-y-1.5">
-                    {movie.episodes.map((ep) => (
-                      <div
-                        key={ep.episodeSlug}
-                        className="flex items-center justify-between text-xs bg-muted/40 rounded-lg px-2.5 py-1.5"
-                      >
-                        <div className="flex items-center gap-1.5 min-w-0">
-                          <Play className="h-3 w-3 shrink-0 text-primary" />
-                          <span className="truncate">
-                            {ep.episodeName || ep.episodeSlug}
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {movie.episodes
+                      .sort(
+                        (a, b) => Number(b.episodeSlug) - Number(a.episodeSlug),
+                      )
+                      .map((ep) => (
+                        <div
+                          key={ep.episodeSlug}
+                          className="w-fit flex items-center justify-between text-xs bg-muted/40 rounded-lg px-2.5 py-1.5"
+                        >
+                          <div className="flex items-center gap-1.5 min-w-0">
+                            <Play className="h-3 w-3 shrink-0 text-primary" />
+                            <span className="truncate">
+                              Tập{" "}
+                              {normalizeEpisode(
+                                ep.episodeName || ep.episodeSlug,
+                              )}
+                            </span>
+                          </div>
+                          <span className="text-muted-foreground shrink-0 ml-2">
+                            - {formatWatchDuration(ep.watchedSeconds)}
                           </span>
                         </div>
-                        <span className="text-muted-foreground shrink-0 ml-2">
-                          {formatWatchDuration(ep.watchedSeconds)}
-                        </span>
-                      </div>
-                    ))}
+                      ))}
                   </div>
                 </div>
               </div>

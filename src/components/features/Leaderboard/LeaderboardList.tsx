@@ -20,13 +20,13 @@ export default function LeaderboardList({ entries }: LeaderboardListProps) {
         return (
           <div
             key={entry.userId}
-            className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm px-4 py-3 transition-colors hover:bg-white/10"
+            className="flex items-center gap-1.5 md:gap-3 rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm px-2 py-1.5 md:px-4 md:py-3 transition-colors hover:bg-white/10"
           >
             <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-sm font-semibold">
               {entry.rank}
             </span>
 
-            <Avatar className="h-10 w-10 shrink-0">
+            <Avatar className="size-8 md:size-10 shrink-0">
               <AvatarImage src={entry.avatar ?? undefined} alt={displayName} />
               <AvatarFallback className="bg-primary/80 text-primary-foreground">
                 {displayName.charAt(0).toUpperCase()}
