@@ -206,7 +206,11 @@ export default function MovieDetail({ id }: { id: string }) {
   // Redirect back if movie is 18+
   useEffect(() => {
     if (movie?.category.some((item) => item.slug === "phim-18")) {
-      router.back();
+      if (window.history.length > 1) {
+        router.back();
+      } else {
+        router.replace("/"); // hoặc "/phim"
+      }
     }
   }, [movie, router]);
 

@@ -86,15 +86,19 @@ function MoviesListContent({ type, slug, initialPage }: MoviesListClientProps) {
   // Redirect if trying to access restricted content
   useEffect(() => {
     if (slug === "phim-18") {
-      router.back();
+      if (window.history.length > 1) {
+        router.back();
+      } else {
+        router.replace("/"); // hoặc "/phim"
+      }
     }
   }, [slug, router]);
 
   return (
     <div className="px-4 md:px-16 mt-16 mx-auto py-6">
       <div className="px-2 flex justify-between items-center">
-        <BreadCrumb  breadCrumb={breadCrumb} />
-  
+        <BreadCrumb breadCrumb={breadCrumb} />
+
         <div className="flex justify-end mt-4">
           <Filter
             clearAll={clearAll}
@@ -104,13 +108,22 @@ function MoviesListContent({ type, slug, initialPage }: MoviesListClientProps) {
         </div>
       </div>
 
-      <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-2.5 md:gap-4 items-stretch">
+      <div className="mt-6 grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-2.5 md:gap-4 items-stretch">
         {isLoading ? (
-          <SkeletonCard className="!w-full h-[320px]" count={24} /> 
+          <SkeletonCard className="!w-full h-[320px]" count={24} />
         ) : items.length > 0 ? (
-          items.map((item) => (
-            <MovieCard movie={item as any} key={item._id} className="!w-full" />
-          ))
+          items
+            .filter(
+              (item) =>
+                !item.category?.some((category) => category.slug === "phim-18"),
+            )
+            .map((item) => (
+              <MovieCard
+                movie={item as any}
+                key={item._id}
+                className="!w-full"
+              />
+            ))
         ) : (
           <div className="col-span-full text-center py-12 text-muted-foreground">
             Không tìm thấy phim nào
