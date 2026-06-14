@@ -48,16 +48,11 @@ function RecommendationCard({
     : `https://img.ophim.live/uploads/movies/${movie.thumb_url}`;
 
   return (
-    <Link
-      href={`/phim/${movie.slug}?source=${source}`}
-      className="group block"
-    >
+    <Link href={`/phim/${movie.slug}?source=${source}`} className="group block">
       <div className="relative aspect-[2/3] overflow-hidden rounded-lg bg-muted">
-        <Image
+        <img
           src={imageUrl}
           alt={movie.name}
-          fill
-          sizes="(max-width: 768px) 33vw, (max-width: 1024px) 25vw, 16vw"
           className="object-cover transition-transform duration-300 group-hover:scale-105"
           loading="lazy"
         />
@@ -137,7 +132,7 @@ export default function MovieRecommendations({
       primaryCategory?.slug,
       movieSlug,
       12,
-      !!primaryCategory?.slug
+      !!primaryCategory?.slug,
     );
 
   const { data: countryMovies, isLoading: isLoadingCountry } =
@@ -145,7 +140,7 @@ export default function MovieRecommendations({
       countries?.[0]?.slug,
       movieSlug,
       6,
-      !!countries?.[0]?.slug
+      !!countries?.[0]?.slug,
     );
 
   const isLoading = isLoadingCategory || isLoadingCountry;

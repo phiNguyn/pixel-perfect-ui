@@ -55,12 +55,11 @@ function TrendingItem({ movie, rank }: { movie: TrendingMovie; rank: number }) {
         {rank}
       </span>
 
-      <Image
+      <img
         loading="lazy"
         width={48}
         height={64}
         src={imageUrl}
-        quality={100}
         alt={movie.movieTitle || "Movie"}
         className="w-12 h-16 rounded object-cover flex-shrink-0"
       />
