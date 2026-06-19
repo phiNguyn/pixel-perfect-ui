@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { CalendarDays, LogIn } from "lucide-react";
+import { useQueries } from "@tanstack/react-query";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
@@ -11,6 +12,8 @@ import {
   useQueryWatchCalendarDay,
   useQueryWatchCalendarMonth,
 } from "@/lib/api/watchCalendar/watchCalendarQuery";
+import { watchCalendarApi } from "@/lib/api/watchCalendar/watchCalendarApi";
+import type { CalendarDayData } from "@/lib/api/watchCalendar/watchCalendarInterface";
 import { formatWatchHours } from "@/lib/utils/watchTime";
 import { cn } from "@/lib/utils";
 
@@ -41,6 +44,37 @@ export default function WatchCalendarClient() {
     selectedDateStr,
     isAuthenticated,
   );
+
+  const activeDateStrings = useMemo(
+    () => monthData?.activeDays.map((d) => d.date) ?? [],
+    [monthData],
+  );
+
+  // Prefetch each active day's detail in parallel to get poster thumbnails
+  const dayDetailQueries = useQueries({
+    queries: activeDateStrings.map((date) => ({
+      queryKey: ["watch-calendar", "day", date],
+      queryFn: () => watchCalendarApi.getDayDetail(date),
+      enabled: isAuthenticated,
+      staleTime: 5 * 60_000,
+    })),
+  });
+
+  // Map: "YYYY-MM-DD" -> up to 3 poster URLs
+  const postersByDate = useMemo(() => {
+    const map = new Map<string, string[]>();
+    dayDetailQueries.forEach((q, idx) => {
+      const date = activeDateStrings[idx];
+      const data = q.data as CalendarDayData | undefined;
+      if (!date || !data) return;
+      const posters = data.movies
+        .map((m) => m.moviePoster)
+        .filter((p): p is string => !!p)
+        .slice(0, 3);
+      map.set(date, posters);
+    });
+    return map;
+  }, [dayDetailQueries, activeDateStrings]);
 
   const watchedDates = useMemo(() => {
     return (
@@ -95,9 +129,9 @@ export default function WatchCalendarClient() {
           )}
         </div>
 
-        <div className="p-4 md:p-6">
+        <div className="p-2 md:p-6">
           {monthLoading ? (
-            <Skeleton className="h-[320px] w-full rounded-xl" />
+            <Skeleton className="h-[360px] w-full rounded-xl" />
           ) : (
             <div className="flex justify-center">
               <Calendar
@@ -107,17 +141,54 @@ export default function WatchCalendarClient() {
                 month={currentMonth}
                 onMonthChange={setCurrentMonth}
                 modifiers={{ watched: watchedDates }}
-                modifiersClassNames={{
-                  watched:
-                    "relative after:absolute after:bottom-0.5 after:left-1/2 after:-translate-x-1/2 after:h-1 after:w-1 after:rounded-full after:bg-primary font-semibold",
-                }}
                 className={cn(
-                  "rounded-xl border border-white/10 bg-background/50 p-3 pointer-events-auto",
+                  "rounded-xl border border-white/10 bg-background/50 p-2 pointer-events-auto w-full",
                 )}
                 classNames={{
+                  months: "flex flex-col w-full",
+                  month: "space-y-2 w-full",
+                  table: "w-full border-collapse",
+                  head_row: "flex w-full",
+                  head_cell:
+                    "text-muted-foreground rounded-md flex-1 font-normal text-[0.7rem]",
+                  row: "flex w-full mt-1",
+                  cell: "flex-1 aspect-square text-center text-xs p-0.5 relative",
+                  day: "h-full w-full p-0 font-normal rounded-md hover:bg-accent/60 transition-colors flex flex-col items-center justify-start pt-1 gap-1 overflow-hidden",
                   day_selected:
-                    "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground",
+                    "bg-primary/20 ring-2 ring-primary text-foreground hover:bg-primary/30",
                   day_today: "border border-primary/50",
+                  day_outside: "opacity-30",
+                }}
+                components={{
+                  DayContent: ({ date, activeModifiers }) => {
+                    const key = toDateString(date);
+                    const posters = postersByDate.get(key) ?? [];
+                    const isOutside = activeModifiers.outside;
+                    return (
+                      <>
+                        <span className="text-[0.7rem] leading-none font-medium">
+                          {date.getDate()}
+                        </span>
+                        {!isOutside && posters.length > 0 && (
+                          <div className="flex -space-x-1.5 mt-0.5">
+                            {posters.map((src, i) => (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img
+                                key={i}
+                                src={src}
+                                alt=""
+                                loading="lazy"
+                                className="h-5 w-4 rounded-[2px] object-cover ring-1 ring-background/80 bg-muted"
+                              />
+                            ))}
+                          </div>
+                        )}
+                        {!isOutside && posters.length === 0 && activeModifiers.watched && (
+                          <span className="h-1 w-1 rounded-full bg-primary mt-1" />
+                        )}
+                      </>
+                    );
+                  },
                 }}
               />
             </div>
