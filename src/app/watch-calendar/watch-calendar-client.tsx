@@ -170,7 +170,7 @@ export default function WatchCalendarClient() {
                           {date.getDate()}
                         </span>
                         {!isOutside && posters.length > 0 && (
-                          <div className="flex -space-x-1.5 mt-0.5">
+                          <div className="flex -space-x-1.5 md:-space-x-2 mt-0.5 md:mt-1">
                             {posters.map((src, i) => (
                               // eslint-disable-next-line @next/next/no-img-element
                               <img
@@ -178,7 +178,7 @@ export default function WatchCalendarClient() {
                                 src={src}
                                 alt=""
                                 loading="lazy"
-                                className="h-5 w-4 rounded-[2px] object-cover ring-1 ring-background/80 bg-muted"
+                                className="h-5 w-4 md:h-10 md:w-8 lg:h-12 lg:w-10 rounded-[2px] md:rounded object-cover ring-1 ring-background/80 bg-muted"
                               />
                             ))}
                           </div>
