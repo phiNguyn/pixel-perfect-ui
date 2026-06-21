@@ -81,6 +81,12 @@ export default function WatchHistoriesClient() {
           </p>
         </div>
 
+        <LoginCTABanner
+          storageKey="watch-histories-empty"
+          className="mb-6"
+          description="Đăng nhập để lịch sử xem được lưu trên đám mây và đồng bộ giữa các thiết bị."
+        />
+
         <Empty
           icon={History}
           title="Chưa có lịch sử xem"
