@@ -1,7 +1,7 @@
 "use client";
 
 import { useHistoryStore, WatchHistoryItem } from "@/stores/useHistoryStore";
-import { X, Play, Clock, History } from "lucide-react";
+import { X, Play, Clock, History, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -27,8 +27,7 @@ function formatDuration(seconds: number) {
 }
 
 export default function WatchHistoryRow() {
-  const { watchHistory, removeWatchHistory, clearWatchHistory } =
-    useHistoryStore();
+  const { watchHistory, removeWatchHistory } = useHistoryStore();
 
   if (watchHistory.length === 0) return null;
 
@@ -45,14 +44,9 @@ export default function WatchHistoryRow() {
           </span>
         </div>
         {watchHistory.length > 0 && (
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-xs text-muted-foreground hover:text-destructive"
-            onClick={clearWatchHistory}
-          >
-            Xoá tất cả
-          </Button>
+          <Link href={"/watch-histories"} className="flex items-center gap-1">
+            Lịch sử xem <ChevronRight className="w-3.5 h-3.5" />
+          </Link>
         )}
       </div>
 
@@ -61,6 +55,7 @@ export default function WatchHistoryRow() {
           <AnimatePresence>
             {watchHistory
               .sort((a, b) => b.watchedAt - a.watchedAt)
+              .slice(0, 10)
               .map((item) => (
                 <WatchHistoryCard
                   key={item.slug}
