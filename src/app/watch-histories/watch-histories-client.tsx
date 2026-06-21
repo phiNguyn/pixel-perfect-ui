@@ -98,6 +98,7 @@ export default function WatchHistoriesClient() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8 mt-16">
+      <LoginCTABanner storageKey="watch-histories" className="mb-6" />
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
