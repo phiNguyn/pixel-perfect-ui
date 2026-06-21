@@ -81,11 +81,7 @@ export default function LoginCTABanner({
         </p>
       </div>
       <div className="flex items-center gap-1.5 flex-shrink-0">
-        <Button
-          size="sm"
-          onClick={openLoginModal}
-          className="h-8 px-3 text-xs"
-        >
+        <Button size="sm" onClick={openLoginModal} className="h-8 px-3 text-xs">
           <LogIn className="h-3.5 w-3.5 mr-1.5" />
           Đăng nhập
         </Button>

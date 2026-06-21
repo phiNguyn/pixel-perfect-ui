@@ -126,11 +126,7 @@ export default function LoginBenefitsCard({
 
   return (
     <section
-      className={cn(
-        "relative",
-        isHero ? "py-4" : "py-2",
-        className,
-      )}
+      className={cn("relative", isHero ? "py-4" : "py-2", className)}
       aria-label="Đăng nhập để mở khoá tính năng"
     >
       <div className={cn("max-w-[1560px] mx-auto", isHero ? "px-4" : "")}>
@@ -154,7 +150,7 @@ export default function LoginBenefitsCard({
             className="pointer-events-none absolute -bottom-24 -left-24 h-64 w-64 rounded-full bg-violet-500/20 blur-3xl"
           />
 
-          {dismissible && (
+          {/* {dismissible && (
             <button
               onClick={handleDismiss}
               aria-label="Đóng"
@@ -162,12 +158,14 @@ export default function LoginBenefitsCard({
             >
               <X className="h-4 w-4" />
             </button>
-          )}
+          )} */}
 
           <div
             className={cn(
               "relative grid gap-6 p-5 sm:p-6 md:p-8",
-              isHero ? "md:grid-cols-[1.05fr_1.6fr] md:gap-10" : "md:grid-cols-[1fr_1.4fr]",
+              isHero
+                ? "md:grid-cols-[1.05fr_1.6fr] md:gap-10"
+                : "md:grid-cols-[1fr_1.4fr]",
             )}
           >
             {/* Left: Header & CTA */}
@@ -179,7 +177,9 @@ export default function LoginBenefitsCard({
               <h2
                 className={cn(
                   "mt-3 font-bold text-foreground leading-tight tracking-tight",
-                  isHero ? "text-2xl sm:text-3xl md:text-[2rem]" : "text-xl sm:text-2xl",
+                  isHero
+                    ? "text-2xl sm:text-3xl md:text-[2rem]"
+                    : "text-xl sm:text-2xl",
                 )}
               >
                 {title}
@@ -197,14 +197,14 @@ export default function LoginBenefitsCard({
                   <LogIn className="h-4 w-4 mr-2" />
                   Đăng nhập ngay
                 </Button>
-                {dismissible && (
+                {/* {dismissible && (
                   <button
                     onClick={handleDismiss}
                     className="text-xs text-muted-foreground hover:text-foreground transition-colors underline-offset-4 hover:underline"
                   >
                     Để sau
                   </button>
-                )}
+                )} */}
               </div>
             </div>
 
