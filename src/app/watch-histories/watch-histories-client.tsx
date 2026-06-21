@@ -21,6 +21,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import Empty from "@/components/Common/Empty";
+import LoginCTABanner from "@/components/Common/LoginCTABanner";
 
 function formatTimeAgo(timestamp: number) {
   const diff = Date.now() - timestamp;
@@ -80,6 +81,12 @@ export default function WatchHistoriesClient() {
           </p>
         </div>
 
+        <LoginCTABanner
+          storageKey="watch-histories-empty"
+          className="mb-6"
+          description="Đăng nhập để lịch sử xem được lưu trên đám mây và đồng bộ giữa các thiết bị."
+        />
+
         <Empty
           icon={History}
           title="Chưa có lịch sử xem"
@@ -91,6 +98,7 @@ export default function WatchHistoriesClient() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8 mt-16">
+      <LoginCTABanner storageKey="watch-histories" className="mb-6" />
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
