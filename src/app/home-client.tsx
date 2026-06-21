@@ -5,6 +5,7 @@ import HeroBanner from "@/components/features/Home/HeroBanner";
 import MoodSection from "@/components/features/Home/MoodSection";
 import MovieRow from "@/components/features/Movies/MovieRow";
 import WatchHistoryRow from "@/components/features/Home/WatchHistoryRow";
+import LoginBenefitsCard from "@/components/Common/LoginBenefitsCard";
 
 import { useQueryMovies } from "@/lib/api/movies/movieQuery";
 import useQueryResult from "@/hooks/useQueryResult";
@@ -53,6 +54,7 @@ export default function HomeClient() {
     <>
       <HeroBanner />
      <div className="md:px-16">
+        <LoginBenefitsCard storageKey="home-hero" />
         <MoodSection />
         <WatchHistoryRow />
         <MovieRow
