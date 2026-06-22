@@ -18,3 +18,10 @@ export const normalizeEpisode = (input: string | number): string => {
 
   return str; // nếu không có "tập" thì giữ nguyên
 };
+
+export const parseEpisodeNumber = (input: string | number): number => {
+  const fromNormalize = parseInt(normalizeEpisode(input), 10);
+  if (!isNaN(fromNormalize) && fromNormalize > 0) return fromNormalize;
+  const match = String(input).match(/\d+/);
+  return match ? parseInt(match[0], 10) : 0;
+};

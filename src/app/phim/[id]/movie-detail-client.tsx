@@ -19,7 +19,7 @@ import MovieImage from "@/components/features/Movies/MovieImage";
 import { Modal } from "@/components/Common/Modal";
 import MovieDetailSkeleton from "@/components/features/Movies/Skeletons/MovieDetailSkeleton";
 import MovieNotFound from "@/components/features/Movies/MovieNotFound";
-import { normalizeEpisode } from "@/lib/utils";
+import EpisodeList from "@/components/features/Movies/EpisodeList";
 import { CommentComponent } from "@/components/features/Movies/Comment";
 import MovieRecommendations from "@/components/features/Movies/MovieRecommendations";
 import TrendingMovies from "@/components/features/Movies/TrendingMovies";
@@ -577,27 +577,13 @@ export default function MovieDetail({ id }: { id: string }) {
                       ))}
                     </span>
                   </div>
-                  <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2">
-                    {selectedServer?.server_data.map((item: Episode, idx) => {
-                      if (!item.slug) return null;
-                      return (
-                        <button
-                          aria-label={item.name}
-                          name={item.name}
-                          key={item.name + idx}
-                          onClick={() => handleSelectEp(item)}
-                          className={`flex items-center justify-center gap-1 py-2.5 px-1.5 rounded text-xs font-medium transition-colors ${
-                            selectedEp?.slug === item.slug
-                              ? "bg-primary text-primary-foreground"
-                              : "bg-secondary text-secondary-foreground hover:bg-muted"
-                          }`}
-                        >
-                          <Play className="w-2.5 h-2.5" />
-                          {"Tập " + normalizeEpisode(item.name)}
-                        </button>
-                      );
-                    })}
-                  </div>
+                  {selectedServer?.server_data && (
+                    <EpisodeList
+                      episodes={selectedServer.server_data}
+                      selectedEp={selectedEp}
+                      onSelectEp={handleSelectEp}
+                    />
+                  )}
                 </TabsContent>
 
                 <TabsContent value="chitiet" className="mt-4 space-y-3">
