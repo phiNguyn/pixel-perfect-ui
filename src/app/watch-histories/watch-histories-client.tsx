@@ -21,7 +21,6 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import Empty from "@/components/Common/Empty";
-import LoginCTABanner from "@/components/Common/LoginCTABanner";
 import LoginBenefitsCard from "@/components/Common/LoginBenefitsCard";
 
 function formatTimeAgo(timestamp: number) {
@@ -99,7 +98,11 @@ export default function WatchHistoriesClient() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8 mt-16">
-      <LoginBenefitsCard storageKey="watch-histories-benefits" className="mb-6" variant="inline" />
+      <LoginBenefitsCard
+        storageKey="watch-histories-benefits"
+        className="mb-6"
+        variant="inline"
+      />
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
@@ -187,9 +190,7 @@ export default function WatchHistoriesClient() {
               <div className="col-span-2 hidden md:block">Tập</div>
               <div className="col-span-2">Tiến độ</div>
               <div className="col-span-3 md:col-span-2">Xem lúc</div>
-              <div className="col-span-2 md:col-span-2 text-right">
-                Hành động
-              </div>
+              <div className="col-span-2 md:col-span-2">Hành động</div>
             </div>
           </div>
           <ScrollArea className="max-h-[600px]">
@@ -290,9 +291,14 @@ export function WatchHistoryGridCard({
         <div className="mt-2 text-[12px] md:text-sm font-medium text-foreground line-clamp-2 leading-snug group-hover:text-primary transition-colors">
           {item.name}
         </div>
+        {item.origin_name && (
+          <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">
+            {item.origin_name}
+          </p>
+        )}
         <div className="flex items-center gap-1 mt-1">
           <Clock className="w-3 h-3 text-muted-foreground" />
-          <p className="text-xs text-muted-foreground">
+          <p className="text-[10px] md:text-xs text-muted-foreground">
             {formatTimeAgo(item.watchedAt)}
           </p>
         </div>
@@ -393,13 +399,8 @@ export function WatchHistoryListRow({
         </div>
 
         {/* Actions */}
-        <div className="col-span-2 md:col-span-2 flex items-center justify-end gap-1">
-          <Button
-            asChild
-            size="sm"
-            variant="ghost"
-            className="opacity-0 group-hover:opacity-100 transition-opacity"
-          >
+        <div className="col-span-2 md:col-span-2 flex items-center justify-start gap-1">
+          <Button asChild size="sm" variant="ghost">
             <Link
               href={`/phim/${item.slug}?ep=${item.currentEpSlug}&source=${item.source}`}
             >
@@ -411,7 +412,7 @@ export function WatchHistoryListRow({
             onClick={() => onRemove(item.slug)}
             size="icon"
             variant="ghost"
-            className="opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive hover:bg-destructive/10"
+            className="text-destructive hover:text-destructive hover:bg-destructive/10"
           >
             <Trash2 className="w-4 h-4" />
           </Button>

@@ -72,6 +72,7 @@ export default function MovieRow({
                   rank={showRank ? i + 1 : undefined}
                   listName={title}
                   position={i + 1}
+                  className="w-[124px]"
                 />
               ))
             )}
