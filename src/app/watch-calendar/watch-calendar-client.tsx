@@ -24,6 +24,34 @@ function toDateString(date: Date): string {
   return `${y}-${m}-${d}`;
 }
 
+const LOGIN_SHOWCASE_POSTERS = [
+  {
+    src: "/images/movie1.jpg",
+    className:
+      "z-10 h-40 w-28 sm:h-44 sm:w-32 -translate-x-[5.5rem] sm:-translate-x-[6.5rem] -rotate-[16deg]",
+  },
+  {
+    src: "/images/movie2.jpg",
+    className:
+      "z-20 h-44 w-[7.25rem] sm:h-48 sm:w-32 -translate-x-[2.75rem] sm:-translate-x-[3.25rem] -rotate-[7deg]",
+  },
+  {
+    src: "/images/movie3.jpg",
+    className:
+      "z-30 h-48 w-32 sm:h-52 sm:w-36 shadow-[0_20px_50px_-12px_rgba(0,0,0,0.65)]",
+  },
+  {
+    src: "/images/movie4.jpg",
+    className:
+      "z-20 h-44 w-[7.25rem] sm:h-48 sm:w-32 translate-x-[2.75rem] sm:translate-x-[3.25rem] rotate-[7deg]",
+  },
+  {
+    src: "/images/movie5.jpg",
+    className:
+      "z-10 h-40 w-28 sm:h-44 sm:w-32 translate-x-[5.5rem] sm:translate-x-[6.5rem] rotate-[16deg]",
+  },
+] as const;
+
 export default function WatchCalendarClient() {
   const { isAuthenticated, openLoginModal } = useAuth();
   const today = new Date();
@@ -34,11 +62,8 @@ export default function WatchCalendarClient() {
   const month = currentMonth.getMonth() + 1;
   const selectedDateStr = selectedDate ? toDateString(selectedDate) : null;
 
-  const { data: monthData, isLoading: monthLoading } = useQueryWatchCalendarMonth(
-    year,
-    month,
-    isAuthenticated,
-  );
+  const { data: monthData, isLoading: monthLoading } =
+    useQueryWatchCalendarMonth(year, month, isAuthenticated);
 
   const { data: dayData, isLoading: dayLoading } = useQueryWatchCalendarDay(
     selectedDateStr,
@@ -94,10 +119,35 @@ export default function WatchCalendarClient() {
   if (!isAuthenticated) {
     return (
       <div className="max-w-2xl mx-auto px-4 py-8 mt-16">
-        <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl p-10 text-center">
-          <CalendarDays className="h-12 w-12 mx-auto mb-4 text-primary opacity-80" />
+        <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl px-6 py-10 sm:px-10 text-center">
+          <div
+            aria-hidden
+            className="pointer-events-none absolute left-1/2 top-8 h-40 w-64 -translate-x-1/2 rounded-full bg-primary/20 blur-3xl"
+          />
+
+          <div className="relative mx-auto mb-8 h-48 w-full max-w-sm sm:h-52">
+            {LOGIN_SHOWCASE_POSTERS.map((poster, i) => (
+              <div
+                key={poster.src}
+                className={cn(
+                  "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transition-transform duration-300 hover:scale-[1.03]",
+                  poster.className,
+                )}
+                style={{ transitionDelay: `${i * 40}ms` }}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={poster.src}
+                  alt=""
+                  loading="lazy"
+                  className="h-full w-full rounded-lg object-cover ring-2 ring-background/70 bg-muted shadow-xl"
+                />
+              </div>
+            ))}
+          </div>
+
           <h1 className="text-2xl font-bold mb-2">Lịch xem phim</h1>
-          <p className="text-muted-foreground text-sm mb-6">
+          <p className="text-muted-foreground text-sm mb-6 max-w-sm mx-auto">
             Đăng nhập để xem lịch sử xem phim theo từng ngày
           </p>
           <Button onClick={openLoginModal}>
@@ -152,8 +202,8 @@ export default function WatchCalendarClient() {
                   head_cell:
                     "text-muted-foreground rounded-md flex-1 font-normal text-[0.7rem]",
                   row: "flex w-full mt-1",
-                  cell: "flex-1 aspect-square text-center text-xs p-0.5 relative",
-                  day: "h-full w-full p-0 font-normal rounded-md hover:bg-accent/60 transition-colors flex flex-col items-center justify-start pt-1 gap-1 overflow-hidden",
+                  cell: "flex-1 aspect-square text-center text-xs p-0.5 relative overflow-visible",
+                  day: "h-full w-full p-0 font-normal rounded-md hover:bg-accent/60 transition-colors flex flex-col items-center justify-start pt-1 gap-1 overflow-visible",
                   day_selected:
                     "bg-primary/20 ring-2 ring-primary text-foreground hover:bg-primary/30",
                   day_today: "border border-primary/50",
@@ -170,7 +220,7 @@ export default function WatchCalendarClient() {
                           {date.getDate()}
                         </span>
                         {!isOutside && posters.length > 0 && (
-                          <div className="flex -space-x-1.5 md:-space-x-2 mt-0.5 md:mt-1">
+                          <div className="relative flex items-end justify-center mt-0.5 md:mt-1 h-6 md:h-11 lg:h-14 w-full">
                             {posters.map((src, i) => (
                               // eslint-disable-next-line @next/next/no-img-element
                               <img
@@ -178,14 +228,23 @@ export default function WatchCalendarClient() {
                                 src={src}
                                 alt=""
                                 loading="lazy"
-                                className="h-5 w-4 md:h-10 md:w-8 lg:h-12 lg:w-10 rounded-[2px] md:rounded object-cover ring-1 ring-background/80 bg-muted"
+                                style={{ zIndex: 10 + i }}
+                                className={cn(
+                                  "relative h-5 w-4 md:h-10 md:w-8 lg:h-12 lg:w-10 rounded-[2px] md:rounded object-cover ring-1 ring-background/80 bg-muted shadow-sm",
+                                  i > 0 && "-ml-2.5 md:-ml-4 lg:-ml-5",
+                                  i % 2 === 0
+                                    ? "-rotate-[12deg]"
+                                    : "rotate-[12deg]",
+                                )}
                               />
                             ))}
                           </div>
                         )}
-                        {!isOutside && posters.length === 0 && activeModifiers.watched && (
-                          <span className="h-1 w-1 rounded-full bg-primary mt-1" />
-                        )}
+                        {!isOutside &&
+                          posters.length === 0 &&
+                          activeModifiers.watched && (
+                            <span className="h-1 w-1 rounded-full bg-primary mt-1" />
+                          )}
                       </>
                     );
                   },
