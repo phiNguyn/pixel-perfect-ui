@@ -167,7 +167,7 @@ export default function WatchHistoriesClient() {
 
       {/* Grid View */}
       {viewMode === "grid" ? (
-        <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+        <div className="grid grid-cols-3 gap-2.5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 md:gap-4">
           <AnimatePresence>
             {sortedHistory.map((item) => (
               <WatchHistoryGridCard
