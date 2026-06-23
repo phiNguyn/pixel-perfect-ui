@@ -287,9 +287,9 @@ export function WatchHistoryGridCard({
           )}
         </div>
 
-        <h3 className="mt-2 text-sm font-medium text-foreground line-clamp-2 leading-snug group-hover:text-primary transition-colors">
+        <div className="mt-2 text-[12px] md:text-sm font-medium text-foreground line-clamp-2 leading-snug group-hover:text-primary transition-colors">
           {item.name}
-        </h3>
+        </div>
         <div className="flex items-center gap-1 mt-1">
           <Clock className="w-3 h-3 text-muted-foreground" />
           <p className="text-xs text-muted-foreground">
