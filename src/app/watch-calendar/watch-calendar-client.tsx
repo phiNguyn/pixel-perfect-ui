@@ -181,7 +181,7 @@ export default function WatchCalendarClient() {
 
         <div className="p-2 md:p-6">
           {monthLoading ? (
-            <Skeleton className="h-[360px] w-full rounded-xl" />
+            <Skeleton className="h-[480px] md:h-[540px] w-full rounded-xl" />
           ) : (
             <div className="flex justify-center">
               <Calendar
@@ -201,50 +201,78 @@ export default function WatchCalendarClient() {
                   head_row: "flex w-full",
                   head_cell:
                     "text-muted-foreground rounded-md flex-1 font-normal text-[0.7rem]",
-                  row: "flex w-full mt-1",
-                  cell: "flex-1 aspect-square text-center text-xs p-0.5 relative overflow-visible",
-                  day: "h-full w-full p-0 font-normal rounded-md hover:bg-accent/60 transition-colors flex flex-col items-center justify-start pt-1 gap-1 overflow-visible",
+                  row: "flex w-full gap-0.5 md:gap-1 mt-1 md:mt-2",
+                  cell: "flex-1 min-w-0 p-0 relative overflow-visible",
+                  day: "group h-auto w-full p-0 font-normal rounded-none bg-transparent shadow-none hover:bg-transparent focus-visible:ring-0 flex flex-col items-center gap-0.5 md:gap-1",
                   day_selected:
-                    "bg-primary/20 ring-2 ring-primary text-foreground hover:bg-primary/30",
-                  day_today: "border border-primary/50",
-                  day_outside: "opacity-30",
+                    "bg-transparent text-foreground hover:bg-transparent",
+                  day_today: "",
+                  day_outside: "opacity-100",
                 }}
                 components={{
                   DayContent: ({ date, activeModifiers }) => {
                     const key = toDateString(date);
                     const posters = postersByDate.get(key) ?? [];
                     const isOutside = activeModifiers.outside;
+                    const isSelected = activeModifiers.selected;
+                    const isToday = activeModifiers.today;
+                    const isWatched =
+                      !isOutside &&
+                      posters.length === 0 &&
+                      activeModifiers.watched;
+
                     return (
                       <>
-                        <span className="text-[0.7rem] leading-none font-medium">
+                        <span
+                          className={cn(
+                            "text-[0.65rem] md:text-xs leading-none font-semibold tabular-nums",
+                            isOutside && "text-muted-foreground/40",
+                            isSelected && "text-primary",
+                            isToday && !isSelected && "text-primary/80",
+                          )}
+                        >
                           {date.getDate()}
                         </span>
-                        {!isOutside && posters.length > 0 && (
-                          <div className="relative flex items-end justify-center mt-0.5 md:mt-1 h-6 md:h-11 lg:h-14 w-full">
-                            {posters.map((src, i) => (
-                              // eslint-disable-next-line @next/next/no-img-element
-                              <img
-                                key={i}
-                                src={src}
-                                alt=""
-                                loading="lazy"
-                                style={{ zIndex: 10 + i }}
-                                className={cn(
-                                  "relative h-5 w-4 md:h-10 md:w-8 lg:h-12 lg:w-10 rounded-[2px] md:rounded object-cover ring-1 ring-background/80 bg-muted shadow-sm",
-                                  i > 0 && "-ml-2.5 md:-ml-4 lg:-ml-5",
-                                  i % 2 === 0
-                                    ? "-rotate-[12deg]"
-                                    : "rotate-[12deg]",
-                                )}
-                              />
-                            ))}
-                          </div>
-                        )}
-                        {!isOutside &&
-                          posters.length === 0 &&
-                          activeModifiers.watched && (
-                            <span className="h-1 w-1 rounded-full bg-primary mt-1" />
+
+                        <div
+                          className={cn(
+                            "relative aspect-square w-full rounded-md border border-white/10 bg-muted/20 transition-colors overflow-visible",
+                            "group-hover:border-white/20 group-hover:bg-muted/35",
+                            isSelected &&
+                              "border-primary ring-2 ring-primary/80 bg-primary/10",
+                            isToday && !isSelected && "border-primary/40",
+                            isOutside && "border-transparent bg-transparent opacity-0",
                           )}
+                          aria-hidden={isOutside}
+                        >
+                          {!isOutside && posters.length > 0 && (
+                            <div className="absolute inset-0 flex items-end justify-center pb-0.5 md:pb-1 overflow-visible">
+                              {posters.map((src, i) => (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img
+                                  key={i}
+                                  src={src}
+                                  alt=""
+                                  loading="lazy"
+                                  style={{ zIndex: 10 + i }}
+                                  className={cn(
+                                    "relative h-8 w-6 sm:h-10 sm:w-7 md:h-14 md:w-10 lg:h-16 lg:w-12 rounded-[3px] md:rounded object-cover ring-1 ring-background/80 bg-muted shadow-md",
+                                    i > 0 && "-ml-3 sm:-ml-4 md:-ml-5 lg:-ml-6",
+                                    i % 2 === 0
+                                      ? "-rotate-[12deg]"
+                                      : "rotate-[12deg]",
+                                  )}
+                                />
+                              ))}
+                            </div>
+                          )}
+
+                          {isWatched && (
+                            <span className="absolute inset-0 flex items-center justify-center">
+                              <span className="h-1.5 w-1.5 md:h-2 md:w-2 rounded-full bg-primary" />
+                            </span>
+                          )}
+                        </div>
                       </>
                     );
                   },
