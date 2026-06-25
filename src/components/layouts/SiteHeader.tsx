@@ -188,7 +188,7 @@ export default function SiteHeader() {
                               <NavigationMenuLink key={cat._id} asChild>
                                 <Link
                                   href={`/the-loai/${cat.slug}`}
-                                  className={`cursor-pointer text-xs px-2 py-1.5 rounded text-center ${cat.slug === slug ? "bg-primary text-accent-foreground" : "hover:bg-primary"}`}
+                                  className={`cursor-pointer text-sm px-2 py-1.5 rounded text-left ${cat.slug === slug ? "bg-accent text-accent-foreground" : "hover:bg-accent"}`}
                                 >
                                   {cat.name}
                                 </Link>
@@ -218,7 +218,7 @@ export default function SiteHeader() {
                             <NavigationMenuLink key={c.slug} asChild>
                               <Link
                                 href={`/quoc-gia/${c.slug}`}
-                                className={`cursor-pointer text-xs px-2 py-1.5 rounded text-center ${c.slug === slug ? "bg-accent text-accent-foreground" : "hover:bg-accent"}`}
+                                className={`cursor-pointer text-sm px-2 py-1.5 rounded text-left ${c.slug === slug ? "bg-accent text-accent-foreground" : "hover:bg-accent"}`}
                               >
                                 {c.name}
                               </Link>
