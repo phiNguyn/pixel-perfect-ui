@@ -47,6 +47,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "../ui/button";
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+} from "@/components/ui/navigation-menu";
 import Empty from "../Common/Empty";
 import fallback from "@/assets/fallback.png";
 import { ThemeSelector } from "../theme/ThemeSelector";
@@ -157,75 +165,71 @@ export default function SiteHeader() {
             </AnimatePresence>
             <AvatarComponent />
             <div className="hidden md:flex items-center gap-2 ">
-              {/* Thể loại dropdown */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    aria-label="Thể loại"
-                    name="category"
-                    size="sm"
-                    variant="secondary"
-                  >
-                    Thể loại
-                    <ChevronDown className="w-3 h-3" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start">
-                  {isLoading ? (
-                    <div className="p-2 grid grid-cols-4 gap-2">
-                      <BadgeSkeleton count={4} />
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-4 gap-4 p-2">
-                      {items
-                        ?.filter((cat) => cat.slug !== "phim-18")
-                        .map((cat) => (
-                          <DropdownMenuItem key={cat._id} asChild>
-                            <Link
-                              href={`/the-loai/${cat.slug}`}
-                              className={`cursor-pointer text-xs px-2 py-1.5 rounded text-center ${cat.slug === slug ? "bg-primary text-accent-foreground" : "hover:bg-primary"}`}
-                            >
-                              {cat.name}
-                            </Link>
-                          </DropdownMenuItem>
-                        ))}
-                    </div>
-                  )}
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <NavigationMenu>
+                <NavigationMenuList>
+                  {/* Thể loại dropdown */}
+                  <NavigationMenuItem>
+                    <NavigationMenuTrigger
+                      aria-label="Thể loại"
+                      className="h-9 px-3 py-1.5 text-sm bg-secondary hover:bg-secondary/80 data-[state=open]:bg-secondary/80 data-[active]:bg-secondary/80"
+                    >
+                      Thể loại
+                    </NavigationMenuTrigger>
+                    <NavigationMenuContent>
+                      {isLoading ? (
+                        <div className="p-2 grid grid-cols-4 gap-2 w-[480px]">
+                          <BadgeSkeleton count={4} />
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-4 gap-1 p-2 w-[480px]">
+                          {items
+                            ?.filter((cat) => cat.slug !== "phim-18")
+                            .map((cat) => (
+                              <NavigationMenuLink key={cat._id} asChild>
+                                <Link
+                                  href={`/the-loai/${cat.slug}`}
+                                  className={`cursor-pointer text-xs px-2 py-1.5 rounded text-center ${cat.slug === slug ? "bg-primary text-accent-foreground" : "hover:bg-primary"}`}
+                                >
+                                  {cat.name}
+                                </Link>
+                              </NavigationMenuLink>
+                            ))}
+                        </div>
+                      )}
+                    </NavigationMenuContent>
+                  </NavigationMenuItem>
 
-              {/* Quốc gia dropdown */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    aria-label="Quốc gia"
-                    name="country"
-                    size="sm"
-                    variant="secondary"
-                  >
-                    Quốc gia
-                    <ChevronDown className="w-3  h-3" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="w-[480px]">
-                  {countryLoading ? (
-                    <BadgeSkeleton count={4} />
-                  ) : (
-                    <div className="grid grid-cols-4 gap-1 p-2">
-                      {countries?.data?.items?.map((c: Country) => (
-                        <DropdownMenuItem key={c.slug} asChild>
-                          <Link
-                            href={`/quoc-gia/${c.slug}`}
-                            className={`cursor-pointer text-xs px-2 py-1.5 rounded text-center ${c.slug === slug ? "bg-accent text-accent-foreground" : "hover:bg-accent"}`}
-                          >
-                            {c.name}
-                          </Link>
-                        </DropdownMenuItem>
-                      ))}
-                    </div>
-                  )}
-                </DropdownMenuContent>
-              </DropdownMenu>
+                  {/* Quốc gia dropdown */}
+                  <NavigationMenuItem>
+                    <NavigationMenuTrigger
+                      aria-label="Quốc gia"
+                      className="h-9 px-3 py-1.5 text-sm bg-secondary hover:bg-secondary/80 data-[state=open]:bg-secondary/80 data-[active]:bg-secondary/80"
+                    >
+                      Quốc gia
+                    </NavigationMenuTrigger>
+                    <NavigationMenuContent>
+                      {countryLoading ? (
+                        <div className="p-2 w-[480px]">
+                          <BadgeSkeleton count={4} />
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-4 gap-1 p-2 w-[480px]">
+                          {countries?.data?.items?.map((c: Country) => (
+                            <NavigationMenuLink key={c.slug} asChild>
+                              <Link
+                                href={`/quoc-gia/${c.slug}`}
+                                className={`cursor-pointer text-xs px-2 py-1.5 rounded text-center ${c.slug === slug ? "bg-accent text-accent-foreground" : "hover:bg-accent"}`}
+                              >
+                                {c.name}
+                              </Link>
+                            </NavigationMenuLink>
+                          ))}
+                        </div>
+                      )}
+                    </NavigationMenuContent>
+                  </NavigationMenuItem>
+                </NavigationMenuList>
+              </NavigationMenu>
             </div>
             <div className="hidden  items-center gap-2">
               <a
