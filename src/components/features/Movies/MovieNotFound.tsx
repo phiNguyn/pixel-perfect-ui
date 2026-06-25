@@ -4,13 +4,17 @@ import { AlertTriangle, Film, Home, RotateCcw, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import Error from "@/components/Common/Error";
 
 interface MovieNotFoundProps {
   type?: "not-found" | "error";
   slug?: string;
 }
 
-export default function MovieNotFound({ type = "not-found", slug }: MovieNotFoundProps) {
+export default function MovieNotFound({
+  type = "not-found",
+  slug,
+}: MovieNotFoundProps) {
   const router = useRouter();
   const isError = type === "error";
 
@@ -54,11 +58,7 @@ export default function MovieNotFound({ type = "not-found", slug }: MovieNotFoun
               Thử lại
             </Button>
           )}
-          <Button
-            variant="outline"
-            className="gap-2 rounded-full px-6"
-            asChild
-          >
+          <Button variant="outline" className="gap-2 rounded-full px-6" asChild>
             <Link href="/">
               <Home className="w-4 h-4" />
               Về trang chủ
@@ -77,14 +77,15 @@ export default function MovieNotFound({ type = "not-found", slug }: MovieNotFoun
         </div>
 
         {/* Decorative */}
-        <div className="pt-4 flex items-center justify-center gap-1">
+        {/* <div className="pt-4 flex items-center justify-center gap-1">
           {[...Array(3)].map((_, i) => (
             <span
               key={i}
               className="block w-1.5 h-1.5 rounded-full bg-muted-foreground/30"
             />
           ))}
-        </div>
+        </div> */}
+        <Error />
       </div>
     </div>
   );

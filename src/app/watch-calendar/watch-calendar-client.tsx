@@ -160,7 +160,7 @@ export default function WatchCalendarClient() {
   }
 
   return (
-    <div className="max-w-2xl md:max-w-4xl mx-auto px-4 py-8 mt-16">
+    <div className="max-w-2xl lg:max-w-6xl mx-auto px-4 py-8 mt-16">
       <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl overflow-hidden">
         <div className="px-6 pt-6 pb-4 border-b border-white/10">
           <div className="flex items-center justify-center gap-2 mb-2">
@@ -179,17 +179,18 @@ export default function WatchCalendarClient() {
           )}
         </div>
 
-        <div className="p-2 md:p-6">
+        <div className="p-2 md:p-6 flex flex-col lg:flex-row md:gap-x-5">
           {monthLoading ? (
             <Skeleton className="h-[480px] md:h-[540px] w-full rounded-xl" />
           ) : (
-            <div className="flex justify-center">
+            <div className="flex justify-center lg:w-2/3">
               <Calendar
                 mode="single"
                 selected={selectedDate}
                 onSelect={setSelectedDate}
                 month={currentMonth}
                 onMonthChange={setCurrentMonth}
+                disabled={{ after: today }}
                 modifiers={{ watched: watchedDates }}
                 className={cn(
                   "rounded-xl border border-white/10 bg-background/50 p-2 pointer-events-auto w-full",
@@ -203,7 +204,7 @@ export default function WatchCalendarClient() {
                     "text-muted-foreground rounded-md flex-1 font-normal text-[0.7rem]",
                   row: "flex w-full gap-0.5 md:gap-1 mt-1 md:mt-2",
                   cell: "flex-1 min-w-0 p-0 relative overflow-visible",
-                  day: "group h-auto w-full p-0 font-normal rounded-none bg-transparent shadow-none hover:bg-transparent focus-visible:ring-0 flex flex-col items-center gap-0.5 md:gap-1",
+                  day: "group h-auto w-full p-0 font-normal rounded-none bg-transparent shadow-none hover:bg-transparent focus-visible:ring-0 flex flex-col items-center gap-0.5 md:gap-1 aria-disabled:opacity-40 aria-disabled:pointer-events-none aria-disabled:cursor-not-allowed",
                   day_selected:
                     "bg-transparent text-foreground hover:bg-transparent",
                   day_today: "",
@@ -216,6 +217,7 @@ export default function WatchCalendarClient() {
                     const isOutside = activeModifiers.outside;
                     const isSelected = activeModifiers.selected;
                     const isToday = activeModifiers.today;
+                    const isDisabled = activeModifiers.disabled;
                     const isWatched =
                       !isOutside &&
                       posters.length === 0 &&
@@ -227,6 +229,9 @@ export default function WatchCalendarClient() {
                           className={cn(
                             "text-[0.65rem] md:text-xs leading-none font-semibold tabular-nums",
                             isOutside && "text-muted-foreground/40",
+                            isDisabled &&
+                              !isOutside &&
+                              "text-muted-foreground/30",
                             isSelected && "text-primary",
                             isToday && !isSelected && "text-primary/80",
                           )}
@@ -237,11 +242,16 @@ export default function WatchCalendarClient() {
                         <div
                           className={cn(
                             "relative aspect-square w-full rounded-md border border-white/10 bg-muted/20 transition-colors overflow-visible",
-                            "group-hover:border-white/20 group-hover:bg-muted/35",
+                            !isDisabled &&
+                              "group-hover:border-white/20 group-hover:bg-muted/35",
                             isSelected &&
                               "border-primary ring-2 ring-primary/80 bg-primary/10",
                             isToday && !isSelected && "border-primary/40",
-                            isOutside && "border-transparent bg-transparent opacity-0",
+                            isDisabled &&
+                              !isOutside &&
+                              "border-transparent bg-transparent opacity-40",
+                            isOutside &&
+                              "border-transparent bg-transparent opacity-0",
                           )}
                           aria-hidden={isOutside}
                         >
@@ -281,7 +291,7 @@ export default function WatchCalendarClient() {
             </div>
           )}
 
-          <div className="mt-6">
+          <div className="mt-6 lg:mt-0 lg:w-1/3">
             <DayDetailPanel
               data={dayData}
               isLoading={dayLoading}
