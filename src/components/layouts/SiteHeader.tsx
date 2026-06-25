@@ -47,6 +47,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "../ui/button";
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+} from "@/components/ui/navigation-menu";
 import Empty from "../Common/Empty";
 import fallback from "@/assets/fallback.png";
 import { ThemeSelector } from "../theme/ThemeSelector";
