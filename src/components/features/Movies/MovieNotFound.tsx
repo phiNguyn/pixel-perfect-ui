@@ -19,7 +19,7 @@ export default function MovieNotFound({
   const isError = type === "error";
 
   return (
-    <div className="min-h-[60vh] flex items-center justify-center px-4">
+    <div className="min-h-[60vh] flex items-center justify-center px-4 mt-16">
       <div className="max-w-md w-full text-center space-y-6">
         {/* Icon */}
         <div className="relative mx-auto w-24 h-24">
