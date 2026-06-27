@@ -2,11 +2,9 @@
 "use client";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Play, Heart, Share2, BookmarkPlus, Star } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useEffect, useMemo, useState, useRef } from "react";
-import { featuredMovies, topMovies } from "@/data/movies";
 import { useQueryMovie, useQueryPhimApi } from "@/lib/api/movies/movieQuery";
 import {
   Episode,
@@ -69,12 +67,12 @@ export default function MovieDetail({ id }: { id: string }) {
   const error = isPhimApi ? isErrorPhimApi : isError;
 
   // 👉 breadcrumb
-  const breadCrumb = isPhimApi
-    ? movie?.category.map((item) => ({
-        name: item.name,
-        slug: "/the-loai/" + item.slug,
-      }))
-    : (movieData?.data?.breadCrumb as any[]);
+  // const breadCrumb = isPhimApi
+  //   ? movie?.category.map((item) => ({
+  //       name: item.name,
+  //       slug: "/the-loai/" + item.slug,
+  //     }))
+  //   : (movieData?.data?.breadCrumb as any[]);
   const getPosterUrl = (type: "poster" | "thumb" = "poster") => {
     if (!movie) return "";
     if (isPhimApi) {
