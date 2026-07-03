@@ -21,7 +21,6 @@ import EpisodeList from "@/components/features/Movies/EpisodeList";
 import { CommentComponent } from "@/components/features/Movies/Comment";
 import MovieRecommendations from "@/components/features/Movies/MovieRecommendations";
 import TrendingMovies from "@/components/features/Movies/TrendingMovies";
-import ScheduledEpisodes from "@/components/features/Movies/ScheduledEpisodes";
 import { analytics } from "@/lib/analytics";
 import { trackMovieView } from "@/lib/hooks/useTrackMovieView";
 import { useWatchSessionTracker } from "@/lib/hooks/useWatchSessionTracker";
@@ -510,12 +509,6 @@ export default function MovieDetail({ id }: { id: string }) {
                   />
                 </div>
               )}
-
-              {/* Scheduled episodes / airing schedule */}
-              <ScheduledEpisodes
-                movieSlug={movie.slug}
-                enabled={movie.status === "ongoing"}
-              />
 
               {/* Tabs */}
               <Tabs
