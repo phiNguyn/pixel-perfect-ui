@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { CalendarDays, LogIn } from "lucide-react";
-import { useQueries } from "@tanstack/react-query";
+import { vi } from "date-fns/locale";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
@@ -12,8 +12,6 @@ import {
   useQueryWatchCalendarDay,
   useQueryWatchCalendarMonth,
 } from "@/lib/api/watchCalendar/watchCalendarQuery";
-import { watchCalendarApi } from "@/lib/api/watchCalendar/watchCalendarApi";
-import type { CalendarDayData } from "@/lib/api/watchCalendar/watchCalendarInterface";
 import { formatWatchHours } from "@/lib/utils/watchTime";
 import { cn } from "@/lib/utils";
 
@@ -23,6 +21,10 @@ function toDateString(date: Date): string {
   const d = String(date.getDate()).padStart(2, "0");
   return `${y}-${m}-${d}`;
 }
+
+// Tính năng lịch xem phim bắt đầu ghi nhận dữ liệu từ tháng 6/2026.
+// Không cho phép điều hướng/chọn ngày trước mốc này. Chỉnh năm/tháng ở đây nếu cần.
+const FEATURE_START_DATE = new Date(2026, 5, 1);
 
 const LOGIN_SHOWCASE_POSTERS = [
   {
@@ -54,7 +56,7 @@ const LOGIN_SHOWCASE_POSTERS = [
 
 export default function WatchCalendarClient() {
   const { isAuthenticated, openLoginModal } = useAuth();
-  const today = new Date();
+  const today = useMemo(() => new Date(), []);
   const [currentMonth, setCurrentMonth] = useState(today);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(today);
 
@@ -70,36 +72,14 @@ export default function WatchCalendarClient() {
     isAuthenticated,
   );
 
-  const activeDateStrings = useMemo(
-    () => monthData?.activeDays.map((d) => d.date) ?? [],
-    [monthData],
-  );
-
-  // Prefetch each active day's detail in parallel to get poster thumbnails
-  const dayDetailQueries = useQueries({
-    queries: activeDateStrings.map((date) => ({
-      queryKey: ["watch-calendar", "day", date],
-      queryFn: () => watchCalendarApi.getDayDetail(date),
-      enabled: isAuthenticated,
-      staleTime: 5 * 60_000,
-    })),
-  });
-
-  // Map: "YYYY-MM-DD" -> up to 3 poster URLs
+  // Map: "YYYY-MM-DD" -> up to 3 poster URLs (đã được backend trả sẵn theo tháng)
   const postersByDate = useMemo(() => {
     const map = new Map<string, string[]>();
-    dayDetailQueries.forEach((q, idx) => {
-      const date = activeDateStrings[idx];
-      const data = q.data as CalendarDayData | undefined;
-      if (!date || !data) return;
-      const posters = data.movies
-        .map((m) => m.moviePoster)
-        .filter((p): p is string => !!p)
-        .slice(0, 3);
-      map.set(date, posters);
+    monthData?.activeDays.forEach((day) => {
+      map.set(day.date, day.posters ?? []);
     });
     return map;
-  }, [dayDetailQueries, activeDateStrings]);
+  }, [monthData]);
 
   const watchedDates = useMemo(() => {
     return (
@@ -109,6 +89,22 @@ export default function WatchCalendarClient() {
       }) ?? []
     );
   }, [monthData]);
+
+  const activeDateSet = useMemo(
+    () => new Set(monthData?.activeDays.map((d) => d.date) ?? []),
+    [monthData],
+  );
+
+  // Disable ngày trong tương lai, ngày trước khi tính năng ra mắt,
+  // và mọi ngày không có dữ liệu xem phim.
+  const disabledMatchers = useMemo(
+    () => [
+      { after: today },
+      { before: FEATURE_START_DATE },
+      (date: Date) => !activeDateSet.has(toDateString(date)),
+    ],
+    [activeDateSet, today],
+  );
 
   useEffect(() => {
     if (isAuthenticated && !selectedDate) {
@@ -186,11 +182,14 @@ export default function WatchCalendarClient() {
             <div className="flex justify-center lg:w-2/3">
               <Calendar
                 mode="single"
+                locale={vi}
                 selected={selectedDate}
                 onSelect={setSelectedDate}
                 month={currentMonth}
                 onMonthChange={setCurrentMonth}
-                disabled={{ after: today }}
+                fromMonth={FEATURE_START_DATE}
+                toDate={today}
+                disabled={disabledMatchers}
                 modifiers={{ watched: watchedDates }}
                 className={cn(
                   "rounded-xl border border-white/10 bg-background/50 p-2 pointer-events-auto w-full",

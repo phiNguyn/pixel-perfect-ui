@@ -3,6 +3,7 @@ export interface CalendarDaySummary {
   totalWatchSeconds: number;
   totalWatchHours: number;
   movieCount: number;
+  posters: string[];
 }
 
 export interface CalendarMonthData {
