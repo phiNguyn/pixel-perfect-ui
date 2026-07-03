@@ -1,20 +1,18 @@
 "use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { MessageCircle, ThumbsUp, Trash2, Reply, Send } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Comment } from "@/lib/api/comment/commentApi";
 import {
-  MessageCircle,
-  ThumbsDown,
-  ThumbsUp,
-  Trash2,
-  Reply,
-  Send,
-} from "lucide-react";
-import { useEffect, useState, useCallback } from "react";
-import { commentApi, Comment } from "@/lib/api/comment/commentApi";
-import { getTokens } from "@/lib/auth/tokenManager";
+  useQueryComments,
+  useQueryReplies,
+  useCreateComment,
+  useLikeComment,
+  useDeleteComment,
+} from "@/lib/api/comment/commentQueries";
 import { formatTimeAgo } from "@/services/dateService";
 import { getUserInitial } from "@/services/common";
 import { useAuth } from "@/components/auth/AuthProvider";
@@ -24,487 +22,143 @@ interface CommentProps {
   onCommentCountChange?: (count: number) => void;
 }
 
-interface ReplyState {
-  parentId: string;
-  parentUserName?: string;
+interface ReplyTarget {
+  /** Comment being directly replied to (sent as parentId). */
+  targetId: string;
+  targetUserName: string;
+  /** Top-level comment of the thread. */
+  rootId: string;
   text: string;
 }
 
-function getUserFromToken(): {
-  userId?: string;
-  name?: string;
-  email?: string;
-} | null {
-  const tokens = getTokens();
-  if (!tokens?.accessToken) return null;
-
-  try {
-    const payload = tokens.accessToken.split(".")[1];
-    const decoded = JSON.parse(atob(payload));
-    return decoded;
-  } catch {
-    return null;
-  }
+function CommentSkeleton() {
+  return (
+    <div className="space-y-4">
+      {[1, 2, 3].map((i) => (
+        <div key={i} className="flex gap-3 animate-pulse">
+          <div className="w-8 h-8 rounded-full bg-muted" />
+          <div className="flex-1 space-y-2">
+            <div className="h-3 w-24 bg-muted rounded" />
+            <div className="h-3 w-full bg-muted rounded" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
 }
 
 export function CommentComponent({
   movieSlug,
   onCommentCountChange,
 }: CommentProps) {
-  const [comments, setComments] = useState<Comment[]>([]);
-  const [allComments, setAllComments] = useState<Comment[]>([]);
-  const [replies, setReplies] = useState<Record<string, Comment[]>>({});
-  const [loading, setLoading] = useState(true);
-  const [loadingReplies, setLoadingReplies] = useState<Record<string, boolean>>(
-    {},
-  );
-  const [newComment, setNewComment] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-  const [replyingTo, setReplyingTo] = useState<ReplyState | null>(null);
-  const [expandedReplies, setExpandedReplies] = useState<
-    Record<string, boolean>
-  >({});
-  const [pagination, setPagination] = useState({
-    page: 1,
-    totalPages: 1,
-    total: 0,
-  });
-  const [likingComments, setLikingComments] = useState<Set<string>>(new Set());
-  const [deletingComments, setDeletingComments] = useState<Set<string>>(
-    new Set(),
-  );
-
   const { user } = useAuth();
 
-  const fetchComments = useCallback(
-    async (page = 1) => {
-      try {
-        // Fetch all comments (root + all nested replies)
-        const response = await commentApi.getComments(movieSlug, {
-          page,
-          limit: 100,
-        });
+  const commentsQuery = useQueryComments(movieSlug);
+  const createComment = useCreateComment(movieSlug);
+  const likeComment = useLikeComment(movieSlug);
+  const deleteComment = useDeleteComment(movieSlug);
 
-        // Store all comments for nested structure building
-        setAllComments(response.data);
+  const [newComment, setNewComment] = useState("");
+  const [replyingTo, setReplyingTo] = useState<ReplyTarget | null>(null);
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
-        // Filter only root comments (parentId is null)
-        const rootComments = response.data.filter(
-          (comment: Comment) => comment.parentId === null
-        );
-
-        setComments(rootComments);
-        setPagination({
-          page: response.pagination.page,
-          totalPages: response.pagination.totalPages,
-          total: rootComments.length,
-        });
-        if (onCommentCountChange) {
-          onCommentCountChange(rootComments.length);
-        }
-
-        return response;
-      } catch (error) {
-        console.error("Error fetching comments:", error);
-        return null;
-      }
-    },
-    [movieSlug, onCommentCountChange],
-  );
-
-  const getRepliesForComment = useCallback(
-    (parentId: string): Comment[] => {
-      // Get all direct replies for a given parent comment
-      return allComments.filter((comment) => comment.parentId === parentId);
-    },
-    [allComments],
-  );
+  const rootComments = commentsQuery.data?.data ?? [];
+  const totalRootComments = commentsQuery.data?.pagination.total ?? 0;
 
   useEffect(() => {
-    setLoading(true);
-    fetchComments(1).finally(() => setLoading(false));
-  }, [fetchComments]);
+    if (commentsQuery.isSuccess) {
+      onCommentCountChange?.(totalRootComments);
+    }
+  }, [commentsQuery.isSuccess, totalRootComments, onCommentCountChange]);
 
-  const handleSubmitComment = async (e: React.FormEvent) => {
+  const handleSubmitComment = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newComment.trim() || submitting) return;
+    const text = newComment.trim();
+    if (!text || createComment.isPending) return;
 
-    setSubmitting(true);
-    try {
-      const response = await commentApi.createComment({
-        movieSlug,
-        text: newComment.trim(),
-        parentId: null,
-      });
-
-      if (response.success) {
-        setComments((prev) => [response.data, ...prev]);
-        setNewComment("");
-        setPagination((prev) => ({
-          ...prev,
-          total: prev.total + 1,
-        }));
-        if (onCommentCountChange) {
-          onCommentCountChange(pagination.total + 1);
-        }
-      }
-    } catch (error) {
-      console.error("Error creating comment:", error);
-    } finally {
-      setSubmitting(false);
-    }
+    createComment.mutate({ text }, { onSuccess: () => setNewComment("") });
   };
 
-  const handleSubmitReply = async (parentId: string) => {
-    if (!replyingTo?.text.trim() || submitting) return;
+  const handleSubmitReply = () => {
+    if (!replyingTo) return;
+    const text = replyingTo.text.trim();
+    if (!text || createComment.isPending) return;
 
-    setSubmitting(true);
-    try {
-      const response = await commentApi.createComment({
-        movieSlug,
-        text: replyingTo.text.trim(),
-        parentId,
-      });
-
-      if (response.success) {
-        // Add new comment to allComments
-        setAllComments((prev) => [response.data, ...prev]);
-        setReplyingTo(null);
-
-        // Auto-expand replies section when new reply is added
-        setExpandedReplies((prev) => ({ ...prev, [parentId]: true }));
-
-        // Update parent's replyCount
-        setComments((prev) =>
-          prev.map((c) =>
-            c._id === parentId
-              ? { ...c, replyCount: (c.replyCount || 0) + 1 }
-              : c,
-          ),
-        );
-
-        // Also update in allComments to reflect in nested replies
-        setAllComments((prev) =>
-          prev.map((c) =>
-            c._id === parentId
-              ? { ...c, replyCount: (c.replyCount || 0) + 1 }
-              : c,
-          ),
-        );
-      }
-    } catch (error) {
-      console.error("Error creating reply:", error);
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const handleLike = async (commentId: string) => {
-    if (likingComments.has(commentId)) return;
-
-    setLikingComments((prev) => new Set(prev).add(commentId));
-    try {
-      const response = await commentApi.likeComment(commentId);
-
-      setAllComments((prev) =>
-        prev.map((c) =>
-          c._id === commentId ? { ...c, likes: response.data.likes } : c,
-        ),
-      );
-      setComments((prev) =>
-        prev.map((c) =>
-          c._id === commentId ? { ...c, likes: response.data.likes } : c,
-        ),
-      );
-    } catch (error) {
-      console.error("Error liking comment:", error);
-    } finally {
-      setLikingComments((prev) => {
-        const next = new Set(prev);
-        next.delete(commentId);
-        return next;
-      });
-    }
-  };
-
-  const handleDelete = async (commentId: string) => {
-    if (deletingComments.has(commentId)) return;
-    if (!confirm("Bạn có chắc muốn xóa bình luận này?")) return;
-
-    setDeletingComments((prev) => new Set(prev).add(commentId));
-    try {
-      await commentApi.deleteComment(commentId);
-
-      // Remove from allComments
-      setAllComments((prev) => prev.filter((c) => c._id !== commentId));
-
-      // Remove from root comments
-      const isRootComment = comments.some((c) => c._id === commentId);
-      if (isRootComment) {
-        setComments((prev) => prev.filter((c) => c._id !== commentId));
-        const newTotal = pagination.total - 1;
-        setPagination((prev) => ({ ...prev, total: newTotal }));
-        if (onCommentCountChange) {
-          onCommentCountChange(newTotal);
-        }
-      }
-    } catch (error) {
-      console.error("Error deleting comment:", error);
-    } finally {
-      setDeletingComments((prev) => {
-        const next = new Set(prev);
-        next.delete(commentId);
-        return next;
-      });
-    }
-  };
-
-  const toggleReplies = (commentId: string) => {
-    const isExpanded = expandedReplies[commentId];
-    setExpandedReplies((prev) => ({ ...prev, [commentId]: !isExpanded }));
-  };
-
-  const renderRootComment = (comment: Comment) => {
-    const isOwner = user?.id === comment.userId;
-    const isDeleting = deletingComments.has(comment._id);
-    const replies = getRepliesForComment(comment._id);
-
-    return (
-      <div key={comment._id} className="space-y-3">
-        {/* Root comment */}
-        <div className="flex gap-3">
-          <Avatar className="size-8 flex-shrink-0">
-            <AvatarImage
-              src={comment?.userAvatar || ""}
-              alt={comment?.userName || "User"}
-            />
-            <AvatarFallback>
-              {comment?.userName?.charAt(0).toUpperCase() || "U"}
-            </AvatarFallback>
-          </Avatar>
-          <div className="flex-1">
-            <div className="flex items-center gap-2 mb-1">
-              <span className="text-xs font-semibold text-foreground">
-                {comment.userName}
-              </span>
-              <span className="text-[10px] text-muted-foreground">
-                {formatTimeAgo(comment.createdAt)}
-              </span>
-            </div>
-
-            <p className="text-sm mb-1.5 text-foreground/90">{comment.text}</p>
-
-            {user && (
-              <div className="flex items-center gap-1.5 text-muted-foreground">
-                <Button
-                  variant="ghost"
-                  onClick={() =>
-                    setReplyingTo(
-                      replyingTo?.parentId === comment._id
-                        ? null
-                        : {
-                            parentId: comment._id,
-                            parentUserName: comment.userName,
-                            text: "",
-                          },
-                    )
-                  }
-                  className="flex items-center gap-1 hover:text-foreground transition-colors"
-                >
-                  <Reply className="w-3 h-3" /> Trả lời
-                </Button>
-                {isOwner && (
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    onClick={() => handleDelete(comment._id)}
-                    disabled={isDeleting}
-                    className="size-8 flex items-center gap-1 text-[10px] hover:text-destructive transition-colors disabled:opacity-50"
-                  >
-                    <Trash2 className="w-3 h-3" />
-                  </Button>
-                )}
-              </div>
-            )}
-
-            {/* Reply form */}
-            {replyingTo?.parentId === comment._id && (
-              <div className="mt-3 flex gap-2">
-                <Textarea
-                  value={replyingTo.text}
-                  onChange={(e) =>
-                    setReplyingTo((prev) =>
-                      prev ? { ...prev, text: e.target.value } : null,
-                    )
-                  }
-                  placeholder={`Trả lời @${comment.userName}...`}
-                  className="min-h-[60px] text-sm resize-none"
-                />
-                <div className="flex flex-col gap-1.5">
-                  <Button
-                    onClick={() => handleSubmitReply(comment._id)}
-                    disabled={!replyingTo.text.trim() || submitting}
-                  >
-                    Gửi <Send />
-                  </Button>
-                  <Button variant="outline" onClick={() => setReplyingTo(null)}>
-                    Hủy
-                  </Button>
-                </div>
-              </div>
-            )}
-
-            {/* Show replies button */}
-            {replies.length > 0 && (
-              <button
-                onClick={() => toggleReplies(comment._id)}
-                className="mt-2 text-xs text-primary hover:underline flex items-center gap-1"
-              >
-                <MessageCircle className="w-3 h-3" />
-                {expandedReplies[comment._id]
-                  ? "Ẩn phản hồi"
-                  : `Xem ${replies.length} phản hồi`}
-              </button>
-            )}
-          </div>
-        </div>
-
-        {/* Render all replies (flat - same level) */}
-        {expandedReplies[comment._id] && (
-          <div className="ml-4 pl-3 border-l-2 border-border space-y-3">
-            {replies.map((reply) => {
-              const isOwner = user?.id === reply.userId;
-              const isDeleting = deletingComments.has(reply._id);
-              
-              // Find who this reply is responding to (could be root comment or another reply)
-              const parentReplyComment = allComments.find(
-                (c) => c._id === reply.parentId,
-              );
-
-              return (
-                <div key={reply._id} className="flex gap-3">
-                  <Avatar className="size-8 flex-shrink-0">
-                    <AvatarImage
-                      src={reply?.userAvatar || ""}
-                      alt={reply?.userName || "User"}
-                    />
-                    <AvatarFallback>
-                      {reply?.userName?.charAt(0).toUpperCase() || "U"}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-xs font-semibold text-foreground">
-                        {reply.userName}
-                      </span>
-                      <span className="text-[10px] text-muted-foreground">
-                        {formatTimeAgo(reply.createdAt)}
-                      </span>
-                    </div>
-
-                    {/* Show @ tag to indicate who they're replying to */}
-                    {parentReplyComment && (
-                      <div className="text-[11px] text-primary mb-1">
-                        @{parentReplyComment.userName}
-                      </div>
-                    )}
-
-                    <p className="text-sm mb-1.5 text-foreground/90">
-                      {reply.text}
-                    </p>
-
-                    {user && (
-                      <div className="flex items-center gap-1.5 text-muted-foreground">
-                        <Button
-                          variant="ghost"
-                          onClick={() =>
-                            setReplyingTo(
-                              replyingTo?.parentId === reply._id
-                                ? null
-                                : {
-                                    parentId: reply._id,
-                                    parentUserName: reply.userName,
-                                    text: "",
-                                  },
-                            )
-                          }
-                          className="flex items-center gap-1 hover:text-foreground transition-colors"
-                        >
-                          <Reply className="w-3 h-3" /> Trả lời
-                        </Button>
-                        {isOwner && (
-                          <Button
-                            size="icon"
-                            variant="ghost"
-                            onClick={() => handleDelete(reply._id)}
-                            disabled={isDeleting}
-                            className="size-8 flex items-center gap-1 text-[10px] hover:text-destructive transition-colors disabled:opacity-50"
-                          >
-                            <Trash2 className="w-3 h-3" />
-                          </Button>
-                        )}
-                      </div>
-                    )}
-
-                    {/* Reply form for nested replies */}
-                    {replyingTo?.parentId === reply._id && (
-                      <div className="mt-3 flex gap-2">
-                        <Textarea
-                          value={replyingTo.text}
-                          onChange={(e) =>
-                            setReplyingTo((prev) =>
-                              prev ? { ...prev, text: e.target.value } : null,
-                            )
-                          }
-                          placeholder={`Trả lời @${reply.userName}...`}
-                          className="min-h-[60px] text-sm resize-none"
-                        />
-                        <div className="flex flex-col gap-1.5">
-                          <Button
-                            onClick={() => handleSubmitReply(reply._id)}
-                            disabled={!replyingTo.text.trim() || submitting}
-                          >
-                            Gửi <Send />
-                          </Button>
-                          <Button
-                            variant="outline"
-                            onClick={() => setReplyingTo(null)}
-                          >
-                            Hủy
-                          </Button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
+    const { targetId, rootId } = replyingTo;
+    createComment.mutate(
+      { text, parentId: targetId, rootId },
+      {
+        onSuccess: () => {
+          setReplyingTo(null);
+          setExpanded((prev) => ({ ...prev, [rootId]: true }));
+        },
+      },
     );
   };
 
-  if (loading) {
+  const handleLike = (commentId: string) => {
+    if (likeComment.isPending) return;
+    likeComment.mutate(commentId);
+  };
+
+  const handleDelete = (commentId: string, rootId?: string | null) => {
+    if (deleteComment.isPending) return;
+    if (!confirm("Bạn có chắc muốn xóa bình luận này?")) return;
+    deleteComment.mutate({ commentId, rootId });
+  };
+
+  const toggleReplies = (rootId: string) => {
+    setExpanded((prev) => ({ ...prev, [rootId]: !prev[rootId] }));
+  };
+
+  const isDeleting = (commentId: string) =>
+    deleteComment.isPending && deleteComment.variables?.commentId === commentId;
+
+  if (commentsQuery.isLoading) {
+    return <CommentSkeleton />;
+  }
+
+  if (commentsQuery.isError) {
     return (
-      <div className="space-y-4">
-        {[1, 2, 3].map((i) => (
-          <div key={i} className="flex gap-3 animate-pulse">
-            <div className="w-8 h-8 rounded-full bg-muted" />
-            <div className="flex-1 space-y-2">
-              <div className="h-3 w-24 bg-muted rounded" />
-              <div className="h-3 w-full bg-muted rounded" />
-            </div>
-          </div>
-        ))}
+      <div className="space-y-3 text-center py-4">
+        <p className="text-sm text-muted-foreground">
+          Không tải được bình luận.
+        </p>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => commentsQuery.refetch()}
+          disabled={commentsQuery.isFetching}
+        >
+          {commentsQuery.isFetching ? "Đang tải..." : "Thử lại"}
+        </Button>
       </div>
     );
   }
 
   return (
     <div className="space-y-4">
-      {comments && comments.length > 0 ? (
-        comments.map((comment) => renderRootComment(comment))
+      {rootComments.length > 0 ? (
+        rootComments.map((comment) => (
+          <CommentThread
+            key={comment._id}
+            movieSlug={movieSlug}
+            root={comment}
+            currentUserId={user?.id}
+            canInteract={Boolean(user)}
+            expanded={Boolean(expanded[comment._id])}
+            onToggleReplies={() => toggleReplies(comment._id)}
+            replyingTo={replyingTo}
+            setReplyingTo={setReplyingTo}
+            onSubmitReply={handleSubmitReply}
+            submitting={createComment.isPending}
+            onLike={handleLike}
+            likePending={likeComment.isPending}
+            likeVariable={likeComment.variables}
+            onDelete={handleDelete}
+            isDeleting={isDeleting}
+          />
+        ))
       ) : (
         <p className="text-sm text-muted-foreground text-center py-4">
           Chưa có bình luận nào. Hãy là người đầu tiên bình luận!
@@ -530,9 +184,9 @@ export function CommentComponent({
               <div className="flex items-center justify-end">
                 <Button
                   type="submit"
-                  disabled={!newComment.trim() || submitting}
+                  disabled={!newComment.trim() || createComment.isPending}
                 >
-                  {submitting ? "Đang gửi..." : "Gửi"} <Send />
+                  {createComment.isPending ? "Đang gửi..." : "Gửi"} <Send />
                 </Button>
               </div>
             </div>
@@ -543,6 +197,222 @@ export function CommentComponent({
           </p>
         )}
       </div>
+    </div>
+  );
+}
+
+interface CommentThreadProps {
+  movieSlug: string;
+  root: Comment;
+  currentUserId?: string;
+  canInteract: boolean;
+  expanded: boolean;
+  onToggleReplies: () => void;
+  replyingTo: ReplyTarget | null;
+  setReplyingTo: React.Dispatch<React.SetStateAction<ReplyTarget | null>>;
+  onSubmitReply: () => void;
+  submitting: boolean;
+  onLike: (commentId: string) => void;
+  likePending: boolean;
+  likeVariable?: string;
+  onDelete: (commentId: string, rootId?: string | null) => void;
+  isDeleting: (commentId: string) => boolean;
+}
+
+function CommentThread({
+  movieSlug,
+  root,
+  currentUserId,
+  canInteract,
+  expanded,
+  onToggleReplies,
+  replyingTo,
+  setReplyingTo,
+  onSubmitReply,
+  submitting,
+  onLike,
+  likePending,
+  likeVariable,
+  onDelete,
+  isDeleting,
+}: CommentThreadProps) {
+  const repliesQuery = useQueryReplies(movieSlug, root._id, expanded);
+  const replies = repliesQuery.data?.data ?? [];
+  const replyCount = root.replyCount ?? 0;
+
+  const openReply = (comment: Comment, rootId: string) =>
+    setReplyingTo(
+      replyingTo?.targetId === comment._id
+        ? null
+        : {
+            targetId: comment._id,
+            targetUserName: comment.userName,
+            rootId,
+            text: "",
+          },
+    );
+
+  const renderActions = (comment: Comment, rootId: string) => {
+    const isOwner = currentUserId === comment.userId;
+    const likingThis = likePending && likeVariable === comment._id;
+
+    return (
+      <div className="flex items-center gap-1.5 text-muted-foreground">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => onLike(comment._id)}
+          disabled={!canInteract || likingThis}
+          className="h-7 flex items-center gap-1 px-2 text-xs hover:text-foreground transition-colors disabled:opacity-50"
+        >
+          <ThumbsUp className="w-3 h-3" />{" "}
+          {comment.likes > 0 ? comment.likes : ""}
+        </Button>
+        {canInteract && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => openReply(comment, rootId)}
+            className="h-7 flex items-center gap-1 px-2 text-xs hover:text-foreground transition-colors"
+          >
+            <Reply className="w-3 h-3" /> Trả lời
+          </Button>
+        )}
+        {isOwner && (
+          <Button
+            size="icon"
+            variant="ghost"
+            onClick={() => onDelete(comment._id, comment.rootId ?? rootId)}
+            disabled={isDeleting(comment._id)}
+            className="size-7 flex items-center gap-1 text-[10px] hover:text-destructive transition-colors disabled:opacity-50"
+          >
+            <Trash2 className="w-3 h-3" />
+          </Button>
+        )}
+      </div>
+    );
+  };
+
+  const renderReplyForm = (target: Comment) => {
+    if (replyingTo?.targetId !== target._id) return null;
+    return (
+      <div className="mt-3 flex gap-2">
+        <Textarea
+          value={replyingTo.text}
+          onChange={(e) =>
+            setReplyingTo((prev) =>
+              prev ? { ...prev, text: e.target.value } : null,
+            )
+          }
+          placeholder={`Trả lời @${target.userName}...`}
+          className="min-h-[60px] text-sm resize-none"
+        />
+        <div className="flex flex-col gap-1.5">
+          <Button
+            onClick={onSubmitReply}
+            disabled={!replyingTo.text.trim() || submitting}
+          >
+            Gửi <Send />
+          </Button>
+          <Button variant="outline" onClick={() => setReplyingTo(null)}>
+            Hủy
+          </Button>
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="space-y-3">
+      {/* Root comment */}
+      <div className="flex gap-3">
+        <Avatar className="size-8 flex-shrink-0">
+          <AvatarImage
+            src={root?.userAvatar || ""}
+            alt={root?.userName || "User"}
+          />
+          <AvatarFallback>
+            {root?.userName?.charAt(0).toUpperCase() || "U"}
+          </AvatarFallback>
+        </Avatar>
+        <div className="flex-1">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-xs font-semibold text-foreground">
+              {root.userName}
+            </span>
+            <span className="text-[10px] text-muted-foreground">
+              {formatTimeAgo(root.createdAt)}
+            </span>
+          </div>
+
+          <p className="text-sm mb-1.5 text-foreground/90">{root.text}</p>
+
+          {renderActions(root, root._id)}
+          {renderReplyForm(root)}
+
+          {replyCount > 0 && (
+            <button
+              onClick={onToggleReplies}
+              className="mt-2 text-xs text-primary hover:underline flex items-center gap-1"
+            >
+              <MessageCircle className="w-3 h-3" />
+              {expanded ? "Ẩn phản hồi" : `Xem ${replyCount} phản hồi`}
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Flattened replies of the whole thread */}
+      {expanded && (
+        <div className="ml-4 pl-3 border-l-2 border-border space-y-3">
+          {repliesQuery.isLoading ? (
+            <CommentSkeleton />
+          ) : (
+            replies.map((reply) => {
+              // Show "@name" only when replying to another reply (not the root).
+              const showReplyTo =
+                reply.replyToUserName && reply.parentId !== root._id;
+
+              return (
+                <div key={reply._id} className="flex gap-3">
+                  <Avatar className="size-8 flex-shrink-0">
+                    <AvatarImage
+                      src={reply?.userAvatar || ""}
+                      alt={reply?.userName || "User"}
+                    />
+                    <AvatarFallback>
+                      {reply?.userName?.charAt(0).toUpperCase() || "U"}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-xs font-semibold text-foreground">
+                        {reply.userName}
+                      </span>
+                      <span className="text-[10px] text-muted-foreground">
+                        {formatTimeAgo(reply.createdAt)}
+                      </span>
+                    </div>
+
+                    {showReplyTo && (
+                      <div className="text-[11px] text-primary mb-1">
+                        @{reply.replyToUserName}
+                      </div>
+                    )}
+
+                    <p className="text-sm mb-1.5 text-foreground/90">
+                      {reply.text}
+                    </p>
+
+                    {renderActions(reply, root._id)}
+                    {renderReplyForm(reply)}
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+      )}
     </div>
   );
 }

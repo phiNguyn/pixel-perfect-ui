@@ -4,21 +4,11 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import Empty from "@/components/Common/Empty";
 import { getImageSrc } from "@/services/uploadFile";
+import { formatTimeAgo } from "@/services/dateService";
 
 interface SearchHistoryListProps {
   onSelect?: () => void;
   source?: "ophim" | "phimapi" | "nguonc";
-}
-
-function formatTimeAgo(timestamp: number) {
-  const diff = Date.now() - timestamp;
-  const minutes = Math.floor(diff / 60000);
-  if (minutes < 1) return "Vừa xong";
-  if (minutes < 60) return `${minutes}p trước`;
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours}h trước`;
-  const days = Math.floor(hours / 24);
-  return `${days}d trước`;
 }
 
 export default function SearchHistoryList({
@@ -79,7 +69,7 @@ export default function SearchHistoryList({
                 </p>
               </div>
               <span className="text-[9px] text-muted-foreground whitespace-nowrap">
-                {formatTimeAgo(item.searchedAt)}
+                {formatTimeAgo(item.searchedAt, { style: "short" })}
               </span>
             </Link>
             <Button

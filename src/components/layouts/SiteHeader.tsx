@@ -1,5 +1,6 @@
 "use client";
-import { Search, Bell, ArrowLeft, User } from "lucide-react";
+import NotificationBell from "@/components/layouts/navigation/NotificationBell";
+import { Search, ArrowLeft, User } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useQueryCategories } from "@/lib/api/categories/categorieQuery";
@@ -34,7 +35,6 @@ import {
 import Empty from "../Common/Empty";
 import { ThemeSelector } from "../theme/ThemeSelector";
 import { motion, AnimatePresence } from "framer-motion";
-import { useDisclaimerNotice } from "./DisclaimerNotice";
 import { useAuth } from "@/components/auth/AuthProvider";
 import SiteBottomNav from "@/components/layouts/navigation/SiteBottomNav";
 import MobileBrowseSheet from "@/components/layouts/navigation/MobileBrowseSheet";
@@ -49,7 +49,6 @@ import {
 export default function SiteHeader() {
   const router = useRouter();
   const pathname = usePathname();
-  const { openDisclaimer } = useDisclaimerNotice();
   const { user, isAuthenticated, logout, openLoginModal } = useAuth();
   const wrapperRef = useRef<HTMLDivElement>(null);
   const { slug } = useParams();
@@ -306,16 +305,7 @@ export default function SiteHeader() {
                   <Search className="w-5 h-5" />
                 </button>
               )}
-              {/* <button
-                type="button"
-                aria-label="Thông báo"
-                name="notification"
-                onClick={() => openDisclaimer()}
-                className="p-2 text-muted-foreground hover:text-foreground transition-colors relative"
-              >
-                <Bell className="w-5 h-5" />
-                <span className="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full" />
-              </button> */}
+              <NotificationBell />
               <ThemeSelector />
               {isAuthenticated ? (
                 <DropdownMenu>
@@ -353,16 +343,7 @@ export default function SiteHeader() {
             </div>
 
             <div className="md:hidden flex items-center">
-              <button
-                type="button"
-                aria-label="Thông báo"
-                name="notification"
-                onClick={() => openDisclaimer()}
-                className="p-2 text-muted-foreground hover:text-foreground transition-colors relative"
-              >
-                <Bell className="w-5 h-5" />
-                <span className="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full" />
-              </button>
+              <NotificationBell />
             </div>
           </div>
         </div>

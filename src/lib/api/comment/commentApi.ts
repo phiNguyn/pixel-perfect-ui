@@ -12,7 +12,12 @@ export interface Comment {
   userAvatar?: string;
   text: string;
   likes: number;
+  // Comment being directly replied to (null for root comments).
   parentId: string | null;
+  // Top-level comment of the whole thread (null for root comments).
+  rootId?: string | null;
+  // Denormalized name of the user being directly replied to (for "@name").
+  replyToUserName?: string | null;
   isDeleted: boolean;
   replyCount?: number;
   createdAt: string;
@@ -83,13 +88,17 @@ class CommentApiClient {
       page?: number;
       limit?: number;
       parentId?: string | null;
+      rootId?: string;
     } = {},
   ): Promise<PaginatedComments> {
-    const { page = 1, limit = 20, parentId = null } = options;
+    const { page = 1, limit = 20, parentId, rootId } = options;
 
     const params: Record<string, string | number> = { page, limit };
-    if (parentId !== undefined) {
-      params.parentId = parentId;
+    if (rootId) {
+      // Fetch the whole flattened thread of a top-level comment.
+      params.rootId = rootId;
+    } else if (parentId !== undefined) {
+      params.parentId = parentId === null ? "null" : parentId;
     }
 
     const response = await this.client.get<PaginatedComments>(
@@ -97,6 +106,18 @@ class CommentApiClient {
       { params },
     );
     return response.data;
+  }
+
+  async getReplies(
+    movieSlug: string,
+    rootId: string,
+    options: { page?: number; limit?: number } = {},
+  ): Promise<PaginatedComments> {
+    return this.getComments(movieSlug, {
+      ...options,
+      rootId,
+      limit: options.limit ?? 100,
+    });
   }
 
   async createComment(data: {

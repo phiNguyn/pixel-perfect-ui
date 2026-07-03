@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import {
+  Bell,
   CalendarDays,
   History,
   LogOut,
@@ -36,6 +37,14 @@ export default function UserAccountMenuContent({
         )}
       </div>
       <div className="h-px bg-border my-1" />
+      <Link
+        href="/notifications"
+        onClick={onNavigate}
+        className="flex items-center gap-2 rounded-sm px-2 py-1.5 text-sm hover:bg-accent cursor-pointer"
+      >
+        <Bell className="h-4 w-4" />
+        <span>Thông báo</span>
+      </Link>
       <Link
         href="/watch-histories"
         onClick={onNavigate}
