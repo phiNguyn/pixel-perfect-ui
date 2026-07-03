@@ -34,7 +34,7 @@ export function ThemeSelector() {
           <span className="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full" />
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56 p-3 ">
+      <DropdownMenuContent align="end" className="w-fit p-3 ">
         {/* <div className="mb-2">
                     <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-1">
                         Chế độ giao diện
@@ -73,7 +73,7 @@ export function ThemeSelector() {
             Màu chủ đề
           </p>
         </div>
-        <div className="grid grid-cols-1 gap-1 max-h-[80dvh] md:max-h-[none] overflow-y-auto">
+        <div className="grid grid-cols-2  gap-1 max-h-[80dvh] md:max-h-[none] overflow-y-auto">
           {THEMES.map((t) => {
             const isActive = theme === t.id;
             return (
