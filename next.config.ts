@@ -7,6 +7,15 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  // Tree-shake các thư viện lớn -> giảm JS bundle & tăng tốc tải trang.
+  experimental: {
+    optimizePackageImports: [
+      "lucide-react",
+      "framer-motion",
+      "date-fns",
+      "recharts",
+    ],
+  },
   async headers() {
     return [
       {

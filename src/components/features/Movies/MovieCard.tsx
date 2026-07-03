@@ -1,7 +1,6 @@
 "use client";
 
 import { Play, Star } from "lucide-react";
-import { motion } from "framer-motion";
 import Link from "next/link";
 import { Movie } from "@/lib/api/movies/movieInterface";
 import { cn } from "@/lib/utils";
@@ -55,11 +54,10 @@ export default function MovieCard({
 
   return (
     <Link href={`/phim/${movie.slug}`} onClick={handleClick}>
-      <motion.div
-        whileHover={{ scale: 1.05 }}
-        transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
+      <div
         className={cn(
           "relative flex-shrink-0 w-[140px] md:w-[170px] group cursor-pointer",
+          "transition-transform duration-200 ease-out will-change-transform hover:scale-105",
           className,
         )}
       >
@@ -118,7 +116,7 @@ export default function MovieCard({
         <p className="text-[10px] text-muted-foreground mt-0.5">
           {movie.year} · {movie?.country?.map((item) => item.name).join(", ")}
         </p>
-      </motion.div>
+      </div>
     </Link>
   );
 }

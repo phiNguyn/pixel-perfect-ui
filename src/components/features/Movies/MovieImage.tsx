@@ -1,4 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import fallback from "@/assets/fallback.png";
+import { cn } from "@/lib/utils";
 import { useState } from "react";
 
 export default function MovieImage({
@@ -21,17 +23,31 @@ export default function MovieImage({
   };
 
   const [imgSrc, setImgSrc] = useState(getImageSrc());
+  const [loaded, setLoaded] = useState(false);
 
   return (
-    <img
-      width={1920}
-      height={1080}
-      src={imgSrc}
-      // quality={80}
-      alt={movie.name}
-      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
-      loading="lazy"
-      onError={() => setImgSrc(fallback.src)}
-    />
+    <>
+      {/* Placeholder giữ chỗ + hiệu ứng shimmer trong lúc ảnh tải */}
+      {!loaded && (
+        <div className="absolute inset-0 animate-pulse bg-muted/40" />
+      )}
+      <img
+        width={1920}
+        height={1080}
+        src={imgSrc}
+        alt={movie.name}
+        className={cn(
+          "w-full h-full object-cover transition-all duration-500 group-hover:scale-110",
+          loaded ? "opacity-100" : "opacity-0",
+        )}
+        loading="lazy"
+        decoding="async"
+        onLoad={() => setLoaded(true)}
+        onError={() => {
+          setImgSrc(fallback.src);
+          setLoaded(true);
+        }}
+      />
+    </>
   );
 }

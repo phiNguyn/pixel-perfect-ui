@@ -1,95 +1,49 @@
 "use client";
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import HeroBanner from "@/components/features/Home/HeroBanner";
 import MoodSection from "@/components/features/Home/MoodSection";
-import MovieRow from "@/components/features/Movies/MovieRow";
+import LazyMovieRow from "@/components/features/Home/LazyMovieRow";
 import WatchHistoryRow from "@/components/features/Home/WatchHistoryRow";
 import LoginBenefitsCard from "@/components/Common/LoginBenefitsCard";
 
-import { useQueryMovies } from "@/lib/api/movies/movieQuery";
-import useQueryResult from "@/hooks/useQueryResult";
 import { MovieCategory } from "@/lib/api/movies/movieInterface";
 
 export default function HomeClient() {
-  const { queryResult } = useQueryResult({ limit: 10, page: 1 });
-  const isLoad = queryResult?.q === "";
-  const { data, isLoading } = useQueryMovies(
-    queryResult,
-    isLoad,
-    MovieCategory.PHIM_MOI,
-    "danh-sach/" + MovieCategory.PHIM_MOI,
-  );
-  const movieData = data as any;
-  const { data: koreanMovies, isLoading: koreanMoviesLoading } = useQueryMovies(
-    queryResult,
-    isLoad,
-    "quoc-gia/han-quoc",
-    "quoc-gia/han-quoc",
-  );
-  const { data: japanMovies, isLoading: japanMoviesLoading } = useQueryMovies(
-    queryResult,
-    isLoad,
-    "quoc-gia/nhat-ban",
-    "quoc-gia/nhat-ban",
-  );
-  const { data: usMovies, isLoading: usMoviesLoading } = useQueryMovies(
-    queryResult,
-    isLoad,
-    "quoc-gia/au-my",
-    "quoc-gia/au-my",
-  );
-  const { data: animeMovies, isLoading: animeMoviesLoading } = useQueryMovies(
-    queryResult,
-    isLoad,
-    "danh-sach/hoat-hinh",
-    "danh-sach/hoat-hinh",
-  );
-  const koreanData = koreanMovies as any;
-  const japanData = japanMovies as any;
-  const usData = usMovies as any;
-  const animeData = animeMovies as any;
-
   return (
     <>
       <HeroBanner />
-     <div className="md:px-16">
+      <div className="md:px-16">
         <LoginBenefitsCard storageKey="home-hero" />
         <MoodSection />
         <WatchHistoryRow />
-        <MovieRow
+        <LazyMovieRow
           title="Phim Mới Cập Nhật"
-          movies={movieData?.data?.items}
-          loading={isLoading}
-          type={`danh-sach`}
-          type_list={movieData?.data?.type_list}
+          cacheKey={MovieCategory.PHIM_MOI}
+          slug={"danh-sach/" + MovieCategory.PHIM_MOI}
+          type="danh-sach"
         />
-        <MovieRow
+        <LazyMovieRow
           title="Phim Hàn Quốc Mới"
-          movies={koreanData?.data?.items}
-          loading={koreanMoviesLoading}
-          type_list={koreanData?.data?.type_list}
+          cacheKey="quoc-gia/han-quoc"
+          slug="quoc-gia/han-quoc"
         />
-        <MovieRow
+        <LazyMovieRow
           title="Phim Nhật Bản mới"
-          movies={japanData?.data?.items}
-          loading={japanMoviesLoading}
-          type_list={japanData?.data?.type_list}
+          cacheKey="quoc-gia/nhat-ban"
+          slug="quoc-gia/nhat-ban"
         />
-        <MovieRow
+        <LazyMovieRow
           title="Phim Mỹ, Âu Mới"
-          movies={usData?.data?.items}
-          loading={usMoviesLoading}
-          type_list={usData?.data?.type_list}
+          cacheKey="quoc-gia/au-my"
+          slug="quoc-gia/au-my"
         />
-        <MovieRow
+        <LazyMovieRow
           title="Phim Hoạt Hình"
-          type={`danh-sach`}
-          movies={animeData?.data?.items}
-          loading={animeMoviesLoading}
-          type_list={animeData?.data?.type_list}
+          cacheKey="danh-sach/hoat-hinh"
+          slug="danh-sach/hoat-hinh"
+          type="danh-sach"
         />
-     </div>
+      </div>
     </>
   );
 }
