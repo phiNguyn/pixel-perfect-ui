@@ -1,10 +1,5 @@
 "use client";
-import {
-  Search,
-  Bell,
-  ArrowLeft,
-  User,
-} from "lucide-react";
+import { Search, Bell, ArrowLeft, User } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useQueryCategories } from "@/lib/api/categories/categorieQuery";
@@ -311,7 +306,7 @@ export default function SiteHeader() {
                   <Search className="w-5 h-5" />
                 </button>
               )}
-              <button
+              {/* <button
                 type="button"
                 aria-label="Thông báo"
                 name="notification"
@@ -320,7 +315,7 @@ export default function SiteHeader() {
               >
                 <Bell className="w-5 h-5" />
                 <span className="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full" />
-              </button>
+              </button> */}
               <ThemeSelector />
               {isAuthenticated ? (
                 <DropdownMenu>
@@ -341,10 +336,7 @@ export default function SiteHeader() {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="w-56" align="end" forceMount>
-                    <UserAccountMenuContent
-                      user={user}
-                      onLogout={logout}
-                    />
+                    <UserAccountMenuContent user={user} onLogout={logout} />
                   </DropdownMenuContent>
                 </DropdownMenu>
               ) : (

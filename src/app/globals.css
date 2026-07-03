@@ -527,6 +527,60 @@
   }
 }
 
+/* ================================
+   FIX SCROLLBAR LAYOUT SHIFT
+   ================================
+   Khi Radix (dropdown/dialog/popover) mở ra, react-remove-scroll khóa scroll
+   và thêm margin-right vào body để bù cho thanh cuộn bị ẩn. Header đang là
+   `fixed w-full` nên không được bù -> bị giật khi viewport rộng thêm.
+
+   Giải pháp: luôn giữ chỗ cho thanh cuộn (scrollbar-gutter) nên viewport không
+   đổi kích thước khi thanh cuộn bị ẩn, đồng thời vô hiệu hóa phần margin mà
+   Radix thêm vào (không còn cần bù nữa).
+
+   Các rule này để NGOÀI @layer để thắng rule inline của react-remove-scroll. */
+html {
+  scrollbar-gutter: stable;
+}
+
+html body[data-scroll-locked] {
+  margin-right: 0 !important;
+}
+
+/* ================================
+   CUSTOM SCROLLBAR
+   ================================
+   Thanh cuộn mảnh, bo tròn, dùng màu theo theme và sáng lên khi hover.
+   Firefox dùng scrollbar-width/scrollbar-color; Chromium dùng ::-webkit-scrollbar. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--muted-foreground) / 0.35) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: hsl(var(--muted-foreground) / 0.35);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: hsl(var(--muted-foreground) / 0.6);
+}
+
+*::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
 @layer utilities {
   .scrollbar-hide {
     -ms-overflow-style: none;
