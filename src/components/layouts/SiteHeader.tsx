@@ -1,5 +1,6 @@
 "use client";
 import NotificationBell from "@/components/layouts/navigation/NotificationBell";
+import StreakBadgeButton from "@/components/features/Streak/StreakBadgeButton";
 import { Search, ArrowLeft, User } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
@@ -305,6 +306,7 @@ export default function SiteHeader() {
                   <Search className="w-5 h-5" />
                 </button>
               )}
+              <StreakBadgeButton />
               <NotificationBell />
               <ThemeSelector />
               {isAuthenticated ? (
@@ -342,7 +344,8 @@ export default function SiteHeader() {
               )}
             </div>
 
-            <div className="md:hidden flex items-center">
+            <div className="md:hidden flex items-center gap-0.5">
+              <StreakBadgeButton />
               <NotificationBell />
             </div>
           </div>

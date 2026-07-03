@@ -3,6 +3,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
 import { AuthProvider } from "@/components/auth/AuthProvider";
+import StreakCheckInProvider from "@/components/features/Streak/StreakCheckInProvider";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -13,12 +14,14 @@ export function Providers({ children }: { children: React.ReactNode }) {
             staleTime: 60 * 1000,
           },
         },
-      })
+      }),
   );
 
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>{children}</AuthProvider>
+      <AuthProvider>
+        <StreakCheckInProvider>{children}</StreakCheckInProvider>
+      </AuthProvider>
     </QueryClientProvider>
   );
 }

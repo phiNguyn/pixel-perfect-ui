@@ -5,6 +5,7 @@ import MoodSection from "@/components/features/Home/MoodSection";
 import LazyMovieRow from "@/components/features/Home/LazyMovieRow";
 import WatchHistoryRow from "@/components/features/Home/WatchHistoryRow";
 import LoginBenefitsCard from "@/components/Common/LoginBenefitsCard";
+import StreakHomeCard from "@/components/features/Streak/StreakHomeCard";
 
 import { MovieCategory } from "@/lib/api/movies/movieInterface";
 
@@ -12,7 +13,8 @@ export default function HomeClient() {
   return (
     <>
       <HeroBanner />
-      <div className="md:px-16">
+      <div className="px-4 md:px-16">
+        <StreakHomeCard />
         <LoginBenefitsCard storageKey="home-hero" />
         <MoodSection />
         <WatchHistoryRow />
