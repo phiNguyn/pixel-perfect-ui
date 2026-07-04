@@ -4,11 +4,11 @@ import Link from "next/link";
 import { Loader } from "lucide-react";
 import { useParams } from "next/navigation";
 import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import fallback from "@/assets/fallback.png";
@@ -40,9 +40,9 @@ export default function MobileBrowseSheet({
   const { slug } = useParams();
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="bottom" className="h-[85dvh] rounded-t-2xl p-0">
-        <SheetHeader className="border-b border-border/50 p-4">
+    <Drawer open={open} onOpenChange={onOpenChange}>
+      <DrawerContent className="p-0 max-h-[85dvh] overflow-hidden rounded-t-2xl">
+        <DrawerHeader className="border-b border-border/50 p-4 text-left">
           <div className="flex items-center gap-2">
             <Avatar className="size-8">
               <AvatarImage src={fallback.src} className="object-cover" />
@@ -50,16 +50,13 @@ export default function MobileBrowseSheet({
                 PF
               </AvatarFallback>
             </Avatar>
-            <SheetTitle className="text-foreground font-bold text-lg tracking-tight">
+            <DrawerTitle className="text-foreground font-bold text-lg tracking-tight">
               Khám phá
-            </SheetTitle>
+            </DrawerTitle>
           </div>
-        </SheetHeader>
+        </DrawerHeader>
 
-        <div
-          className="p-4 flex flex-col gap-4 overflow-y-auto"
-          style={{ height: "calc(85dvh - 72px)" }}
-        >
+        <div className="p-4 flex flex-col gap-4 overflow-y-auto scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent">
           <div className="flex flex-col gap-2">
             <h3 className="text-sm font-semibold text-foreground">Thể loại</h3>
             <div className="flex flex-wrap gap-2">
@@ -110,7 +107,7 @@ export default function MobileBrowseSheet({
             </div>
           </div>
         </div>
-      </SheetContent>
-    </Sheet>
+      </DrawerContent>
+    </Drawer>
   );
 }

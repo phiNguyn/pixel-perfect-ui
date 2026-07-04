@@ -2,11 +2,11 @@
 
 import { Search, XIcon } from "lucide-react";
 import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer";
 import MovieCardSeach from "@/components/features/Movies/MovieCardSeach";
 import SearchHistoryList from "@/components/features/Home/SearchHistoryList";
 import Empty from "@/components/Common/Empty";
@@ -37,15 +37,15 @@ export default function MobileSearchSheet({
   };
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="bottom" className="h-[90dvh] rounded-t-2xl p-0">
-        <SheetHeader className="border-b border-border/50 p-4">
-          <SheetTitle className="text-foreground font-bold text-lg tracking-tight">
+    <Drawer open={open} onOpenChange={onOpenChange}>
+      <DrawerContent className="p-0 min-h-[80dvh] max-h-[90dvh] overflow-hidden rounded-t-2xl">
+        <DrawerHeader className="border-b border-border/50 p-4 text-left">
+          <DrawerTitle className="text-foreground font-bold text-lg tracking-tight">
             Tìm kiếm
-          </SheetTitle>
-        </SheetHeader>
+          </DrawerTitle>
+        </DrawerHeader>
 
-        <div className="p-4 flex flex-col gap-4" style={{ height: "calc(90dvh - 72px)" }}>
+        <div className="p-4 flex flex-col gap-4 flex-1 min-h-0 overflow-hidden">
           <div className="relative shrink-0">
             <input
               type="text"
@@ -101,7 +101,7 @@ export default function MobileSearchSheet({
             )}
           </div>
         </div>
-      </SheetContent>
-    </Sheet>
+      </DrawerContent>
+    </Drawer>
   );
 }

@@ -2,13 +2,13 @@
 
 import { User } from "lucide-react";
 import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import UserAccountMenuContent from "@/components/layouts/navigation/UserAccountMenuContent";
 import type { User as AuthUser } from "@/stores/useAuthStore";
 
@@ -32,15 +32,15 @@ export default function MobileAccountSheet({
   const closeSheet = () => onOpenChange(false);
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="bottom" className="rounded-t-2xl p-0">
-        <SheetHeader className="border-b border-border/50 p-4">
-          <SheetTitle className="text-foreground font-bold text-lg tracking-tight">
+    <Drawer open={open} onOpenChange={onOpenChange}>
+      <DrawerContent className="p-0 max-h-[85dvh] overflow-hidden rounded-t-2xl">
+        <DrawerHeader className="border-b border-border/50 p-4 text-left">
+          <DrawerTitle className="text-foreground font-bold text-lg tracking-tight">
             Tài khoản
-          </SheetTitle>
-        </SheetHeader>
+          </DrawerTitle>
+        </DrawerHeader>
 
-        <div className="p-4">
+        <div className="p-4 overflow-y-auto scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent">
           {isAuthenticated ? (
             <UserAccountMenuContent
               user={user}
@@ -73,7 +73,7 @@ export default function MobileAccountSheet({
             </div>
           )}
         </div>
-      </SheetContent>
-    </Sheet>
+      </DrawerContent>
+    </Drawer>
   );
 }

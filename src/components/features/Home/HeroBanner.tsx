@@ -8,11 +8,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { getImageSrc } from "../../../services/uploadFile";
-import { useIsMobile } from "@/hooks/use-mobile";
-
 
 export default function HeroBanner() {
-  const isMobile = useIsMobile()
   const router = useRouter();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -61,7 +58,7 @@ export default function HeroBanner() {
 
   if (isLoading) {
     return (
-      <section className="relative w-full h-[70vh] md:h-[calc(100vh-128px)] overflow-hidden bg-muted/10">
+      <section className="relative w-full h-[384px] md:h-[calc(100vh-128px)] overflow-hidden bg-muted/10">
         <Skeleton className="absolute inset-0" />
       </section>
     );
@@ -367,4 +364,3 @@ export default function HeroBanner() {
     </section>
   );
 }
-

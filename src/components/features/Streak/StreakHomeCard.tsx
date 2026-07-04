@@ -5,14 +5,15 @@ import { motion } from "framer-motion";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useQueryStreakProfile } from "@/lib/api/streak/streakQuery";
 import { useStreakDialog } from "@/stores/useStreakDialog";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function StreakHomeCard() {
   const { isAuthenticated } = useAuth();
   const { setOpen } = useStreakDialog();
-  const { data } = useQueryStreakProfile(isAuthenticated);
+  const { data, isLoading } = useQueryStreakProfile(isAuthenticated);
 
   if (!isAuthenticated) return null;
-
+  if (isLoading) return <Skeleton className="w-full h-[116px] md:h-[218px]" />;
   const days = data?.totalActiveDays ?? 0;
   const unlockedBadges = data?.badges.filter((b) => b.unlocked).length ?? 0;
   const totalBadges = data?.badges.length ?? 0;
@@ -28,14 +29,16 @@ export default function StreakHomeCard() {
     >
       <div className="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full bg-orange-500/15 blur-2xl transition-opacity group-hover:opacity-100" />
 
-      <div className="relative flex items-center gap-4">
-        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-500 to-amber-400 shadow-lg shadow-orange-500/25">
-          <Flame className="h-7 w-7 text-white" />
+      <div className="relative flex items-center md:gap-4 gap-2">
+        <div className="flex size-12 md:size-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-500 to-amber-400 shadow-lg shadow-orange-500/25">
+          <Flame className=" size-6 md:size-7 text-white" />
         </div>
 
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <h3 className="font-bold text-foreground">Chuỗi ghé thăm</h3>
+            <h3 className="font-bold text-foreground text-sm md:text-base">
+              Chuỗi ghé thăm
+            </h3>
             {data?.checkedInToday && (
               <span className="inline-flex items-center gap-0.5 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-medium text-emerald-400">
                 <Sparkles className="h-2.5 w-2.5" />

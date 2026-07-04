@@ -63,7 +63,7 @@ export default function MovieRow({
             className="flex gap-3 overflow-x-auto scrollbar-hide pb-2"
           >
             {loading ? (
-              <SkeletonCard count={5} className="h-[300px] !w-full" />
+              <SkeletonCard count={5} className="h-[228px] !w-full" />
             ) : (
               movies?.map((movie, i) => (
                 <MovieCard

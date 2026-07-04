@@ -73,7 +73,7 @@ export function ThemeSelector() {
             Màu chủ đề
           </p>
         </div>
-        <div className="grid grid-cols-2  gap-1 max-h-[80dvh] md:max-h-[none] overflow-y-auto">
+        <div className="grid grid-cols-2 gap-1 max-h-[80dvh] md:max-h-[none] overflow-y-auto">
           {THEMES.map((t) => {
             const isActive = theme === t.id;
             return (
