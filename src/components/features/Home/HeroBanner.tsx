@@ -1,13 +1,88 @@
 "use client";
 
 import { Play, Plus, ChevronLeft, ChevronRight, Star } from "lucide-react";
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useLayoutEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useQueryTrendingMovies } from "@/lib/api/trending/trendingQuery";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { getImageSrc } from "../../../services/uploadFile";
+import { cn } from "@/lib/utils";
+
+type BannerImageProps = {
+  src: string;
+  alt: string;
+  width: number;
+  height: number;
+  className?: string;
+  loading?: "eager" | "lazy";
+  fetchPriority?: "high" | "low" | "auto";
+  fill?: boolean;
+};
+
+const loadedImageUrls = new Set<string>();
+
+function markImageLoaded(src: string) {
+  loadedImageUrls.add(src);
+}
+
+function isImageCached(src: string, img?: HTMLImageElement | null) {
+  return (
+    loadedImageUrls.has(src) || Boolean(img?.complete && img.naturalHeight > 0)
+  );
+}
+
+function BannerImage({
+  src,
+  alt,
+  width,
+  height,
+  className,
+  loading = "lazy",
+  fetchPriority,
+  fill = false,
+}: BannerImageProps) {
+  const imgRef = useRef<HTMLImageElement>(null);
+  const [loaded, setLoaded] = useState(() => loadedImageUrls.has(src));
+
+  useLayoutEffect(() => {
+    if (isImageCached(src, imgRef.current)) {
+      markImageLoaded(src);
+      setLoaded(true);
+      return;
+    }
+
+    setLoaded(false);
+  }, [src]);
+
+  const handleLoad = () => {
+    markImageLoaded(src);
+    setLoaded(true);
+  };
+
+  return (
+    <div className={cn("relative w-full h-full", fill && "absolute inset-0")}>
+      {!loaded && <Skeleton className="absolute inset-0" />}
+      <img
+        ref={imgRef}
+        src={src}
+        alt={alt}
+        width={width}
+        height={height}
+        loading={loading}
+        fetchPriority={fetchPriority}
+        decoding="async"
+        onLoad={handleLoad}
+        className={cn(
+          "w-full h-full object-cover transition-opacity duration-300",
+          loaded ? "opacity-100" : "opacity-0",
+          className,
+        )}
+      />
+    </div>
+  );
+}
 
 export default function HeroBanner() {
   const router = useRouter();
@@ -54,6 +129,19 @@ export default function HeroBanner() {
       );
     }, 8000);
     return () => clearInterval(interval);
+  }, [trendingMovies]);
+
+  useEffect(() => {
+    if (!trendingMovies) return;
+
+    trendingMovies.forEach((movie) => {
+      const thumb = movie.movieThumb;
+      if (!thumb || loadedImageUrls.has(thumb)) return;
+
+      const img = new Image();
+      img.onload = () => markImageLoaded(thumb);
+      img.src = thumb;
+    });
   }, [trendingMovies]);
 
   if (isLoading) {
@@ -107,15 +195,14 @@ export default function HeroBanner() {
             {/* Poster image */}
             <div className="relative w-full h-[calc(56.25vw+64px)] overflow-hidden">
               {activeMovie.movieThumb ? (
-                <img
+                <BannerImage
                   src={activeMovie.movieThumb}
                   alt={activeMovie.movieTitle || "Movie poster"}
-                  className="w-full h-full object-cover"
                   width={1080}
                   height={1350}
                   loading="eager"
                   fetchPriority="high"
-                  decoding="async"
+                  fill
                 />
               ) : (
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/30 to-primary/5" />
@@ -190,14 +277,11 @@ export default function HeroBanner() {
                     : "opacity-50 border border-border/40"
                 }`}
               >
-                <img
-                  width={96}
-                  height={96}
+                <BannerImage
                   src={getImageSrc(movie.moviePoster, movie.source)}
                   alt={movie.movieTitle || "Movie thumbnail"}
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                  decoding="async"
+                  width={96}
+                  height={96}
                 />
               </div>
             );
@@ -220,15 +304,14 @@ export default function HeroBanner() {
           >
             {/* Backdrop */}
             {activeMovie.movieThumb ? (
-              <img
+              <BannerImage
                 src={activeMovie.movieThumb}
                 alt={activeMovie.movieTitle || "Movie poster"}
-                className="w-full h-full object-cover"
                 width={1920}
                 height={1080}
                 loading="eager"
                 fetchPriority="high"
-                decoding="async"
+                fill
               />
             ) : (
               <div className="absolute inset-0 bg-gradient-to-br from-primary/30 to-primary/5" />
@@ -346,14 +429,11 @@ export default function HeroBanner() {
                       : "opacity-50 hover:opacity-100 border border-border/40 hover:border-primary/50"
                   }`}
                 >
-                  <img
-                    width={64}
-                    height={96}
+                  <BannerImage
                     src={getImageSrc(movie.moviePoster, movie.source)}
                     alt={movie.movieTitle || "Movie thumbnail"}
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                    decoding="async"
+                    width={64}
+                    height={96}
                   />
                 </div>
               );

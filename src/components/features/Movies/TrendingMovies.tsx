@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
+import { useLayoutEffect, useRef, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQueryTrendingMovies } from "@/lib/api/trending/trendingQuery";
 import { TrendingMovie } from "@/lib/api/viewLog/viewLogInterface";
+import { cn } from "@/lib/utils";
 
 interface TrendingMoviesProps {
   excludeSlug?: string;
@@ -25,6 +26,56 @@ function TrendingMovieSkeleton() {
           </div>
         </div>
       ))}
+    </div>
+  );
+}
+
+function TrendingPosterImage({
+  src,
+  alt,
+}: {
+  src: string | null;
+  alt: string;
+}) {
+  const imgRef = useRef<HTMLImageElement>(null);
+  const [loaded, setLoaded] = useState(false);
+
+  useLayoutEffect(() => {
+    if (!src) {
+      setLoaded(false);
+      return;
+    }
+
+    const img = imgRef.current;
+    if (img?.complete && img.naturalHeight > 0) {
+      setLoaded(true);
+      return;
+    }
+
+    setLoaded(false);
+  }, [src]);
+
+  if (!src) {
+    return <Skeleton className="w-12 h-16 rounded flex-shrink-0" />;
+  }
+
+  return (
+    <div className="relative w-12 h-16 flex-shrink-0">
+      {!loaded && <Skeleton className="absolute inset-0 rounded" />}
+      <img
+        ref={imgRef}
+        loading="lazy"
+        width={48}
+        height={64}
+        src={src}
+        alt={alt}
+        decoding="async"
+        onLoad={() => setLoaded(true)}
+        className={cn(
+          "w-12 h-16 rounded object-cover transition-opacity duration-300",
+          loaded ? "opacity-100" : "opacity-0",
+        )}
+      />
     </div>
   );
 }
@@ -55,14 +106,7 @@ function TrendingItem({ movie, rank }: { movie: TrendingMovie; rank: number }) {
         {rank}
       </span>
 
-      <img
-        loading="lazy"
-        width={48}
-        height={64}
-        src={imageUrl}
-        alt={movie.movieTitle || "Movie"}
-        className="w-12 h-16 rounded object-cover flex-shrink-0"
-      />
+      <TrendingPosterImage src={imageUrl} alt={movie.movieTitle || "Movie"} />
 
       <div className="flex-1 min-w-0">
         <p className="text-xs font-medium text-foreground line-clamp-2 group-hover:text-primary transition-colors">

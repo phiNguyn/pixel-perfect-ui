@@ -38,7 +38,7 @@ export default function MobileSearchSheet({
 
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
-      <DrawerContent className="p-0 min-h-[80dvh] max-h-[90dvh] overflow-hidden rounded-t-2xl">
+      <DrawerContent className="p-0 min-h-[60dvh] max-h-[80dvh] overflow-hidden rounded-t-2xl">
         <DrawerHeader className="border-b border-border/50 p-4 text-left">
           <DrawerTitle className="text-foreground font-bold text-lg tracking-tight">
             Tìm kiếm
