@@ -47,7 +47,7 @@ function InstallButton() {
 
 export default function SiteFooter() {
   return (
-    <footer className="border-t border-border/50 mt-8 pt-0 md:py-8 pb-[calc(2rem+4rem+env(safe-area-inset-bottom))] md:pb-8">
+    <footer className="border-t border-border/50 mt-8 py-8 pb-[calc(2rem+4rem+env(safe-area-inset-bottom))] md:pb-8">
       <div className="max-w-[1400px] mx-auto px-4">
         <div className="flex items-start md:items-center justify-between mb-4">
           <div className="flex-col flex gap-2">

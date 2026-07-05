@@ -1,4 +1,11 @@
-export type ViewAction = "view" | "complete" | "favorite" | "unfavorite" | "watchlist" | "unwatchlist" | "share";
+export type ViewAction =
+  | "view"
+  | "complete"
+  | "favorite"
+  | "unfavorite"
+  | "watchlist"
+  | "unwatchlist"
+  | "share";
 export type ViewSource = "ophim" | "phimapi" | "nguonc";
 
 export interface CreateViewLogDto {
@@ -16,10 +23,14 @@ export interface CreateViewLogDto {
 export interface TrendingMovie {
   movieId: string;
   movieTitle?: string;
+  originalName?: string;
   moviePoster?: string;
   movieThumb?: string;
   year?: number;
   quality?: string;
+  episodeCurrent?: string;
+  episodeTotal?: string;
+  status?: string;
   viewCount: number;
   source: ViewSource;
   lastViewed: string;
@@ -31,6 +42,7 @@ export interface TrendingMovieResponse {
 }
 
 export interface MovieStats {
+  viewCount: number;
   totalViews: number;
   views24h: number;
   views7d: number;

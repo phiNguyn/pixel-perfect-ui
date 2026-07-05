@@ -9,6 +9,50 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { getImageSrc } from "../../../services/uploadFile";
 import { cn } from "@/lib/utils";
+import type { TrendingMovie } from "@/lib/api/viewLog/viewLogInterface";
+
+function formatEpisodeLabel(current?: string, total?: string, status?: string) {
+  if (!current) return null;
+  if (status === "completed") return current;
+  if (total) return `${current} / ${total}`;
+  return current;
+}
+
+function HeroMovieMeta({
+  movie,
+  className,
+}: {
+  movie: TrendingMovie;
+  className?: string;
+}) {
+  const episodeLabel = formatEpisodeLabel(
+    movie.episodeCurrent,
+    movie.episodeTotal,
+    movie.status,
+  );
+
+  return (
+    <div className={cn("space-y-1", className)}>
+      {movie.originalName && (
+        <p className="text-muted-foreground italic font-medium line-clamp-1 text-sm md:text-lg">
+          {movie.originalName}
+        </p>
+      )}
+      {episodeLabel && (
+        <div className="flex flex-wrap items-center justify-center md:justify-start gap-2">
+          <span
+            className={cn(
+              "px-2.5 py-1 backdrop-blur-md text-[10px] md:text-xs font-bold rounded uppercase tracking-widest",
+              "bg-background/40 border border-border/60 text-foreground/80",
+            )}
+          >
+            {episodeLabel}
+          </span>
+        </div>
+      )}
+    </div>
+  );
+}
 
 type BannerImageProps = {
   src: string;
@@ -211,12 +255,14 @@ export default function HeroBanner() {
               <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
               <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-background to-transparent" />
               {/* content */}
-              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 px-2 text-center space-x-3 space-y-3 w-full">
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 px-2 text-center space-y-2 w-full">
                 <h2 className="w-full font-bold leading-tight tracking-tight text-xl text-foreground drop-shadow-2xl">
                   <span className="bg-clip-text text-transparent bg-gradient-to-br from-foreground via-foreground to-primary">
                     {activeMovie.movieTitle || "Không có tiêu đề"}
                   </span>
                 </h2>
+
+                <HeroMovieMeta movie={activeMovie} className="px-1" />
 
                 <div className="flex flex-wrap items-center justify-center gap-2">
                   <Button
@@ -343,11 +389,8 @@ export default function HeroBanner() {
                     {activeMovie.movieTitle || "Không có tiêu đề"}
                   </span>
                 </h2>
-                <div className="flex flex-wrap items-center gap-2">
-                  {/* <span className="px-2.5 py-1 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground text-[10px] font-extrabold rounded uppercase tracking-[0.2em] shadow-lg shadow-primary/30">
-                    Hot
-                  </span> */}
-                </div>
+
+                <HeroMovieMeta movie={activeMovie} />
 
                 <div className="flex items-center gap-3 text-sm text-muted-foreground font-medium">
                   <span className="flex items-center gap-1 text-primary">

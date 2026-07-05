@@ -5,11 +5,11 @@ import Link from "next/link";
 export default function MoodSection() {
   return (
     <section className="py-4">
-      <div className="max-w-[1560px] mx-auto px-4">
+      <div className="max-w-[1560px] mx-auto px-0 md:px-4">
         <h2 className="text-lg font-semibold text-foreground tracking-tight mb-3">
           Danh sách
         </h2>
-        <ScrollArea >
+        <ScrollArea>
           <div className="flex gap-3 pb-4">
             {categories.map((mood) => (
               <Link
