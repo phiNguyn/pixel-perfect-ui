@@ -8,6 +8,11 @@ import {
   SingleResponse,
   PaginationInfo,
 } from "./adminInterface";
+import type { StreakProfile } from "@/lib/api/streak/streakApi";
+import type {
+  CalendarDayData,
+  CalendarMonthData,
+} from "@/lib/api/watchCalendar/watchCalendarInterface";
 import queryString from "query-string";
 
 const API_BASE_URL =
@@ -17,7 +22,9 @@ export class AdminApi {
   /**
    * Get admin dashboard statistics
    */
-  async getStats(accessToken: string): Promise<{ success: boolean; data?: AdminStats }> {
+  async getStats(
+    accessToken: string,
+  ): Promise<{ success: boolean; data?: AdminStats }> {
     try {
       const response = await fetch(`${API_BASE_URL}/admin/stats`, {
         headers: {
@@ -41,15 +48,13 @@ export class AdminApi {
    */
   async getUsers(
     accessToken: string,
-    query: QueryResult
-    
+    query: QueryResult,
   ): Promise<PaginatedResponse<AdminUser> & { pagination: PaginationInfo }> {
     try {
       const stringified = queryString.stringify(query, {
         skipNull: true,
         skipEmptyString: true,
       });
-
 
       const response = await fetch(
         `${API_BASE_URL}/admin/users?${stringified}`,
@@ -80,7 +85,7 @@ export class AdminApi {
    */
   async getUserDetail(
     userId: string,
-    accessToken: string
+    accessToken: string,
   ): Promise<SingleResponse<AdminUser>> {
     try {
       const response = await fetch(`${API_BASE_URL}/admin/users/${userId}`, {
@@ -106,7 +111,7 @@ export class AdminApi {
   async getUserWatchHistory(
     userId: string,
     accessToken: string,
-    options: { page?: number; limit?: number } = {}
+    options: { page?: number; limit?: number } = {},
   ): Promise<PaginatedResponse<WatchHistoryItem>> {
     try {
       const params = new URLSearchParams();
@@ -119,7 +124,7 @@ export class AdminApi {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
-        }
+        },
       );
 
       if (!response.ok) {
@@ -138,6 +143,131 @@ export class AdminApi {
   }
 
   /**
+   * Get user's streak profile
+   */
+  async getUserStreak(
+    userId: string,
+    accessToken: string,
+  ): Promise<SingleResponse<StreakProfile>> {
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/admin/users/${userId}/streak`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch user streak");
+      }
+
+      return response.json();
+    } catch (error) {
+      console.error("Get user streak error:", error);
+      return { success: false };
+    }
+  }
+
+  /**
+   * Get user's streak calendar for a month
+   */
+  async getUserStreakCalendar(
+    userId: string,
+    accessToken: string,
+    year: number,
+    month: number,
+  ): Promise<SingleResponse<{ year: number; month: number; dates: string[] }>> {
+    try {
+      const params = new URLSearchParams();
+      params.set("year", String(year));
+      params.set("month", String(month));
+
+      const response = await fetch(
+        `${API_BASE_URL}/admin/users/${userId}/streak/calendar?${params.toString()}`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch user streak calendar");
+      }
+
+      return response.json();
+    } catch (error) {
+      console.error("Get user streak calendar error:", error);
+      return { success: false };
+    }
+  }
+
+  /**
+   * Get user's watch calendar month overview
+   */
+  async getUserWatchCalendarMonth(
+    userId: string,
+    accessToken: string,
+    year: number,
+    month: number,
+  ): Promise<SingleResponse<CalendarMonthData>> {
+    try {
+      const params = new URLSearchParams();
+      params.set("year", String(year));
+      params.set("month", String(month));
+
+      const response = await fetch(
+        `${API_BASE_URL}/admin/users/${userId}/watch-calendar?${params.toString()}`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch user watch calendar");
+      }
+
+      return response.json();
+    } catch (error) {
+      console.error("Get user watch calendar error:", error);
+      return { success: false };
+    }
+  }
+
+  /**
+   * Get user's watch calendar day detail
+   */
+  async getUserWatchCalendarDay(
+    userId: string,
+    accessToken: string,
+    date: string,
+  ): Promise<SingleResponse<CalendarDayData>> {
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/admin/users/${userId}/watch-calendar/${date}`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch user watch calendar day");
+      }
+
+      return response.json();
+    } catch (error) {
+      console.error("Get user watch calendar day error:", error);
+      return { success: false };
+    }
+  }
+
+  /**
    * Get all comments
    */
   async getComments(
@@ -147,7 +277,7 @@ export class AdminApi {
       limit?: number;
       userId?: string;
       movieSlug?: string;
-    } = {}
+    } = {},
   ): Promise<PaginatedResponse<Comment>> {
     try {
       const params = new URLSearchParams();
@@ -157,11 +287,14 @@ export class AdminApi {
       if (options.userId) params.set("userId", options.userId);
       if (options.movieSlug) params.set("movieSlug", options.movieSlug);
 
-      const response = await fetch(`${API_BASE_URL}/admin/comments?${params.toString()}`, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
+      const response = await fetch(
+        `${API_BASE_URL}/admin/comments?${params.toString()}`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
         },
-      });
+      );
 
       if (!response.ok) {
         throw new Error("Failed to fetch comments");
@@ -183,15 +316,18 @@ export class AdminApi {
    */
   async deleteComment(
     commentId: string,
-    accessToken: string
+    accessToken: string,
   ): Promise<{ success: boolean; message?: string }> {
     try {
-      const response = await fetch(`${API_BASE_URL}/admin/comments/${commentId}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
+      const response = await fetch(
+        `${API_BASE_URL}/admin/comments/${commentId}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
         },
-      });
+      );
 
       if (!response.ok) {
         throw new Error("Failed to delete comment");
@@ -210,17 +346,20 @@ export class AdminApi {
   async updateUserRole(
     userId: string,
     role: "user" | "admin",
-    accessToken: string
+    accessToken: string,
   ): Promise<{ success: boolean; message?: string }> {
     try {
-      const response = await fetch(`${API_BASE_URL}/admin/users/${userId}/role`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
+      const response = await fetch(
+        `${API_BASE_URL}/admin/users/${userId}/role`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
+          body: JSON.stringify({ userId, role }),
         },
-        body: JSON.stringify({ userId, role }),
-      });
+      );
 
       if (!response.ok) {
         throw new Error("Failed to update role");
@@ -239,17 +378,20 @@ export class AdminApi {
   async toggleUserStatus(
     userId: string,
     isActive: boolean,
-    accessToken: string
+    accessToken: string,
   ): Promise<{ success: boolean; message?: string }> {
     try {
-      const response = await fetch(`${API_BASE_URL}/admin/users/${userId}/status`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
+      const response = await fetch(
+        `${API_BASE_URL}/admin/users/${userId}/status`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
+          body: JSON.stringify({ isActive }),
         },
-        body: JSON.stringify({ isActive }),
-      });
+      );
 
       if (!response.ok) {
         throw new Error("Failed to update status");

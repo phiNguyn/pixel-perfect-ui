@@ -406,8 +406,10 @@ function WatchHistoryContent() {
                               className="w-10 h-14 rounded object-cover"
                             />
                           )}
-                          <div>
-                            <p className="font-medium">{item.movieTitle}</p>
+                          <div className="min-w-0 max-w-[220px]">
+                            <p className="font-medium break-words whitespace-normal">
+                              {item.movieTitle}
+                            </p>
                             <p className="text-xs text-muted-foreground">
                               {item.year} • {item.quality}
                             </p>
@@ -482,9 +484,9 @@ function WatchHistoryContent() {
 // ============ COMMENTS CONTENT ============
 
 function CommentsContent() {
-  const { queryResult, searchValue, setSearch ,setPage} = useQueryResult();
+  const { queryResult, searchValue, setSearch, setPage } = useQueryResult();
   const token = useAuthStore.getState().tokens?.accessToken;
-  const { data, isLoading, refetch,  } = useAdminQueryComments(
+  const { data, isLoading, refetch } = useAdminQueryComments(
     token,
     queryResult,
   );
@@ -613,14 +615,14 @@ function CommentsContent() {
             >
               <ChevronLeft className="w-4 h-4" />
             </Button>
-            <Button
+            {/* <Button
               variant="outline"
               size="sm"
               disabled={pagination.page >= pagination.totalPages}
               onClick={() => loadComments(pagination.page + 1)}
             >
               <ChevronRight className="w-4 h-4" />
-            </Button>
+            </Button> */}
           </div>
         </div>
       )}
@@ -635,9 +637,15 @@ function FeedbackContent() {
   const [stats, setStats] = useState<FeedbackStats | null>(null);
   const [pagination, setPagination] = useState<PaginationInfo | null>(null);
   const [loading, setLoading] = useState(true);
-  const [selectedFeedback, setSelectedFeedback] = useState<Feedback | null>(null);
-  const [filterStatus, setFilterStatus] = useState<FeedbackStatus | "all">("all");
-  const [filterCategory, setFilterCategory] = useState<FeedbackCategory | "all">("all");
+  const [selectedFeedback, setSelectedFeedback] = useState<Feedback | null>(
+    null,
+  );
+  const [filterStatus, setFilterStatus] = useState<FeedbackStatus | "all">(
+    "all",
+  );
+  const [filterCategory, setFilterCategory] = useState<
+    FeedbackCategory | "all"
+  >("all");
 
   useEffect(() => {
     loadFeedback();
@@ -675,7 +683,11 @@ function FeedbackContent() {
     }
   };
 
-  const handleReply = async (feedbackId: string, status: FeedbackStatus, reply: string) => {
+  const handleReply = async (
+    feedbackId: string,
+    status: FeedbackStatus,
+    reply: string,
+  ) => {
     const token = useAuthStore.getState().tokens?.accessToken;
     if (token) {
       await feedbackApi.reply(feedbackId, token, { status, adminReply: reply });
@@ -697,11 +709,16 @@ function FeedbackContent() {
 
   const getCategoryIcon = (category: FeedbackCategory) => {
     switch (category) {
-      case "bug_report": return <Bug className="w-4 h-4" />;
-      case "feature_request": return <Lightbulb className="w-4 h-4" />;
-      case "improvement": return <Zap className="w-4 h-4" />;
-      case "content_request": return <Film className="w-4 h-4" />;
-      default: return <FileText className="w-4 h-4" />;
+      case "bug_report":
+        return <Bug className="w-4 h-4" />;
+      case "feature_request":
+        return <Lightbulb className="w-4 h-4" />;
+      case "improvement":
+        return <Zap className="w-4 h-4" />;
+      case "content_request":
+        return <Film className="w-4 h-4" />;
+      default:
+        return <FileText className="w-4 h-4" />;
     }
   };
 
@@ -750,7 +767,9 @@ function FeedbackContent() {
 
         <Select
           value={filterCategory}
-          onValueChange={(v) => setFilterCategory(v as FeedbackCategory | "all")}
+          onValueChange={(v) =>
+            setFilterCategory(v as FeedbackCategory | "all")
+          }
         >
           <SelectTrigger className="w-48">
             <SelectValue placeholder="Loại" />
@@ -769,9 +788,7 @@ function FeedbackContent() {
       {/* Feedback List */}
       <div className="space-y-3">
         {loading ? (
-          [...Array(5)].map((_, i) => (
-            <Skeleton key={i} className="h-24" />
-          ))
+          [...Array(5)].map((_, i) => <Skeleton key={i} className="h-24" />)
         ) : feedbackList.length === 0 ? (
           <div className="text-center py-12 text-muted-foreground">
             Không có phản hồi nào
@@ -802,7 +819,9 @@ function FeedbackContent() {
                   </p>
                   {fb.adminReply && (
                     <div className="mt-3 p-3 rounded-lg bg-primary/10 border-l-4 border-primary">
-                      <p className="text-xs font-medium mb-1">Phản hồi của Admin:</p>
+                      <p className="text-xs font-medium mb-1">
+                        Phản hồi của Admin:
+                      </p>
                       <p className="text-sm">{fb.adminReply}</p>
                     </div>
                   )}
@@ -897,7 +916,9 @@ function FeedbackReplyDialog({
 
   useEffect(() => {
     if (feedback) {
-      setStatus(feedback.status === "pending" ? "in_progress" : feedback.status);
+      setStatus(
+        feedback.status === "pending" ? "in_progress" : feedback.status,
+      );
       setReply("");
     }
   }, [feedback]);

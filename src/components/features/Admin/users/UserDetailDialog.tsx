@@ -25,7 +25,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useAdminQueryWatchHistory } from "@/lib/api/admin/adminQuery";
 import useQueryResult from "@/hooks/useQueryResult";
 import { getImageSrc } from "@/services/uploadFile";
-export const  UserDetailDialog =({
+import UserStreakTab from "./UserStreakTab";
+import UserWatchCalendarTab from "./UserWatchCalendarTab";
+
+type UserDetailTab = "info" | "history" | "streak" | "watch-calendar";
+export const UserDetailDialog = ({
   user,
   onClose,
   onUpdateRole,
@@ -36,24 +40,24 @@ export const  UserDetailDialog =({
   onUpdateRole: (userId: string, role: "user" | "admin") => void;
   onToggleStatus: (userId: string, isActive: boolean) => void;
 }) => {
-  const [activeTab, setActiveTab] = useState<"info" | "history">("info");
+  const [activeTab, setActiveTab] = useState<UserDetailTab>("info");
   const [history, setHistory] = useState<WatchHistoryItem[]>([]);
+  const accessToken = useAuthStore.getState().tokens?.accessToken || "";
 
-    const {queryResult, setPage} = useQueryResult()
-      const { data: historyData, isLoading ,refetch} = useAdminQueryWatchHistory(
-        useAuthStore.getState().tokens?.accessToken || "",
-        user?._id || "",
-        queryResult,
-      );
+  const { queryResult, setPage } = useQueryResult();
+  const {
+    data: historyData,
+    isLoading,
+    refetch,
+  } = useAdminQueryWatchHistory(accessToken, user?._id || "", queryResult);
   useEffect(() => {
-    if (user) { 
+    if (user) {
       setActiveTab("info");
       setHistory([]);
     }
   }, [user?._id]);
 
-
-  const handleTabChange = (tab: "info" | "history") => {
+  const handleTabChange = (tab: UserDetailTab) => {
     setActiveTab(tab);
     if (tab === "history" && history.length === 0) {
       refetch();
@@ -112,10 +116,10 @@ export const  UserDetailDialog =({
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-2 border-b mt-4">
+        <div className="flex gap-2 border-b mt-4 overflow-x-auto">
           <button
             onClick={() => handleTabChange("info")}
-            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
               activeTab === "info"
                 ? "border-primary text-primary"
                 : "border-transparent text-muted-foreground hover:text-foreground"
@@ -125,13 +129,33 @@ export const  UserDetailDialog =({
           </button>
           <button
             onClick={() => handleTabChange("history")}
-            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
               activeTab === "history"
                 ? "border-primary text-primary"
                 : "border-transparent text-muted-foreground hover:text-foreground"
             }`}
           >
             Lịch sử xem
+          </button>
+          <button
+            onClick={() => handleTabChange("streak")}
+            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
+              activeTab === "streak"
+                ? "border-primary text-primary"
+                : "border-transparent text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            Chuỗi
+          </button>
+          <button
+            onClick={() => handleTabChange("watch-calendar")}
+            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
+              activeTab === "watch-calendar"
+                ? "border-primary text-primary"
+                : "border-transparent text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            Lịch xem phim
           </button>
         </div>
 
@@ -226,7 +250,7 @@ export const  UserDetailDialog =({
                 </div>
               </div>
             </div>
-          ) : (
+          ) : activeTab === "history" ? (
             <div className="space-y-4">
               <div className="bg-muted/50 p-3 rounded-lg">
                 <p className="text-sm">
@@ -246,7 +270,7 @@ export const  UserDetailDialog =({
                     <Skeleton key={i} className="h-20" />
                   ))}
                 </div>
-              ) : historyData.data.length === 0 ? (
+              ) : (historyData?.data?.length ?? 0) === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
                   <History className="w-12 h-12 mx-auto mb-2 opacity-50" />
                   <p>Người dùng chưa xem phim nào</p>
@@ -357,38 +381,48 @@ export const  UserDetailDialog =({
                   </div>
 
                   {/* History Pagination */}
-                  {historyData?.pagination && historyData?.pagination?.totalPages > 1 && (
-                    <div className="flex items-center justify-center gap-2 pt-4 border-t">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        disabled={historyData?.pagination?.page <= 1}
-                        onClick={() => setPage(historyData?.pagination?.page - 1)}
-                      >
-                        <ChevronLeft className="w-4 h-4" />
-                      </Button>
-                      <span className="text-sm">
-                        Trang {historyData?.pagination?.page} /{" "}
-                        {historyData?.pagination?.totalPages}
-                      </span>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        disabled={
-                          historyData?.pagination?.page >= historyData?.pagination?.totalPages
-                        }
-                        onClick={() => setPage(historyData?.pagination?.page + 1)}
-                      >
-                        <ChevronRight className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  )}
+                  {historyData?.pagination &&
+                    historyData?.pagination?.totalPages > 1 && (
+                      <div className="flex items-center justify-center gap-2 pt-4 border-t">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          disabled={historyData?.pagination?.page <= 1}
+                          onClick={() =>
+                            setPage(historyData?.pagination?.page - 1)
+                          }
+                        >
+                          <ChevronLeft className="w-4 h-4" />
+                        </Button>
+                        <span className="text-sm">
+                          Trang {historyData?.pagination?.page} /{" "}
+                          {historyData?.pagination?.totalPages}
+                        </span>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          disabled={
+                            historyData?.pagination?.page >=
+                            historyData?.pagination?.totalPages
+                          }
+                          onClick={() =>
+                            setPage(historyData?.pagination?.page + 1)
+                          }
+                        >
+                          <ChevronRight className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    )}
                 </>
               )}
             </div>
+          ) : activeTab === "streak" ? (
+            <UserStreakTab userId={user._id} accessToken={accessToken} />
+          ) : (
+            <UserWatchCalendarTab userId={user._id} accessToken={accessToken} />
           )}
         </div>
       </DialogContent>
     </Dialog>
   );
-}
+};
