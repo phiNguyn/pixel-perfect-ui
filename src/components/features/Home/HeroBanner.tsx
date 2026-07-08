@@ -18,6 +18,11 @@ function formatEpisodeLabel(current?: string, total?: string, status?: string) {
   return current;
 }
 
+// Mobile: 16:9 theo chiều ngang + vùng text/CTA (~64px)
+const HERO_MOBILE_POSTER_HEIGHT = "h-[calc(56.25vw+64px)]";
+// Desktop: full viewport trừ header + khoảng peek content bên dưới
+const HERO_DESKTOP_HEIGHT = "h-[calc(100svh-128px)]";
+
 function HeroMovieMeta({
   movie,
   className,
@@ -190,8 +195,16 @@ export default function HeroBanner() {
 
   if (isLoading) {
     return (
-      <section className="relative w-full h-[384px] md:h-[calc(100vh-128px)] overflow-hidden bg-muted/10">
-        <Skeleton className="absolute inset-0" />
+      <section className="relative w-full overflow-hidden bg-muted/10">
+        <div className="md:hidden">
+          <Skeleton className={HERO_MOBILE_POSTER_HEIGHT} />
+          <div className="mt-4 flex justify-center gap-2.5 px-5 py-4">
+            {[...Array(8)].map((_, i) => (
+              <Skeleton key={i} className="size-8 shrink-0 rounded-full" />
+            ))}
+          </div>
+        </div>
+        <Skeleton className={`hidden md:block w-full ${HERO_DESKTOP_HEIGHT}`} />
       </section>
     );
   }
@@ -237,7 +250,9 @@ export default function HeroBanner() {
             className="relative touch-pan-y"
           >
             {/* Poster image */}
-            <div className="relative w-full h-[calc(56.25vw+64px)] overflow-hidden">
+            <div
+              className={`relative w-full ${HERO_MOBILE_POSTER_HEIGHT} overflow-hidden`}
+            >
               {activeMovie.movieThumb ? (
                 <BannerImage
                   src={activeMovie.movieThumb}
@@ -336,7 +351,9 @@ export default function HeroBanner() {
       </div>
 
       {/* DESKTOP LAYOUT */}
-      <div className="hidden md:block relative h-[calc(100vh-128px)] overflow-hidden">
+      <div
+        className={`hidden md:block relative ${HERO_DESKTOP_HEIGHT} overflow-hidden`}
+      >
         <AnimatePresence initial={false} custom={direction} mode="wait">
           <motion.div
             key={activeMovie.movieId + activeMovie.source}

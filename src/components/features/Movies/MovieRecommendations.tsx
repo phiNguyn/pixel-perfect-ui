@@ -1,16 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  useQueryRecommendationsByCategory,
-  useQueryRecommendationsByCountry,
-} from "@/lib/api/recommendations/recommendationsQuery";
 import { RecommendationItem } from "@/lib/api/recommendations/recommendationsInterface";
 import { Movie } from "@/lib/api/movies/movieInterface";
 import MovieCard from "./MovieCard";
+import { useQueryMovies } from "@/lib/api/movies/movieQuery";
 
 interface MovieRecommendationsProps {
   movieSlug: string;
@@ -92,13 +88,9 @@ function RecommendationCard({
 }
 
 function RecommendationSection({
-  title,
-  icon,
   movies,
   source = "ophim",
 }: {
-  title: string;
-  icon?: string;
   movies: any[] | Movie[];
   source?: string;
 }) {
@@ -106,11 +98,7 @@ function RecommendationSection({
 
   return (
     <div className="space-y-4">
-      <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
-        {icon && <span>{icon}</span>}
-        {title}
-      </h3>
-      <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5 md:gap-4">
+      <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-2.5 md:gap-4">
         {movies.map((movie) => (
           <MovieCard className="!w-full" key={movie._id} movie={movie} />
         ))}
@@ -125,25 +113,17 @@ export default function MovieRecommendations({
   categories,
   countries,
 }: MovieRecommendationsProps) {
-  const primaryCategory = categories?.[0];
-
-  const { data: categoryMovies, isLoading: isLoadingCategory } =
-    useQueryRecommendationsByCategory(
-      primaryCategory?.slug,
-      movieSlug,
-      12,
-      !!primaryCategory?.slug,
-    );
-
-  const { data: countryMovies, isLoading: isLoadingCountry } =
-    useQueryRecommendationsByCountry(
-      countries?.[0]?.slug,
-      movieSlug,
-      6,
-      !!countries?.[0]?.slug,
-    );
-
-  const isLoading = isLoadingCategory || isLoadingCountry;
+  const { data, isLoading } = useQueryMovies(
+    {
+      category: categories.map((category) => category.slug).join(","),
+      limit: 12,
+      page: 1,
+    },
+    true,
+    "categoryMovies",
+    `quoc-gia/${countries?.[0]?.slug}`,
+  );
+  const movieData = data as any;
 
   if (isLoading) {
     return (
@@ -154,28 +134,11 @@ export default function MovieRecommendations({
   }
 
   const hasRecommendations =
-    (categoryMovies && categoryMovies.length > 0) ||
-    (countryMovies && countryMovies.length > 0);
+    movieData?.data?.items && movieData?.data?.items?.length > 0;
 
   if (!hasRecommendations) {
     return null;
   }
 
-  return (
-    <div className="mt-8 pt-8 border-t space-y-6">
-      <RecommendationSection
-        title="Phim cùng thể loại"
-        icon="🎬"
-        movies={categoryMovies || []}
-      />
-
-      {countryMovies && countryMovies.length > 0 && (
-        <RecommendationSection
-          title="Phim cùng quốc gia"
-          icon="🌍"
-          movies={countryMovies}
-        />
-      )}
-    </div>
-  );
+  return <RecommendationSection movies={movieData?.data?.items || []} />;
 }

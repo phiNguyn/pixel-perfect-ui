@@ -26,6 +26,13 @@ import { trackMovieView } from "@/lib/hooks/useTrackMovieView";
 import { useWatchSessionTracker } from "@/lib/hooks/useWatchSessionTracker";
 import { useQueryMovieViewCount } from "@/lib/api/viewLog/viewLogQuery";
 
+const MOVIE_DETAIL_TABS = [
+  { value: "tapphim", label: "Tập phim" },
+  { value: "chitiet", label: "Chi tiết" },
+  { value: "cast", label: "Diễn viên" },
+  { value: "suggest", label: "Đề xuất" },
+] as const;
+
 export default function MovieDetail({ id }: { id: string }) {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -522,43 +529,15 @@ export default function MovieDetail({ id }: { id: string }) {
                 className="mb-6 overflow-x-auto scrollbar-hide"
               >
                 <TabsList className="bg-secondary/50 border border-border rounded-lg p-1">
-                  <TabsTrigger
-                    value="tapphim"
-                    className="text-xs rounded-md data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-                  >
-                    Tập phim
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="chitiet"
-                    className="text-xs rounded-md data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-                  >
-                    Chi tiết
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="cast"
-                    className="text-xs rounded-md data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-                  >
-                    Diễn viên
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="gallery"
-                    className="text-xs rounded-md data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-                  >
-                    Gallery
-                  </TabsTrigger>
-
-                  {/* <TabsTrigger
-                    value="soundtrack"
-                    className="text-xs rounded-md data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-                  >
-                    Soundtrack
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="giaisuat"
-                    className="text-xs rounded-md data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-                  >
-                    Giải suất
-                  </TabsTrigger> */}
+                  {MOVIE_DETAIL_TABS.map((tab) => (
+                    <TabsTrigger
+                      key={tab.value}
+                      value={tab.value}
+                      className="text-xs rounded-md data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                    >
+                      {tab.label}
+                    </TabsTrigger>
+                  ))}
                 </TabsList>
 
                 <TabsContent value="tapphim" className="mt-4">
@@ -598,11 +577,6 @@ export default function MovieDetail({ id }: { id: string }) {
                     isHtml={true}
                   />
                 </TabsContent>
-                <TabsContent value="gallery" className="mt-4">
-                  <p className="text-sm text-muted-foreground">
-                    Chưa có hình ảnh
-                  </p>
-                </TabsContent>
                 <TabsContent value="cast" className="mt-4">
                   <Cast
                     source={source}
@@ -617,6 +591,14 @@ export default function MovieDetail({ id }: { id: string }) {
                     profile_sizes={
                       isPhimApi ? [] : (castData as any)?.data?.profile_sizes
                     }
+                  />
+                </TabsContent>
+                <TabsContent value="suggest" className="mt-4">
+                  <MovieRecommendations
+                    movieSlug={movie.slug}
+                    movieName={movie.name}
+                    categories={movie.category}
+                    countries={movie.country}
                   />
                 </TabsContent>
               </Tabs>
