@@ -654,12 +654,6 @@ export default function MovieDetail({ id }: { id: string }) {
               limit={10}
             />
           </div>
-          <MovieRecommendations
-            movieSlug={movie.slug}
-            movieName={movie.name}
-            categories={movie.category}
-            countries={movie.country}
-          />
         </div>
       </div>
     </>

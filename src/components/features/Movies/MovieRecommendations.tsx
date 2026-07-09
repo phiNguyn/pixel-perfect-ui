@@ -1,9 +1,6 @@
 "use client";
 
-import Link from "next/link";
-import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { RecommendationItem } from "@/lib/api/recommendations/recommendationsInterface";
 import { Movie } from "@/lib/api/movies/movieInterface";
 import MovieCard from "./MovieCard";
 import { useQueryMovies } from "@/lib/api/movies/movieQuery";
@@ -32,61 +29,6 @@ function RecommendationSkeleton() {
   );
 }
 
-function RecommendationCard({
-  movie,
-  source = "ophim",
-}: {
-  movie: RecommendationItem | Movie;
-  source?: string;
-}) {
-  const imageUrl = movie.thumb_url?.startsWith("http")
-    ? movie.thumb_url
-    : `https://img.ophim.live/uploads/movies/${movie.thumb_url}`;
-
-  return (
-    <Link href={`/phim/${movie.slug}?source=${source}`} className="group block">
-      <div className="relative aspect-[2/3] overflow-hidden rounded-lg bg-muted">
-        <img
-          src={imageUrl}
-          alt={movie.name}
-          className="object-cover transition-transform duration-300 group-hover:scale-105"
-          loading="lazy"
-        />
-
-        {/* Quality Badge */}
-        {movie.quality && (
-          <Badge
-            variant="secondary"
-            className="absolute top-2 right-2 text-[10px] px-1.5 py-0.5 bg-black/70 text-white border-0"
-          >
-            {movie.quality}
-          </Badge>
-        )}
-
-        {/* Episode Badge */}
-        {movie.episode_current && (
-          <Badge
-            variant="outline"
-            className="absolute bottom-2 left-2 text-[10px] px-1.5 py-0.5 bg-black/70 text-white border-0"
-          >
-            {movie.episode_current}
-          </Badge>
-        )}
-      </div>
-
-      <div className="mt-2 space-y-1">
-        <h4 className="text-sm font-medium line-clamp-2 group-hover:text-primary transition-colors">
-          {movie.name}
-        </h4>
-        <p className="text-xs text-muted-foreground">
-          {movie.year}
-          {movie.lang && ` · ${movie.lang}`}
-        </p>
-      </div>
-    </Link>
-  );
-}
-
 function RecommendationSection({
   movies,
   source = "ophim",
@@ -98,7 +40,7 @@ function RecommendationSection({
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-2.5 md:gap-4">
+      <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-6 gap-2.5 md:gap-4">
         {movies.map((movie) => (
           <MovieCard className="!w-full" key={movie._id} movie={movie} />
         ))}
@@ -116,7 +58,7 @@ export default function MovieRecommendations({
   const { data, isLoading } = useQueryMovies(
     {
       category: categories.map((category) => category.slug).join(","),
-      limit: 12,
+      limit: 6,
       page: 1,
     },
     true,
