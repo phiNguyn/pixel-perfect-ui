@@ -9,11 +9,13 @@ import Error from "@/components/Common/Error";
 interface MovieNotFoundProps {
   type?: "not-found" | "error";
   slug?: string;
+  onRetry?: () => void;
 }
 
 export default function MovieNotFound({
   type = "not-found",
   slug,
+  onRetry,
 }: MovieNotFoundProps) {
   const router = useRouter();
   const isError = type === "error";
@@ -50,10 +52,7 @@ export default function MovieNotFound({
         {/* Actions */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
           {isError && (
-            <Button
-              onClick={() => router.refresh()}
-              className="gap-2 rounded-full px-6"
-            >
+            <Button onClick={onRetry} className="gap-2 rounded-full px-6">
               <RotateCcw className="w-4 h-4" />
               Thử lại
             </Button>

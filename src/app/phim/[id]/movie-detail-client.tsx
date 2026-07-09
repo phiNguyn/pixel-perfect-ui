@@ -44,11 +44,13 @@ export default function MovieDetail({ id }: { id: string }) {
     data: rawData,
     isLoading,
     isError,
+    refetch,
   } = useQueryMovie(id as string, undefined, source);
   const {
     data: rawDataPhimApi,
     isError: isErrorPhimApi,
     isLoading: isLoadingPhimApi,
+    refetch: refetchPhimApi,
   } = useQueryPhimApi(id as string, isPhimApi);
   const {
     data: castData,
@@ -273,8 +275,22 @@ export default function MovieDetail({ id }: { id: string }) {
   }, [movie, selectedServer, searchParams?.get("ep")]);
 
   if (loading) return <MovieDetailSkeleton />;
-  if (error) return <MovieNotFound type="error" slug={id} />;
-  if (!movie) return <MovieNotFound type="not-found" slug={id} />;
+  if (error)
+    return (
+      <MovieNotFound
+        onRetry={isPhimApi ? refetchPhimApi : refetch}
+        type="error"
+        slug={id}
+      />
+    );
+  if (!movie)
+    return (
+      <MovieNotFound
+        onRetry={isPhimApi ? refetchPhimApi : refetch}
+        type="not-found"
+        slug={id}
+      />
+    );
   return (
     <>
       <div className="mb-4">

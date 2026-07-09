@@ -116,7 +116,7 @@ export const UserDetailDialog = ({
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-2 border-b mt-4 overflow-x-auto">
+        <div className="flex gap-2 border-b overflow-x-auto min-h-fit">
           <button
             onClick={() => handleTabChange("info")}
             className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
@@ -252,18 +252,6 @@ export const UserDetailDialog = ({
             </div>
           ) : activeTab === "history" ? (
             <div className="space-y-4">
-              <div className="bg-muted/50 p-3 rounded-lg">
-                <p className="text-sm">
-                  <span className="font-medium">User ID:</span>{" "}
-                  <code className="bg-muted px-1 py-0.5 rounded text-xs">
-                    {user._id}
-                  </code>
-                </p>
-                <p className="text-sm mt-1">
-                  <span className="font-medium">Email:</span> {user.email}
-                </p>
-              </div>
-
               {isLoading ? (
                 <div className="space-y-2">
                   {[...Array(5)].map((_, i) => (
