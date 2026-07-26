@@ -50,8 +50,8 @@ export default function MobileSearchSheet({
             <input
               type="text"
               placeholder="Tìm phim, diễn viên..."
-              className="bg-secondary text-foreground px-4 py-2.5 pr-10 rounded-full text-sm w-full outline-none border border-border focus:border-primary/50 transition-colors"
-              autoFocus={open}
+              className="bg-secondary text-foreground px-4 py-2.5 pr-10 rounded-full text-base w-full outline-none border border-border focus:border-primary/50 transition-colors"
+  
               value={search}
               onChange={(e) => onSearchChange(e.target.value)}
             />
