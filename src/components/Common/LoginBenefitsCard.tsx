@@ -44,6 +44,7 @@ const BENEFITS = [
     desc: "Lịch sử & lịch xem lưu trên đám mây, đổi máy vẫn còn.",
     color: "text-sky-400",
     bg: "bg-sky-500/10",
+    href: "/watch-histories",
   },
   {
     icon: CalendarHeart,
@@ -51,6 +52,7 @@ const BENEFITS = [
     desc: "Lên kế hoạch xem phim mỗi ngày, nhắc nhở thông minh.",
     color: "text-rose-400",
     bg: "bg-rose-500/10",
+    href: "/watch-calendar",
   },
   {
     icon: MessageSquare,
@@ -58,6 +60,7 @@ const BENEFITS = [
     desc: "Chia sẻ cảm nhận, phản hồi cùng cộng đồng người xem.",
     color: "text-violet-400",
     bg: "bg-violet-500/10",
+    href: "/watch-histories",
   },
   {
     icon: Trophy,
@@ -65,6 +68,7 @@ const BENEFITS = [
     desc: "Ghi danh thời gian xem, leo top bảng xếp hạng tuần.",
     color: "text-amber-400",
     bg: "bg-amber-500/10",
+    href: "/leaderboard",
   },
   {
     icon: Sparkles,
@@ -72,6 +76,7 @@ const BENEFITS = [
     desc: "Đề xuất phim chính xác hơn dựa trên lịch sử cá nhân.",
     color: "text-emerald-400",
     bg: "bg-emerald-500/10",
+    href: "/watch-histories",
   },
   {
     icon: ShieldCheck,
@@ -79,6 +84,7 @@ const BENEFITS = [
     desc: "Tài khoản bảo mật, không lo mất dữ liệu khi xoá trình duyệt.",
     color: "text-cyan-400",
     bg: "bg-cyan-500/10",
+    href: "/settings",
   },
 ];
 
