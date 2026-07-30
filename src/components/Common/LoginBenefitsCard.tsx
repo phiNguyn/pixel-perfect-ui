@@ -220,14 +220,8 @@ export default function LoginBenefitsCard({
             <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
               {BENEFITS.map((b, i) => {
                 const Icon = b.icon;
-                return (
-                  <motion.li
-                    key={b.title}
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, delay: 0.05 * i }}
-                    className="flex items-start gap-3 rounded-xl border border-border/40 bg-background/40 p-3 backdrop-blur-sm hover:border-primary/30 hover:bg-background/60 transition-colors"
-                  >
+                const content = (
+                  <>
                     <span
                       className={cn(
                         "flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg",
@@ -237,14 +231,50 @@ export default function LoginBenefitsCard({
                     >
                       <Icon className="h-4.5 w-4.5" strokeWidth={2.2} />
                     </span>
-                    <div className="min-w-0">
-                      <p className="text-sm font-semibold text-foreground leading-snug">
-                        {b.title}
-                      </p>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-1.5">
+                        <p className="text-sm font-semibold text-foreground leading-snug">
+                          {b.title}
+                        </p>
+                        <ArrowRight
+                          className={cn(
+                            "h-3 w-3 opacity-0 -translate-x-1 transition-all duration-300",
+                            b.color,
+                            b.href && "group-hover:opacity-100 group-hover:translate-x-0",
+                          )}
+                        />
+                      </div>
                       <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed line-clamp-2">
                         {b.desc}
                       </p>
                     </div>
+                  </>
+                );
+
+                return (
+                  <motion.li
+                    key={b.title}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: 0.05 * i }}
+                    className={cn(
+                      "flex items-start gap-3 rounded-xl border border-border/40 bg-background/40 p-3 backdrop-blur-sm transition-colors",
+                      b.href
+                        ? "group cursor-pointer hover:border-primary/30 hover:bg-background/60"
+                        : "",
+                    )}
+                  >
+                    {b.href ? (
+                      <Link
+                        href={b.href}
+                        className="flex items-start gap-3 w-full outline-none focus-visible:ring-2 focus-visible:ring-primary/50 rounded-lg"
+                        prefetch={false}
+                      >
+                        {content}
+                      </Link>
+                    ) : (
+                      content
+                    )}
                   </motion.li>
                 );
               })}
