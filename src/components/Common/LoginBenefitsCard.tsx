@@ -11,7 +11,9 @@ import {
   LogIn,
   ShieldCheck,
   X,
+  ArrowRight,
 } from "lucide-react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useAuth } from "@/components/auth/AuthProvider";
@@ -42,6 +44,7 @@ const BENEFITS = [
     desc: "Lịch sử & lịch xem lưu trên đám mây, đổi máy vẫn còn.",
     color: "text-sky-400",
     bg: "bg-sky-500/10",
+    href: "/watch-histories",
   },
   {
     icon: CalendarHeart,
@@ -49,6 +52,7 @@ const BENEFITS = [
     desc: "Lên kế hoạch xem phim mỗi ngày, nhắc nhở thông minh.",
     color: "text-rose-400",
     bg: "bg-rose-500/10",
+    href: "/watch-calendar",
   },
   {
     icon: MessageSquare,
@@ -56,6 +60,7 @@ const BENEFITS = [
     desc: "Chia sẻ cảm nhận, phản hồi cùng cộng đồng người xem.",
     color: "text-violet-400",
     bg: "bg-violet-500/10",
+    href: "/watch-histories",
   },
   {
     icon: Trophy,
@@ -63,6 +68,7 @@ const BENEFITS = [
     desc: "Ghi danh thời gian xem, leo top bảng xếp hạng tuần.",
     color: "text-amber-400",
     bg: "bg-amber-500/10",
+    href: "/leaderboard",
   },
   {
     icon: Sparkles,
@@ -70,6 +76,7 @@ const BENEFITS = [
     desc: "Đề xuất phim chính xác hơn dựa trên lịch sử cá nhân.",
     color: "text-emerald-400",
     bg: "bg-emerald-500/10",
+    href: "/watch-histories",
   },
   {
     icon: ShieldCheck,
@@ -77,6 +84,7 @@ const BENEFITS = [
     desc: "Tài khoản bảo mật, không lo mất dữ liệu khi xoá trình duyệt.",
     color: "text-cyan-400",
     bg: "bg-cyan-500/10",
+    href: "/settings",
   },
 ];
 
@@ -212,14 +220,8 @@ export default function LoginBenefitsCard({
             <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
               {BENEFITS.map((b, i) => {
                 const Icon = b.icon;
-                return (
-                  <motion.li
-                    key={b.title}
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, delay: 0.05 * i }}
-                    className="flex items-start gap-3 rounded-xl border border-border/40 bg-background/40 p-3 backdrop-blur-sm hover:border-primary/30 hover:bg-background/60 transition-colors"
-                  >
+                const content = (
+                  <>
                     <span
                       className={cn(
                         "flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg",
@@ -229,14 +231,50 @@ export default function LoginBenefitsCard({
                     >
                       <Icon className="h-4.5 w-4.5" strokeWidth={2.2} />
                     </span>
-                    <div className="min-w-0">
-                      <p className="text-sm font-semibold text-foreground leading-snug">
-                        {b.title}
-                      </p>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-1.5">
+                        <p className="text-sm font-semibold text-foreground leading-snug">
+                          {b.title}
+                        </p>
+                        <ArrowRight
+                          className={cn(
+                            "h-3 w-3 opacity-60 transition-all duration-300",
+                            b.color,
+                            b.href && "group-hover:opacity-100 group-hover:translate-x-0.5",
+                          )}
+                        />
+                      </div>
                       <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed line-clamp-2">
                         {b.desc}
                       </p>
                     </div>
+                  </>
+                );
+
+                return (
+                  <motion.li
+                    key={b.title}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: 0.05 * i }}
+                    className={cn(
+                      "flex items-start gap-3 rounded-xl border border-border/40 bg-background/40 p-3 backdrop-blur-sm transition-colors",
+                      b.href
+                        ? "group cursor-pointer hover:border-primary/30 hover:bg-background/60"
+                        : "",
+                    )}
+                  >
+                    {b.href ? (
+                      <Link
+                        href={b.href}
+                        className="flex items-start gap-3 w-full outline-none focus-visible:ring-2 focus-visible:ring-primary/50 rounded-lg"
+                        prefetch={false}
+                      >
+                        {content}
+                      </Link>
+                    ) : (
+                      content
+                    )}
                   </motion.li>
                 );
               })}
