@@ -1,7 +1,7 @@
 "use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Crown } from "lucide-react";
+import { Clock } from "lucide-react";
 import type { LeaderboardEntry } from "@/lib/api/leaderboard/leaderboardInterface";
 import { formatWatchHours, getDisplayName } from "@/lib/utils/watchTime";
 import { cn } from "@/lib/utils";
@@ -10,58 +10,108 @@ interface LeaderboardPodiumProps {
   entries: LeaderboardEntry[];
 }
 
-function PodiumUser({
+const PODIUM_STYLES: Record<
+  1 | 2 | 3,
+  { bar: string; ring: string; text: string; height: string; avatar: string }
+> = {
+  1: {
+    bar: "bg-gradient-to-b from-[#f5c243] via-[#f0cb62] to-[#fdf0c4]",
+    ring: "ring-[#c6f24e]",
+    text: "text-[#1a1a1a]",
+    height: "h-[240px] md:h-[280px]",
+    avatar: "size-[68px] md:size-[84px]",
+  },
+  2: {
+    bar: "bg-gradient-to-b from-[#e6ebf2] via-[#dbe1ea] to-[#f7f9fc]",
+    ring: "ring-[#c6f24e]",
+    text: "text-[#1a1a1a]",
+    height: "h-[195px] md:h-[228px]",
+    avatar: "size-[58px] md:size-[70px]",
+  },
+  3: {
+    bar: "bg-gradient-to-b from-[#c98a4b] via-[#d9a26a] to-[#f0dcc4]",
+    ring: "ring-[#c6f24e]",
+    text: "text-[#1a1a1a]",
+    height: "h-[170px] md:h-[200px]",
+    avatar: "size-[52px] md:size-[64px]",
+  },
+};
+
+function PodiumColumn({
   entry,
-  size,
-  isFirst,
+  place,
 }: {
   entry: LeaderboardEntry;
-  size: "lg" | "md";
-  isFirst?: boolean;
+  place: 1 | 2 | 3;
 }) {
+  const s = PODIUM_STYLES[place];
   const displayName = getDisplayName(entry.name, entry.username);
 
   return (
-    <div className="flex flex-col items-center text-center">
-      <div className="relative mb-3">
-        {isFirst && (
-          <Crown className="absolute -top-5 left-1/2 -translate-x-1/2 h-5 w-5 text-amber-400 fill-amber-400/20" />
-        )}
-        <Avatar
-          className={cn(
-            "border-2 border-white/20 shadow-lg",
-            size === "lg" ? "h-20 w-20 md:h-24 md:w-24" : "h-16 w-16 md:h-20 md:w-20",
-            isFirst && "border-amber-400/60",
-          )}
-        >
-          <AvatarImage src={entry.avatar ?? undefined} alt={displayName} />
-          <AvatarFallback className="bg-primary/80 text-primary-foreground text-lg">
-            {displayName.charAt(0).toUpperCase()}
-          </AvatarFallback>
-        </Avatar>
-        <span
-          className={cn(
-            "absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold",
-            isFirst
-              ? "bg-amber-400 text-amber-950"
-              : "bg-muted text-foreground border border-border",
-          )}
-        >
-          {entry.rank}
-        </span>
-      </div>
+    <div className="flex w-1/3 flex-col items-center justify-end">
+      <div className={cn("relative w-full", s.height)}>
+        {/* avatar overlapping top of the bar */}
+        <div className="absolute left-1/2 top-0 z-10 -translate-x-1/2 -translate-y-1/2">
+          <Avatar
+            className={cn(
+              s.avatar,
+              "ring-[3px] ring-offset-0 shadow-xl",
+              s.ring,
+            )}
+          >
+            <AvatarImage src={entry.avatar ?? undefined} alt={displayName} />
+            <AvatarFallback className="bg-primary/80 text-primary-foreground text-base">
+              {displayName.charAt(0).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
+        </div>
 
-      <p className="font-semibold text-sm md:text-base truncate max-w-[120px]">
-        {displayName}
-      </p>
-      {entry.bio && (
-        <p className="text-xs text-muted-foreground line-clamp-2 max-w-[140px] mt-1">
-          {entry.bio}
-        </p>
-      )}
-      <p className="text-sm font-bold text-primary mt-2">
-        {formatWatchHours(entry.totalWatchHours)}
-      </p>
+        <div
+          className={cn(
+            "flex h-full w-full flex-col items-center rounded-t-[26px] px-1.5 pt-9 md:pt-11 shadow-2xl",
+            s.bar,
+          )}
+        >
+          <p
+            className={cn(
+              "w-full truncate text-center text-[13px] md:text-lg font-extrabold",
+              s.text,
+            )}
+          >
+            {displayName}
+          </p>
+
+          <div
+            className={cn(
+              "mt-2 flex items-center gap-1 text-[13px] md:text-base font-bold",
+              s.text,
+            )}
+          >
+            <Clock className="h-3.5 w-3.5 md:h-4 md:w-4" />
+            {formatWatchHours(entry.totalWatchHours)}
+          </div>
+
+          {entry.bio && (
+            <p
+              className={cn(
+                "mt-1 line-clamp-1 px-1 text-center text-[11px] opacity-70",
+                s.text,
+              )}
+            >
+              {entry.bio}
+            </p>
+          )}
+
+          <span
+            className={cn(
+              "mt-auto pb-3 text-5xl md:text-6xl font-black leading-none",
+              s.text,
+            )}
+          >
+            {place}
+          </span>
+        </div>
+      </div>
     </div>
   );
 }
@@ -69,29 +119,22 @@ function PodiumUser({
 export default function LeaderboardPodium({ entries }: LeaderboardPodiumProps) {
   if (entries.length === 0) return null;
 
-  const [second, first, third] =
-    entries.length >= 3
-      ? entries
-      : entries.length === 2
-        ? [entries[0], entries[1], undefined]
-        : [undefined, entries[0], undefined];
+  const first = entries[0];
+  const second = entries[1];
+  const third = entries[2];
 
   return (
-    <div className="flex items-end justify-center gap-2 md:gap-6 py-6 px-2">
-      {second && (
-        <div className="pb-4 order-1 flex-1">
-          <PodiumUser entry={second} size="md" />
-        </div>
+    <div className="mt-10 flex items-end justify-center gap-1.5 md:gap-3 px-1">
+      {second ? (
+        <PodiumColumn entry={second} place={2} />
+      ) : (
+        <div className="w-1/3" />
       )}
-      {first && (
-        <div className="order-2 flex-1">
-          <PodiumUser entry={first} size="lg" isFirst />
-        </div>
-      )}
-      {third && (
-        <div className="pb-6 order-3 flex-1">
-          <PodiumUser entry={third} size="md" />
-        </div>
+      {first && <PodiumColumn entry={first} place={1} />}
+      {third ? (
+        <PodiumColumn entry={third} place={3} />
+      ) : (
+        <div className="w-1/3" />
       )}
     </div>
   );
