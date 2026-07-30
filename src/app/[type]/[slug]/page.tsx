@@ -57,14 +57,10 @@ export default async function MoviesPage({ params, searchParams }: Props) {
   const resolvedSearchParams = await searchParams;
   const page = Number(resolvedSearchParams.page) || 1;
 
-  // Fetch initial data for SSR
-  const initialData = await fetchMoviesByCategory(type, slug, page);
-
   return (
     <MoviesListClient
       type={type}
       slug={slug}
-      initialData={initialData}
       initialPage={page}
     />
   );
