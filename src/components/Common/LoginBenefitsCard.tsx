@@ -137,7 +137,7 @@ export default function LoginBenefitsCard({
       className={cn("relative", isHero ? "py-4" : "py-2", className)}
       aria-label="Đăng nhập để mở khoá tính năng"
     >
-      <div className={cn("max-w-[1560px] mx-auto", isHero ? "px-4" : "")}>
+      <div className={cn("max-w-[1560px] mx-auto")}>
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
