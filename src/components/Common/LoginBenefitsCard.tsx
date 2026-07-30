@@ -11,7 +11,9 @@ import {
   LogIn,
   ShieldCheck,
   X,
+  ArrowRight,
 } from "lucide-react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useAuth } from "@/components/auth/AuthProvider";
