@@ -119,9 +119,15 @@ function PodiumColumn({
 export default function LeaderboardPodium({ entries }: LeaderboardPodiumProps) {
   if (entries.length === 0) return null;
 
-  const first = entries[0];
-  const second = entries[1];
-  const third = entries[2];
+  // API may return podium unsorted — pick by rank, fallback to order.
+  const sorted = [...entries].sort(
+    (a, b) => (a?.rank ?? 99) - (b?.rank ?? 99),
+  );
+  const first = sorted.find((e) => e?.rank === 1) ?? sorted[0];
+  const second = sorted.find((e) => e?.rank === 2 && e !== first) ?? sorted[1];
+  const third =
+    sorted.find((e) => e?.rank === 3 && e !== first && e !== second) ??
+    sorted[2];
 
   return (
     <div className="mt-10 flex items-end justify-center gap-1.5 md:gap-3 px-1">
