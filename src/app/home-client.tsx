@@ -22,7 +22,7 @@ export default function HomeClient() {
           title="Phim Mới Cập Nhật"
           cacheKey={MovieCategory.PHIM_MOI}
           slug={"danh-sach/" + MovieCategory.PHIM_MOI}
-          type="danh-sach"
+          type={"danh-sach/" + MovieCategory.PHIM_MOI}
         />
         <LazyMovieRow
           title="Phim Hàn Quốc Mới"
