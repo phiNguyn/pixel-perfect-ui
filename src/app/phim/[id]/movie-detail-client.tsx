@@ -388,7 +388,7 @@ export default function MovieDetail({ id }: { id: string }) {
                   <div className="flex flex-wrap items-center gap-2">
                     {movie.category.map((item, idx) => (
                       <span
-                        key={item.id + idx}
+                        key={item.slug + idx}
                         className="px-3 py-1 rounded-full border border-border/60 bg-background/40 backdrop-blur-md text-[11px] font-semibold text-foreground/80 hover:border-primary/50 hover:text-primary transition-colors"
                       >
                         {item.name}

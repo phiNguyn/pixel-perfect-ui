@@ -96,7 +96,7 @@ function MoviesListContent({ type, slug, initialPage }: MoviesListClientProps) {
 
   return (
     <div className="px-4 md:px-16 mt-16 mx-auto py-6">
-      <div className="px-2 flex justify-between items-center">
+      <div className="px-2 flex justify-between items-start gap-2">
         <BreadCrumb breadCrumb={breadCrumb} />
 
         <div className="flex justify-end mt-4">

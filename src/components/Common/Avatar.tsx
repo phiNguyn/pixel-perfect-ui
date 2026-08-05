@@ -15,7 +15,7 @@ const AvatarComponent = () => {
             PF
           </AvatarFallback>
         </Avatar>
-        <span className="hidden md:block text-foreground font-bold text-lg tracking-tight">
+        <span className="text-foreground font-bold text-lg tracking-tight">
           Pinuss Flix
         </span>
       </Link>

@@ -49,7 +49,6 @@ function InstallButton() {
 
 export default function SiteFooter() {
   const pathname = usePathname();
-  console.log(pathname);
   if (pathname.includes("/admin")) {
     return null;
   }

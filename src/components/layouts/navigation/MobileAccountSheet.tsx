@@ -1,12 +1,7 @@
 "use client";
 
 import { User } from "lucide-react";
-import {
-  Drawer,
-  DrawerContent,
-  DrawerHeader,
-  DrawerTitle,
-} from "@/components/ui/drawer";
+import BaseDrawer from "./BaseDrawer";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import UserAccountMenuContent from "@/components/layouts/navigation/UserAccountMenuContent";
@@ -32,15 +27,13 @@ export default function MobileAccountSheet({
   const closeSheet = () => onOpenChange(false);
 
   return (
-    <Drawer open={open} onOpenChange={onOpenChange}>
-      <DrawerContent className="p-0 max-h-[85dvh] overflow-hidden rounded-t-2xl">
-        <DrawerHeader className="border-b border-border/50 p-4 text-left">
-          <DrawerTitle className="text-foreground font-bold text-lg tracking-tight">
-            Tài khoản
-          </DrawerTitle>
-        </DrawerHeader>
-
-        <div className="p-4 overflow-y-auto scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent">
+    <BaseDrawer
+      open={open}
+      onOpenChange={onOpenChange}
+      title="Tài khoản"
+      contentClassName="p-0 max-h-[85dvh] overflow-hidden"
+    >
+      <div className="p-4 overflow-y-auto scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent">
           {isAuthenticated ? (
             <UserAccountMenuContent
               user={user}
@@ -73,7 +66,6 @@ export default function MobileAccountSheet({
             </div>
           )}
         </div>
-      </DrawerContent>
-    </Drawer>
+      </BaseDrawer>
   );
 }
