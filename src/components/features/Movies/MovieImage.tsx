@@ -19,7 +19,7 @@ export default function MovieImage({
     }
     return movie.thumb_url.startsWith("http")
       ? movie.thumb_url
-      : `https://img.ophim.live/uploads/movies/${movie.thumb_url}?w=1920&q=75`;
+      : `https://img.ophim.live/${movie.thumb_url}`;
   };
 
   const [imgSrc, setImgSrc] = useState(getImageSrc());
