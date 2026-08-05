@@ -204,7 +204,7 @@ export default function MovieDetail({ id }: { id: string }) {
       addWatchHistory({
         slug: movie.slug,
         name: movie.name,
-        thumb_url: movie.thumb_url,
+        thumb_url: isPhimApi ? movie.poster_url : movie.thumb_url,
         origin_name: movie.origin_name,
         episode_current: movie.episode_current,
         year: movie.year,
@@ -597,16 +597,8 @@ export default function MovieDetail({ id }: { id: string }) {
                   <Cast
                     source={source}
                     loading={loadingCast}
-                    peoples={
-                      isPhimApi
-                        ? movie?.actor
-                        : isErrorCast
-                          ? movie?.actor
-                          : (castData as any)?.data?.peoples
-                    }
-                    profile_sizes={
-                      isPhimApi ? [] : (castData as any)?.data?.profile_sizes
-                    }
+                    peoples={(castData as any)?.data?.peoples || movie?.actor}
+                    profile_sizes={(castData as any)?.data?.profile_sizes}
                   />
                 </TabsContent>
                 <TabsContent value="suggest" className="mt-4">

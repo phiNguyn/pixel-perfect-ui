@@ -17,9 +17,11 @@ export default function MovieImage({
         ? movie.poster_url
         : `https://phimimg.com/${movie.poster_url}`;
     }
-    return movie.thumb_url.startsWith("http")
-      ? movie.thumb_url
-      : `https://img.ophim.live/${movie.thumb_url}`;
+    if (movie.thumb_url.startsWith("http")) return movie.thumb_url;
+    if (movie.thumb_url.includes("uploads/movies/")) {
+      return `https://img.ophim.live/${movie.thumb_url}`;
+    }
+    return `https://img.ophim.live/uploads/movies/${movie.thumb_url}`;
   };
 
   const [imgSrc, setImgSrc] = useState(getImageSrc());

@@ -12,6 +12,7 @@ interface MovieCardProps {
   className?: string;
   listName?: string;
   position?: number;
+  source?: string;
 }
 
 const serverNameMap: Record<string, string> = {
@@ -24,13 +25,14 @@ const serverNameMap: Record<string, string> = {
 };
 
 const getEpisodeBadge = (serverName: string, episodeName: string): string => {
+  const cleanEpisode = episodeName.replace(/^Tập\s*/i, "");
   const lowerName = serverName.toLowerCase();
   for (const [key, value] of Object.entries(serverNameMap)) {
     if (lowerName.includes(key)) {
-      return `${value}.${episodeName}`;
+      return `${value}.${cleanEpisode}`;
     }
   }
-  return episodeName;
+  return cleanEpisode;
 };
 
 import MovieImage from "./MovieImage";
@@ -40,20 +42,21 @@ export default function MovieCard({
   className,
   listName,
   position,
+  source = "phimapi",
 }: MovieCardProps) {
   const handleClick = () => {
     analytics.movieClick({
       movie_id: movie.tmdb?.id?.toString() || movie._id || movie.slug,
       movie_title: movie.name,
       movie_slug: movie.slug,
-      source: "ophim",
+      source: source,
       position: position || 0,
       list_name: listName,
     });
   };
 
   return (
-    <Link href={`/phim/${movie.slug}`} onClick={handleClick}>
+    <Link href={`/phim/${movie.slug}?source=${source}`} onClick={handleClick}>
       <div
         className={cn(
           "relative flex-shrink-0 w-[140px] md:w-[170px] group cursor-pointer",
@@ -70,7 +73,7 @@ export default function MovieCard({
           </div>
         )}
         <div className="relative aspect-[2/3] rounded-lg overflow-hidden shadow-[var(--shadow-card)]">
-          <MovieImage movie={movie} />
+          <MovieImage movie={movie} source="phimapi" />
           <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
           <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
             <div className="w-10 h-10 rounded-full bg-primary/90 flex items-center justify-center">

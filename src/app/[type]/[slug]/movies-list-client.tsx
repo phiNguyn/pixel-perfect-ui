@@ -119,6 +119,7 @@ function MoviesListContent({ type, slug, initialPage }: MoviesListClientProps) {
             )
             .map((item) => (
               <MovieCard
+                source="phimapi"
                 movie={item as any}
                 key={item._id}
                 className="!w-full"

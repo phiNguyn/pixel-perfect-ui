@@ -8,7 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Sheet, SheetClose, SheetContent, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { useQueryCategories } from "@/lib/api/categories/categorieQuery"
-import { useQueryMovies } from "@/lib/api/movies/movieQuery"
+import { useQueryMovies, useQueryMoviesWithoutPrefix } from "@/lib/api/movies/movieQuery"
 import { ItemQueryField } from "@/hooks/useQueryResult"
 import { analytics } from "@/lib/analytics"
 
@@ -161,8 +161,8 @@ export const Filter: FC<OrderFilterProps> = ({ addQuery, getFilterValue, clearAl
     const { data: countriesData, isLoading: countriesLoading } = useQueryMovies(
         {}, true, "quoc-gia", "quoc-gia"
     )
-    const { data: yearsData, isLoading: yearsLoading } = useQueryMovies(
-        { limit: 10 }, true, "nam-phat-hanh", "nam-phat-hanh"
+    const { data: yearsData, isLoading: yearsLoading } = useQueryMoviesWithoutPrefix(
+        "nam-phat-hanh", { limit: 10 }, true, "nam-phat-hanh"
     )
 
     const selectedCategories = (getFilterValue("category", "array") as string[]) ?? []

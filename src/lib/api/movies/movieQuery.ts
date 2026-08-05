@@ -1,5 +1,5 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import { moviesApi, MoviesApi } from "./movieApi";
+import { moviesApi, MoviesApi, ophimApi } from "./movieApi";
 import { QueryResult } from "@/hooks/useQueryResult";
 import { phimApi } from "./phimApi";
 import { phimApiDetail } from "../phimapi/phimApi";
@@ -22,15 +22,34 @@ export const useQueryMovies = <TData = unknown>(
   });
 };
 
+export const useQueryMoviesWithoutPrefix = <TData = unknown>(
+  slug: string,
+  query?: QueryResult,
+  enabled = true,
+  key = "movies",
+) => {
+  return useQuery<TData>({
+    queryKey: [key, slug, JSON.stringify(query)],
+    queryFn: () => moviesApi.findAllWithoutPrefix<TData>(slug, query),
+    enabled,
+    retry: false,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+  });
+};
+
 export const useQueryMovie = (
   id?: string,
   peoples?: string,
   source?: string,
 ) => {
   return useQuery({
-    queryKey: ["movie", id, peoples],
-    enabled: !!id && source !== "phimapi",
-    queryFn: () => moviesApi.findOne(id as string, peoples),
+    queryKey: ["movie", id, peoples, source],
+    enabled: !!id,
+    queryFn: () =>
+      source === "phimapi"
+        ? moviesApi.findOne(id as string, peoples)
+        : ophimApi.findOne(id as string, peoples),
     retry: false,
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
@@ -52,7 +71,7 @@ export const useQuerySearchMovie = <TData = unknown>(q: string) => {
   return useQuery<TData>({
     queryKey: ["movies", q],
     enabled: !!q,
-    queryFn: () => moviesApi.searchMovie<TData>(q as string),
+    queryFn: () => ophimApi.searchMovie<TData>(q as string),
     retry: false,
     staleTime: 5 * 60 * 1000,
   });

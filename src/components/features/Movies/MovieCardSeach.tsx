@@ -22,7 +22,7 @@ const MovieCardSeach: FC<MovieCardSeachProps> = ({
     addSearchHistory({
       slug: movie.slug,
       name: movie.name,
-      thumb_url: movie.thumb_url,
+      thumb_url: source === "phimapi" ? movie.poster_url : movie.thumb_url,
       year: movie.year,
       episode_current: movie.episode_current,
       searchedAt: Date.now(),

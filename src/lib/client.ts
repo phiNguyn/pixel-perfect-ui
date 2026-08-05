@@ -14,8 +14,13 @@ export default apiClient;
 export class BaseApi {
   constructor(protected baseURL: string) {}
 
-  protected async get<T>(url: string, config?: AxiosRequestConfig): Promise<T> {
-    const response = await apiClient.get(`${this.baseURL}${url}`, config);
+  protected async get<T>(
+    url: string,
+    useBaseURL = true,
+    config?: AxiosRequestConfig,
+  ): Promise<T> {
+    const fullUrl = useBaseURL ? `${this.baseURL}${url}` : url;
+    const response = await apiClient.get(fullUrl, config);
     return response.data;
   }
 
