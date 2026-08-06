@@ -1,93 +1,96 @@
 import {
-    Pagination,
-    PaginationContent,
-    PaginationEllipsis,
-    PaginationItem,
-    PaginationLink,
-    PaginationNext,
-    PaginationPrevious,
-} from "@/components/ui/pagination"
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
 type PaginationBaseProps = {
-    current: number
-    pageSize: number
-    total: number
-    pageRanges?: number
-    onChange?: (page: number) => void
-}
+  current: number;
+  pageSize: number;
+  total: number;
+  pageRanges?: number;
+  onChange?: (page: number) => void;
+};
 
 export function PaginationBase({
-    current,
-    pageSize,
-    total,
-    pageRanges = 5,
-    onChange,
+  current,
+  pageSize,
+  total,
+  pageRanges = 5,
+  onChange,
 }: PaginationBaseProps) {
-    const totalPage = Math.ceil(total / pageSize)
+  const totalPage = Math.ceil(total / pageSize);
 
-    const getPages = () => {
-        const pages: (number | "ellipsis")[] = []
+  const getPages = () => {
+    const pages: (number | "ellipsis")[] = [];
 
-        const start = Math.max(1, current - Math.floor(pageRanges / 2))
-        const end = Math.min(totalPage, start + pageRanges - 1)
+    const start = Math.max(1, current - Math.floor(pageRanges / 2));
+    const end = Math.min(totalPage, start + pageRanges - 1);
 
-        if (start > 1) {
-            pages.push(1)
-            if (start > 2) pages.push("ellipsis")
-        }
-
-        for (let i = start; i <= end; i++) {
-            pages.push(i)
-        }
-
-        if (end < totalPage) {
-            if (end < totalPage - 1) pages.push("ellipsis")
-            pages.push(totalPage)
-        }
-
-        return pages
+    if (start > 1) {
+      pages.push(1);
+      if (start > 2) pages.push("ellipsis");
     }
 
-    const pages = getPages()
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
 
-    return (
-        <Pagination >
-            <PaginationContent className="gap-4 cursor-pointer flex-wrap">
+    if (end < totalPage) {
+      if (end < totalPage - 1) pages.push("ellipsis");
+      pages.push(totalPage);
+    }
 
-                {current > 1 && (
-                    <PaginationItem >
-                        <PaginationPrevious
-                            onClick={() => onChange?.(current - 1)}
-                        />
-                    </PaginationItem>
-                )}
+    return pages;
+  };
 
-                {pages.map((page, index) =>
-                    page === "ellipsis" ? (
-                        <PaginationItem key={page + index}>
-                            <PaginationEllipsis />
-                        </PaginationItem>
-                    ) : (
-                        <PaginationItem key={page}>
-                            <PaginationLink
-                                isActive={current === page}
-                                onClick={() => onChange?.(page)}
-                            >
-                                {page}
-                            </PaginationLink>
-                        </PaginationItem>
-                    )
-                )}
+  const pages = getPages();
 
-                {current < totalPage && (
-                    <PaginationItem>
-                        <PaginationNext
-                            onClick={() => onChange?.(current + 1)}
-                        />
-                    </PaginationItem>
-                )}
+  return (
+    <Pagination>
+      <PaginationContent className="gap-4 cursor-pointer flex-wrap">
+        {current > 1 && (
+          <PaginationItem>
+            <PaginationPrevious
+              size="icon"
+              className="pl-0"
+              onClick={() => onChange?.(current - 1)}
+            />
+          </PaginationItem>
+        )}
 
-            </PaginationContent>
-        </Pagination>
-    )
+        {pages.map((page, index) =>
+          page === "ellipsis" ? (
+            <PaginationItem key={page + index}>
+              <PaginationEllipsis />
+            </PaginationItem>
+          ) : (
+            <PaginationItem key={page}>
+              <PaginationLink
+                size="sm"
+                isActive={current === page}
+                onClick={() => onChange?.(page)}
+              >
+                {page}
+              </PaginationLink>
+            </PaginationItem>
+          ),
+        )}
+
+        {current < totalPage && (
+          <PaginationItem>
+            <PaginationNext
+              size="icon"
+              className="pr-0"
+              onClick={() => onChange?.(current + 1)}
+            />
+          </PaginationItem>
+        )}
+      </PaginationContent>
+    </Pagination>
+  );
 }

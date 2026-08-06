@@ -1,6 +1,6 @@
 /**
  * Google Analytics 4 utility for Pinuss Flix
- * 
+ *
  * Provides centralized tracking functions for:
  * - Page views
  * - Movie interactions (play, pause, watch time)
@@ -32,7 +32,7 @@ interface SearchEventParams {
 }
 
 interface FilterEventParams {
-  filter_type: "category" | "country" | "year";
+  filter_type: "category" | "country" | "year" | "sort_lang";
   filter_value: string;
   action: "add" | "remove";
 }
@@ -100,7 +100,9 @@ class Analytics {
   /**
    * Track when user pauses the video
    */
-  moviePause(params: VideoEventParams & { pause_position_seconds: number }): void {
+  moviePause(
+    params: VideoEventParams & { pause_position_seconds: number },
+  ): void {
     this.gtag("event", "movie_pause", {
       movie_id: params.movie_id,
       movie_title: params.movie_title,
@@ -114,7 +116,12 @@ class Analytics {
   /**
    * Track video seek events
    */
-  movieSeek(params: VideoEventParams & { seek_from_seconds: number; seek_to_seconds: number }): void {
+  movieSeek(
+    params: VideoEventParams & {
+      seek_from_seconds: number;
+      seek_to_seconds: number;
+    },
+  ): void {
     this.gtag("event", "movie_seek", {
       movie_id: params.movie_id,
       movie_title: params.movie_title,
@@ -128,7 +135,9 @@ class Analytics {
   /**
    * Track episode change
    */
-  episodeChange(params: VideoEventParams & { from_episode: string; to_episode: string }): void {
+  episodeChange(
+    params: VideoEventParams & { from_episode: string; to_episode: string },
+  ): void {
     this.gtag("event", "episode_change", {
       movie_id: params.movie_id,
       movie_title: params.movie_title,
@@ -157,7 +166,9 @@ class Analytics {
   /**
    * Track watch time progress (every milestone)
    */
-  watchProgress(params: VideoEventParams & { milestone: "25%" | "50%" | "75%" | "90%" }): void {
+  watchProgress(
+    params: VideoEventParams & { milestone: "25%" | "50%" | "75%" | "90%" },
+  ): void {
     this.gtag("event", "watch_progress", {
       movie_id: params.movie_id,
       movie_title: params.movie_title,
@@ -211,7 +222,9 @@ class Analytics {
   /**
    * Track movie card click
    */
-  movieClick(params: MovieEventParams & { position: number; list_name?: string }): void {
+  movieClick(
+    params: MovieEventParams & { position: number; list_name?: string },
+  ): void {
     this.gtag("event", "movie_click", {
       movie_id: params.movie_id,
       movie_title: params.movie_title,
@@ -225,7 +238,9 @@ class Analytics {
   /**
    * Track share action
    */
-  share(params: MovieEventParams & { share_method: "native" | "copy_link" }): void {
+  share(
+    params: MovieEventParams & { share_method: "native" | "copy_link" },
+  ): void {
     this.gtag("event", "share", {
       movie_id: params.movie_id,
       movie_title: params.movie_title,
@@ -248,7 +263,12 @@ class Analytics {
   /**
    * Track quality change
    */
-  qualityChange(params: VideoEventParams & { new_quality: string; auto_or_manual: "auto" | "manual" }): void {
+  qualityChange(
+    params: VideoEventParams & {
+      new_quality: string;
+      auto_or_manual: "auto" | "manual";
+    },
+  ): void {
     this.gtag("event", "quality_change", {
       movie_id: params.movie_id,
       movie_title: params.movie_title,
@@ -273,7 +293,9 @@ class Analytics {
   /**
    * Track fullscreen toggle
    */
-  fullscreenToggle(params: VideoEventParams & { is_fullscreen: boolean }): void {
+  fullscreenToggle(
+    params: VideoEventParams & { is_fullscreen: boolean },
+  ): void {
     this.gtag("event", "fullscreen_toggle", {
       movie_id: params.movie_id,
       movie_title: params.movie_title,
@@ -297,7 +319,10 @@ class Analytics {
   /**
    * Track user login attempt
    */
-  loginAttempt(params: { method: "email" | "google" | "github"; success: boolean }): void {
+  loginAttempt(params: {
+    method: "email" | "google" | "github";
+    success: boolean;
+  }): void {
     this.gtag("event", "login_attempt", {
       login_method: params.method,
       login_success: params.success,

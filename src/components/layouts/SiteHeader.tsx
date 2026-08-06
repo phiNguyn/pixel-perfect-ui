@@ -7,6 +7,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { useQueryCategories } from "@/lib/api/categories/categorieQuery";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { categories } from "@/data/movies";
 import {
   useQueryMovies,
   useQueryPhimApiSearchMovie,
@@ -168,7 +169,7 @@ export default function SiteHeader() {
                 )}
               </AnimatePresence>
               <AvatarComponent />
-              <div className="hidden md:flex items-center gap-2 ">
+              <div className="hidden md:flex items-center gap-2.5 ">
                 <NavigationMenu>
                   <NavigationMenuList>
                     <NavigationMenuItem>
@@ -228,6 +229,28 @@ export default function SiteHeader() {
                             ))}
                           </div>
                         )}
+                      </NavigationMenuContent>
+                    </NavigationMenuItem>
+                    <NavigationMenuItem>
+                      <NavigationMenuTrigger
+                        aria-label="Danh sách"
+                        className="h-9 px-3 py-1.5 text-sm bg-secondary hover:bg-secondary/80 data-[state=open]:bg-secondary/80 data-[active]:bg-secondary/80"
+                      >
+                        Danh sách
+                      </NavigationMenuTrigger>
+                      <NavigationMenuContent>
+                        <div className="grid grid-cols-4 gap-1 p-2 w-[600px]">
+                          {categories?.map((c) => (
+                            <NavigationMenuLink key={c.key} asChild>
+                              <Link
+                                href={`/danh-sach/${c.key}`}
+                                className={`cursor-pointer text-sm px-2 py-1.5 rounded text-left ${c.key === slug ? "bg-accent text-accent-foreground" : "hover:bg-accent"}`}
+                              >
+                                {c.label}
+                              </Link>
+                            </NavigationMenuLink>
+                          ))}
+                        </div>
                       </NavigationMenuContent>
                     </NavigationMenuItem>
                   </NavigationMenuList>

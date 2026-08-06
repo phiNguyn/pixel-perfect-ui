@@ -93,10 +93,16 @@ function MoviesListContent({ type, slug, initialPage }: MoviesListClientProps) {
       }
     }
   }, [slug, router]);
-
+  const handlePagechange = (page: number) => {
+    setPage(page);
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  };
   return (
     <div className="px-4 md:px-16 mt-16 mx-auto py-6">
-      <div className="px-2 flex justify-between items-start gap-2">
+      <div className="px-2 flex justify-between items-center gap-2">
         <BreadCrumb breadCrumb={breadCrumb} />
 
         <div className="flex justify-end mt-4">
@@ -139,7 +145,7 @@ function MoviesListContent({ type, slug, initialPage }: MoviesListClientProps) {
             pageSize={pagination.totalItemsPerPage}
             total={pagination.totalItems}
             pageRanges={4}
-            onChange={setPage}
+            onChange={handlePagechange}
           />
         </div>
       )}
