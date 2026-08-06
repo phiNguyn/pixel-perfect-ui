@@ -6,7 +6,7 @@ import { BaseApi } from "@/lib/client";
 
 export class CategorysApi extends BaseApi {
   constructor() {
-    super("the-loai");
+    super("https://phimapi.com/the-loai");
   }
 
   async findAll(queryParam: QueryResult, slug: string) {
