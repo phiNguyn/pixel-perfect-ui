@@ -26,7 +26,7 @@ export default function BaseDrawer({
   customHeader,
 }: BaseDrawerProps) {
   return (
-    <Drawer open={open} onOpenChange={onOpenChange}>
+    <Drawer repositionInputs={false} open={open} onOpenChange={onOpenChange}>
       <DrawerContent className={`rounded-t-2xl ${contentClassName}`}>
         <DrawerHeader className="border-b border-border/50 p-4 text-left">
           {customHeader ? (
