@@ -413,18 +413,49 @@ export const moods = [
   { label: "Vui nhộn", color: "secondary" as const },
 ];
 
-export const categories = [
-  { key: "phim-moi", label: "Phim mới" },
-  { key: "phim-bo", label: "Phim bộ" },
-  { key: "phim-le", label: "Phim lẻ" },
-  { key: "tv-shows", label: "TV Shows" },
-  { key: "hoat-hinh", label: "Hoạt hình" },
-  { key: "phim-vietsub", label: "Phim Vietsub" },
-  { key: "phim-thuyet-minh", label: "Phim Thuyết Minh" },
-  { key: "phim-long-tien", label: "Phim Lồng Tiếng" },
-  { key: "phim-bo-dang-chieu", label: "Phim bộ đang chiếu" },
-  { key: "phim-bo-hoan-thanh", label: "Phim bộ hoàn thành" },
-  { key: "phim-sap-chieu", label: "Phim sắp chiếu" },
-  { key: "subteam", label: "Subteam" },
-  { key: "phim-chieu-rap", label: "Phim chiếu rạp" },
+import {
+  Film,
+  Sparkles,
+  List,
+  Tv,
+  Palette,
+  Subtitles,
+  MessageSquare,
+  Volume2,
+  Play,
+  CheckCircle,
+  Calendar,
+  Users,
+  Building,
+  Clapperboard,
+} from "lucide-react";
+
+export type CategoryWithIcon = {
+  key: string;
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+};
+
+export const categories: CategoryWithIcon[] = [
+  { key: "phim-moi", label: "Phim mới", icon: Sparkles },
+  { key: "phim-bo", label: "Phim bộ", icon: List },
+  { key: "phim-le", label: "Phim lẻ", icon: Film },
+  { key: "tv-shows", label: "TV Shows", icon: Tv },
+  { key: "hoat-hinh", label: "Hoạt hình", icon: Palette },
+  { key: "phim-vietsub", label: "Phim Vietsub", icon: Subtitles },
+  { key: "phim-thuyet-minh", label: "Phim Thuyết Minh", icon: MessageSquare },
+  { key: "phim-long-tien", label: "Phim Lồng Tiếng", icon: Volume2 },
+  {
+    key: "phim-bo-dang-chieu",
+    label: "Phim bộ đang chiếu",
+    icon: Play,
+  },
+  {
+    key: "phim-bo-hoan-thanh",
+    label: "Phim bộ hoàn thành",
+    icon: CheckCircle,
+  },
+  { key: "phim-sap-chieu", label: "Phim sắp chiếu", icon: Calendar },
+  { key: "subteam", label: "Subteam", icon: Users },
+  { key: "phim-chieu-rap", label: "Phim chiếu rạp", icon: Building },
 ];

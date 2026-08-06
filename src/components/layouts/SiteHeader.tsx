@@ -240,16 +240,20 @@ export default function SiteHeader() {
                       </NavigationMenuTrigger>
                       <NavigationMenuContent>
                         <div className="grid grid-cols-4 gap-1 p-2 w-[600px]">
-                          {categories?.map((c) => (
-                            <NavigationMenuLink key={c.key} asChild>
-                              <Link
-                                href={`/danh-sach/${c.key}`}
-                                className={`cursor-pointer text-sm px-2 py-1.5 rounded text-left ${c.key === slug ? "bg-accent text-accent-foreground" : "hover:bg-accent"}`}
-                              >
-                                {c.label}
-                              </Link>
-                            </NavigationMenuLink>
-                          ))}
+                          {categories?.map((c) => {
+                            const Icon = c.icon;
+                            return (
+                              <NavigationMenuLink key={c.key} asChild>
+                                <Link
+                                  href={`/danh-sach/${c.key}`}
+                                  className={`cursor-pointer text-sm px-2 py-1.5 rounded text-left flex items-center gap-2 ${c.key === slug ? "bg-accent text-accent-foreground" : "hover:bg-accent"}`}
+                                >
+                                  <Icon className="w-4 h-4 flex-shrink-0" />
+                                  <span className="truncate">{c.label}</span>
+                                </Link>
+                              </NavigationMenuLink>
+                            );
+                          })}
                         </div>
                       </NavigationMenuContent>
                     </NavigationMenuItem>

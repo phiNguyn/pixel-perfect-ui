@@ -359,7 +359,7 @@ export const Filter: FC<OrderFilterProps> = ({
           Bộ lọc
         </Button>
       </SheetTrigger>
-      <SheetContent side="top" className="w-full p-0">
+      <SheetContent className="w-full p-0">
         <div
           style={{ maxHeight: "calc(100vh - 70px)" }}
           className="p-4 flex flex-col gap-4 overflow-y-auto scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent"

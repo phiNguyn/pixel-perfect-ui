@@ -1,7 +1,6 @@
 "use client";
 
 import HeroBanner from "@/components/features/Home/HeroBanner";
-import MoodSection from "@/components/features/Home/MoodSection";
 import LazyMovieRow from "@/components/features/Home/LazyMovieRow";
 import WatchHistoryRow from "@/components/features/Home/WatchHistoryRow";
 import LoginBenefitsCard from "@/components/Common/LoginBenefitsCard";
@@ -16,7 +15,6 @@ export default function HomeClient() {
       <div className="px-4 md:px-16">
         <StreakHomeCard />
         <LoginBenefitsCard storageKey="home-hero" />
-        <MoodSection />
         <WatchHistoryRow />
         <LazyMovieRow
           title="Phim Mới Cập Nhật"
