@@ -63,16 +63,27 @@ export default function SiteHeader() {
     data: { items: Country[] };
   }>({}, true, "quoc-gia", "quoc-gia");
 
-  const searchMovieData: SearchMovie[] = [
-    ...(phimApiSearchMovie?.data?.items || []).map((item) => ({
-      ...item,
-      source: "phimapi" as const,
-    })),
-    ...(searchMovie?.data?.items || []).map((item) => ({
-      ...item,
-      source: "ophim" as const,
-    })),
-  ];
+  const searchMovieData: SearchMovie[] = (() => {
+    const seenSlugs = new Set<string>();
+    const result: SearchMovie[] = [];
+
+    // Phimapi đứng trước (ưu tiên cao hơn)
+    for (const item of phimApiSearchMovie?.data?.items || []) {
+      if (!seenSlugs.has(item.slug)) {
+        seenSlugs.add(item.slug);
+        result.push({ ...item, source: "phimapi" as const });
+      }
+    }
+    // Ophim đứng sau, bỏ qua nếu trùng slug với phimapi
+    for (const item of searchMovie?.data?.items || []) {
+      if (!seenSlugs.has(item.slug)) {
+        seenSlugs.add(item.slug);
+        result.push({ ...item, source: "ophim" as const });
+      }
+    }
+
+    return result;
+  })();
 
   const isSearchLoading =
     searchLoaing ||
