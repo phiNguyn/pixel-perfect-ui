@@ -50,7 +50,7 @@ const MOVIE_DETAIL_TABS = [
 export default function MovieDetail({ id }: { id: string }) {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const source = searchParams?.get("source") ?? "ophim";
+  const source = searchParams?.get("source") ?? "phimapi";
   const isPhimApi = source === "phimapi";
   const previousEpRef = useRef<string | null>(null);
 
