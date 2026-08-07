@@ -26,6 +26,8 @@ import { trackMovieView } from "@/lib/hooks/useTrackMovieView";
 import { useWatchSessionTracker } from "@/lib/hooks/useWatchSessionTracker";
 import { useQueryMovieViewCount } from "@/lib/api/viewLog/viewLogQuery";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useQueryNguoncGetMovie } from "@/lib/api/nguonc/nguonc.query";
+import { ViewSource } from "@/lib/api/viewLog/viewLogInterface";
 
 // Lazy load MoviePlayer - heavy với hls.js, chỉ cần khi user chọn episode
 const MoviePlayer = dynamic(
@@ -67,6 +69,12 @@ export default function MovieDetail({ id }: { id: string }) {
     refetch: refetchPhimApi,
   } = useQueryPhimApi(id as string, isPhimApi);
   const {
+    data: nguonC,
+    isLoading: isLoadingNguonC,
+    isError: isErrorNguonC,
+  } = useQueryNguoncGetMovie(id, source === "nguonc");
+
+  const {
     data: castData,
     isLoading: isLoadingCast,
     isError: isErrorCast,
@@ -82,8 +90,11 @@ export default function MovieDetail({ id }: { id: string }) {
         ? convertPhimApiToIMovieDetail(phimApiData)
         : undefined;
     }
+    if (source === "nguonc") {
+      return nguonC;
+    }
     return movieData?.data?.item;
-  }, [isPhimApi, phimApiData, movieData]);
+  }, [isPhimApi, phimApiData, movieData, nguonC]);
 
   const movieSlug = movie?.slug ?? id;
   const { data: movieViewCount = 0 } = useQueryMovieViewCount(
@@ -92,9 +103,21 @@ export default function MovieDetail({ id }: { id: string }) {
   );
 
   // 👉 loading + error theo source
-  const loading = isPhimApi ? isLoadingPhimApi : isLoading;
+  const isNguonC = source === "nguonc";
+  const loading = isPhimApi
+    ? isLoadingPhimApi
+    : isNguonC
+      ? isLoadingNguonC
+      : isLoading;
   const loadingCast = isPhimApi ? isLoadingPhimApi : isLoadingCast;
-  const error = isPhimApi ? isErrorPhimApi : isError;
+  const error = isPhimApi ? isErrorPhimApi : isNguonC ? isErrorNguonC : isError;
+
+  // 👉 helper lấy source string cho tracking
+  const getSource = (): ViewSource => {
+    if (isPhimApi) return "phimapi";
+    if (isNguonC) return "nguonc";
+    return "ophim";
+  };
 
   // 👉 breadcrumb
   // const breadCrumb = isPhimApi
@@ -149,7 +172,7 @@ export default function MovieDetail({ id }: { id: string }) {
     moviePoster: movie ? getPosterUrl("thumb") : undefined,
     originName: movie?.origin_name,
     year: movie?.year,
-    source: isPhimApi ? "phimapi" : "ophim",
+    source: getSource(),
     episodeSlug: selectedEp?.slug ?? "",
     episodeName: selectedEp?.name,
   });
@@ -162,13 +185,13 @@ export default function MovieDetail({ id }: { id: string }) {
         movie_id: movie.tmdb?.id?.toString() || movie._id || movie.slug,
         movie_title: movie.name,
         movie_slug: movie.slug,
-        source: isPhimApi ? "phimapi" : "ophim",
+        source: getSource(),
       });
 
       // Track to database for trending
       trackMovieView({
         movieId: movie.slug,
-        source: isPhimApi ? "phimapi" : "ophim",
+        source: getSource(),
         episodeSlug: selectedEp?.slug,
         episodeName: selectedEp?.name,
       });
@@ -191,7 +214,7 @@ export default function MovieDetail({ id }: { id: string }) {
         movie_id: movie.tmdb?.id?.toString() || movie._id || movie.slug,
         movie_title: movie.name,
         movie_slug: movie.slug,
-        source: isPhimApi ? "phimapi" : "ophim",
+        source: getSource(),
         from_episode: selectedEp.slug,
         to_episode: ep.slug,
       });
@@ -201,7 +224,7 @@ export default function MovieDetail({ id }: { id: string }) {
     if (movie) {
       trackMovieView({
         movieId: movie.slug,
-        source: isPhimApi ? "phimapi" : "ophim",
+        source: getSource(),
         episodeSlug: ep.slug,
         episodeName: ep.name,
       });
@@ -226,7 +249,7 @@ export default function MovieDetail({ id }: { id: string }) {
         currentEpSlug: ep.slug,
         currentEpName: ep.name,
         duration: 0,
-        source: isPhimApi ? "phimapi" : "ophim",
+        source: getSource(),
       });
     }
   };
@@ -343,10 +366,7 @@ export default function MovieDetail({ id }: { id: string }) {
               <div className="flex mt-20 md:mt-0 flex-col md:flex-row gap-5 md:gap-7 mb-8">
                 <div className="flex items-center md:items-end justify-center md:justify-start">
                   <div className="w-[130px] md:w-[170px] aspect-[2/3] rounded-2xl overflow-hidden ring-2 ring-primary/30 shadow-2xl shadow-primary/20 flex-shrink-0">
-                    <MovieImage
-                      movie={movie}
-                      source={isPhimApi ? "phimapi" : "ophim"}
-                    />
+                    <MovieImage movie={movie} source={getSource()} />
                   </div>
                 </div>
                 <div className="flex flex-col justify-end gap-3">
@@ -421,7 +441,7 @@ export default function MovieDetail({ id }: { id: string }) {
                         const firstEp = movie.episodes[0].server_data[0];
                         trackMovieView({
                           movieId: movie.slug,
-                          source: isPhimApi ? "phimapi" : "ophim",
+                          source: getSource(),
                           episodeSlug: firstEp.slug,
                           episodeName: firstEp.name,
                         });
@@ -470,13 +490,13 @@ export default function MovieDetail({ id }: { id: string }) {
                                 movie.slug,
                               movie_title: movie.name,
                               movie_slug: movie.slug,
-                              source: isPhimApi ? "phimapi" : "ophim",
+                              source: source,
                               share_method: "native",
                             });
                             trackMovieView({
                               movieId: movie.slug,
                               action: "share",
-                              source: isPhimApi ? "phimapi" : "ophim",
+                              source: getSource(),
                             });
                           }
                           navigator
@@ -524,32 +544,45 @@ export default function MovieDetail({ id }: { id: string }) {
 
               {selectedEp && (
                 <div className="mb-4">
-                  <MoviePlayer
-                    src={selectedEp.link_m3u8}
-                    key={selectedEp?.slug + selectedServer?.server_name}
-                    title={movie.name}
-                    selectedEp={selectedEp.name}
-                    poster={movie.thumb_url}
-                    startTime={savedStartTime}
-                    movieId={
-                      movie.tmdb?.id?.toString() || movie._id || movie.slug
-                    }
-                    movieSlug={movie.slug}
-                    movieTitle={movie.name}
-                    source={isPhimApi ? "phimapi" : "ophim"}
-                    adSegments={
-                      isPhimApi
-                        ? [
-                            { start: 5, end: 15, label: "Bỏ qua quảng cáo" },
-                            {
-                              start: 15 * 60,
-                              end: 15 * 60 + 33,
-                              label: "Bỏ qua quảng cáo",
-                            },
-                          ]
-                        : []
-                    }
-                  />
+                  {source === "nguonc" ? (
+                    <div className="rounded-lg overflow-hidden border border-border aspect-video">
+                      <iframe
+                        src={selectedEp.link_embed}
+                        className="w-full h-full"
+                        allowFullScreen
+                        allow="autoplay; encrypted-media; picture-in-picture"
+                        sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-presentation"
+                        referrerPolicy="no-referrer"
+                      />
+                    </div>
+                  ) : (
+                    <MoviePlayer
+                      src={selectedEp.link_m3u8}
+                      key={selectedEp?.slug + selectedServer?.server_name}
+                      title={movie.name}
+                      selectedEp={selectedEp.name}
+                      poster={movie.thumb_url}
+                      startTime={savedStartTime}
+                      movieId={
+                        movie.tmdb?.id?.toString() || movie._id || movie.slug
+                      }
+                      movieSlug={movie.slug}
+                      movieTitle={movie.name}
+                      source={getSource()}
+                      adSegments={
+                        isPhimApi
+                          ? [
+                              { start: 5, end: 15, label: "Bỏ qua quảng cáo" },
+                              {
+                                start: 15 * 60,
+                                end: 15 * 60 + 33,
+                                label: "Bỏ qua quảng cáo",
+                              },
+                            ]
+                          : []
+                      }
+                    />
+                  )}
                 </div>
               )}
 

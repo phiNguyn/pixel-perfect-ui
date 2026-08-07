@@ -48,7 +48,7 @@ export interface Movie {
 }
 
 export interface SearchMovie extends Movie {
-  source: "ophim" | "phimapi";
+  source: "ophim" | "phimapi" | "nguonc";
 }
 
 export interface TMDB {

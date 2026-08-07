@@ -5,6 +5,7 @@ import {
   convertNguoncDetailToIMovieDetail,
   NguoncSearchResponse,
   NguoncMovieDetailResponse,
+  NguoncMovieDetail,
 } from "./nguonc.api";
 import { Movie, IMovieDetail } from "@/lib/api/movies/movieInterface";
 
@@ -25,10 +26,10 @@ export const useQueryNguoncSearchMovie = (q: string) => {
   });
 };
 
-export const useQueryNguoncGetMovie = (link: string) => {
+export const useQueryNguoncGetMovie = (link: string, enabled: boolean) => {
   return useQuery<IMovieDetail>({
     queryKey: ["nguonc-get-movie", link],
-    enabled: !!link,
+    enabled: !!link && enabled,
     queryFn: async () => {
       const data = (await nguoncApi.getMovie(
         link as string,

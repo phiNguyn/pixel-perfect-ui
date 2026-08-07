@@ -30,6 +30,7 @@ import { Button } from "@/components/ui/button";
 import { HeaderNavMenus } from "@/components/layouts/HeaderNavMenus";
 import { HeaderAuthSection } from "@/components/layouts/HeaderAuthSection";
 import { HeaderSearch } from "@/components/layouts/HeaderSearch";
+import { useQueryNguoncSearchMovie } from "@/lib/api/nguonc/nguonc.query";
 
 export default function SiteHeader() {
   const router = useRouter();
@@ -59,6 +60,9 @@ export default function SiteHeader() {
     isLoading: phimApiSearchLoading,
     isFetching: phimApiSearchFetching,
   } = useQueryPhimApiSearchMovie<{ data: { items: Movie[] } }>(value);
+  const { data: nguoncSearchMovie, isFetching: nguoncSearchFetching } =
+    useQueryNguoncSearchMovie(value);
+
   const { data: countries, isLoading: countryLoading } = useQueryMovies<{
     data: { items: Country[] };
   }>({}, true, "quoc-gia", "quoc-gia");
@@ -67,6 +71,10 @@ export default function SiteHeader() {
     ...(phimApiSearchMovie?.data?.items || []).map((item) => ({
       ...item,
       source: "phimapi" as const,
+    })),
+    ...(nguoncSearchMovie?.items || []).map((item) => ({
+      ...item,
+      source: "nguonc" as const,
     })),
     ...(searchMovie?.data?.items || []).map((item) => ({
       ...item,
@@ -78,7 +86,8 @@ export default function SiteHeader() {
     searchLoaing ||
     searchFetching ||
     phimApiSearchLoading ||
-    phimApiSearchFetching;
+    phimApiSearchFetching ||
+    nguoncSearchFetching;
 
   const openMobilePanel = searchSheetOpen
     ? "search"

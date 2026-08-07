@@ -46,7 +46,7 @@ const MovieCardSeach: FC<MovieCardSeachProps> = ({
 
   return (
     <Link
-      href={`${source === "nguonc" ? `xem-phim-link?link=${movie.slug}` : `/phim/${movie.slug}?source=${source}`}`}
+      href={`/phim/${movie.slug}?source=${source}`}
       onClick={handleClick}
       className="flex items-center gap-3 group cursor-pointer"
     >

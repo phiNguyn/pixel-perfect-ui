@@ -23,7 +23,7 @@ export default function WatchByLinkClient() {
   const [playerMode, setPlayerMode] = useState<"m3u8" | "embed">("embed");
   const searchParams = useSearchParams();
   const link = searchParams.get("link");
-  const { data: movie, isLoading } = useQueryNguoncGetMovie(link);
+  const { data: movie, isLoading } = useQueryNguoncGetMovie(link, true);
 
   const handlePlayM3u8 = () => {
     if (m3u8Link.trim()) {

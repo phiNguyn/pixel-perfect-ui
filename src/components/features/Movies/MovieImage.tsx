@@ -8,10 +8,16 @@ export default function MovieImage({
   source,
 }: {
   movie: any;
-  source?: "ophim" | "phimapi";
+  source?: "ophim" | "phimapi" | "nguonc";
 }) {
   const getImageSrc = () => {
     if (!movie?.thumb_url) return fallback.src;
+    if (source === "nguonc") {
+      // nguonc URLs are already full http URLs
+      return movie.poster_url?.startsWith("http")
+        ? movie.poster_url
+        : movie.thumb_url;
+    }
     if (source === "phimapi") {
       return movie.poster_url.startsWith("http")
         ? movie.poster_url

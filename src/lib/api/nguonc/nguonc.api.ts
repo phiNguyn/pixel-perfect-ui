@@ -1,7 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit any */
 
 import { BaseApi } from "@/lib/client";
-import { Category, Country, IMovieDetail } from "@/lib/api/movies/movieInterface";
+import {
+  Category,
+  Country,
+  IMovieDetail,
+} from "@/lib/api/movies/movieInterface";
 
 export interface NguoncMovie {
   id: string;
@@ -47,13 +51,18 @@ export interface NguoncEpisodeServer {
 
 export interface NguoncMovieDetailResponse {
   status: string;
-  movie: NguoncMovie & {
-    category: Record<string, {
+  movie: NguoncMovieDetail;
+}
+
+export interface NguoncMovieDetail extends NguoncMovie {
+  category: Record<
+    string,
+    {
       group: { id: string; name: string };
       list: { id: string; name: string }[];
-    }>;
-    episodes: NguoncEpisodeServer[];
-  };
+    }
+  >;
+  episodes: NguoncEpisodeServer[];
 }
 
 export class NguoncApi extends BaseApi {
@@ -115,7 +124,9 @@ export function convertNguoncToMovie(item: NguoncMovie) {
   };
 }
 
-export function convertNguoncDetailToIMovieDetail(data: NguoncMovieDetailResponse["movie"]): IMovieDetail {
+export function convertNguoncDetailToIMovieDetail(
+  data: NguoncMovieDetail,
+): IMovieDetail {
   const allCategories: Category[] = [];
   const allCountries: Category[] = [];
 
@@ -127,7 +138,7 @@ export function convertNguoncDetailToIMovieDetail(data: NguoncMovieDetailRespons
           id: item.id,
           name: item.name,
           slug: "",
-        }))
+        })),
       );
     } else if (groupName.includes("năm") || groupName.includes("nam")) {
       // year will be extracted separately
@@ -137,16 +148,16 @@ export function convertNguoncDetailToIMovieDetail(data: NguoncMovieDetailRespons
           id: item.id,
           name: item.name,
           slug: "",
-        }))
+        })),
       );
     }
   });
 
-  const yearEntry = Object.values(data.category)
-    .find((group) => group.group.name.toLowerCase().includes("năm"))
-    ?.list[0]?.name;
+  const yearEntry = Object.values(data.category).find((group) =>
+    group.group.name.toLowerCase().includes("năm"),
+  )?.list[0]?.name;
 
-  const year = yearEntry ? parseInt(yearEntry) : 0;
+  const year = yearEntry ? parseInt(yearEntry) : null;
 
   return {
     _id: data.id,
