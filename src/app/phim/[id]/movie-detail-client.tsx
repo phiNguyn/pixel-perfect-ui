@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { useRouter, useSearchParams } from "next/navigation";
+import dynamic from "next/dynamic";
 import { Play, Heart, Share2, BookmarkPlus, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -10,7 +11,6 @@ import {
   Episode,
   convertPhimApiToIMovieDetail,
 } from "@/lib/api/movies/movieInterface";
-import MoviePlayer from "@/components/Common/Player";
 import Cast from "@/components/features/Movies/Cast";
 import { useHistoryStore } from "@/stores/useHistoryStore";
 import MovieImage from "@/components/features/Movies/MovieImage";
@@ -25,6 +25,20 @@ import { analytics } from "@/lib/analytics";
 import { trackMovieView } from "@/lib/hooks/useTrackMovieView";
 import { useWatchSessionTracker } from "@/lib/hooks/useWatchSessionTracker";
 import { useQueryMovieViewCount } from "@/lib/api/viewLog/viewLogQuery";
+import { Skeleton } from "@/components/ui/skeleton";
+
+// Lazy load MoviePlayer - heavy với hls.js, chỉ cần khi user chọn episode
+const MoviePlayer = dynamic(
+  () => import("@/components/Common/Player").then((mod) => mod.default),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="w-full aspect-video bg-muted/50 rounded-lg flex items-center justify-center">
+        <Skeleton className="w-full h-full" />
+      </div>
+    ),
+  },
+);
 
 const MOVIE_DETAIL_TABS = [
   { value: "tapphim", label: "Tập phim" },

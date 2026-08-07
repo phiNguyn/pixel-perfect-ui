@@ -1,13 +1,19 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import dynamic from "next/dynamic";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { streakApi } from "@/lib/api/streak/streakApi";
 import { STREAK_QUERY_KEY } from "@/lib/api/streak/streakQuery";
-import StreakDetailDialog from "@/components/features/Streak/StreakDetailDialog";
+
+// Lazy load StreakDetailDialog - heavy với framer-motion animations
+const StreakDetailDialog = dynamic(
+  () => import("./StreakDetailDialog").then((mod) => mod.default),
+  { ssr: false },
+);
 
 function isEveningInVietnam(): boolean {
   const hour = Number(

@@ -9,8 +9,7 @@ import { Analytics } from "@vercel/analytics/next";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import Script from "next/script";
 import { SpeedInsights } from "@vercel/speed-insights/next";
-import { LoginModal } from "@/components/auth/LoginModal";
-import FeedbackChatbot from "@/components/features/Feedback/FeedbackChatbot";
+import { GlobalModals } from "@/components/GlobalModals";
 // Force dynamic rendering to prevent prerendering issues with /_not-found
 export const dynamic = "force-dynamic";
 
@@ -91,9 +90,8 @@ export default function RootLayout({
             <SiteHeader />
             <main className="flex-1 md:pb-0">{children}</main>
             <SiteFooter />
-            <LoginModal />
+            <GlobalModals />
             <SonnerToaster />
-            {/* <FeedbackChatbot source="floating" /> */}
           </ThemeProvider>
         </Providers>
         <Toaster />

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import {
   Users,
@@ -95,8 +96,28 @@ import {
   useAdminQueryStats,
 } from "@/lib/api/admin/adminQuery";
 import useQueryResult from "@/hooks/useQueryResult";
-import AdminUsers from "@/components/features/Admin/users/Users";
 import { cn } from "@/lib/utils";
+
+// Lazy load AdminUsers - heavy component với nhiều dialogs và tables
+const AdminUsers = dynamic(
+  () =>
+    import("@/components/features/Admin/users/Users").then(
+      (mod) => mod.default,
+    ),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="space-y-4">
+        <Skeleton className="h-10 w-full max-w-md" />
+        <div className="space-y-2">
+          {[...Array(5)].map((_, i) => (
+            <Skeleton key={i} className="h-16 w-full" />
+          ))}
+        </div>
+      </div>
+    ),
+  },
+);
 
 type TabValue =
   | "dashboard"

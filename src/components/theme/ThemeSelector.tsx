@@ -34,7 +34,7 @@ export function ThemeSelector() {
           <span className="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full" />
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-fit p-3 ">
+      <DropdownMenuContent align="end" className="p-3 w-[340px] md:w-auto">
         {/* <div className="mb-2">
                     <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-1">
                         Chế độ giao diện

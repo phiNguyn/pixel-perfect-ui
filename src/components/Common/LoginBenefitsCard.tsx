@@ -240,7 +240,8 @@ export default function LoginBenefitsCard({
                           className={cn(
                             "h-3 w-3 opacity-60 transition-all duration-300",
                             b.color,
-                            b.href && "group-hover:opacity-100 group-hover:translate-x-0.5",
+                            b.href &&
+                              "group-hover:opacity-100 group-hover:translate-x-0.5",
                           )}
                         />
                       </div>
