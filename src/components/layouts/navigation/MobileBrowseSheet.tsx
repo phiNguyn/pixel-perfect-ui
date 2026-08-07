@@ -8,6 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import fallback from "@/assets/fallback.png";
 import type { Country } from "@/lib/api/movies/movieInterface";
+import { categories as categoriesData } from "@/data/movies";
 
 type Category = {
   _id: string;
@@ -22,7 +23,6 @@ type MobileBrowseSheetProps = {
   categoriesLoading?: boolean;
   countries?: Country[];
   countriesLoading?: boolean;
-  list?: any;
 };
 
 export default function MobileBrowseSheet({
@@ -32,7 +32,6 @@ export default function MobileBrowseSheet({
   categoriesLoading,
   countries,
   countriesLoading,
-  list,
 }: MobileBrowseSheetProps) {
   const { slug } = useParams();
 
@@ -110,7 +109,7 @@ export default function MobileBrowseSheet({
         <div className="flex flex-col gap-2">
           <h3 className="text-sm font-semibold text-foreground">Danh sách</h3>
           <div className="grid grid-cols-2 gap-2">
-            {list?.map((cat) => {
+            {categoriesData?.map((cat) => {
               const Icon = cat.icon;
               return (
                 <Link

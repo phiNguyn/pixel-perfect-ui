@@ -197,7 +197,6 @@ export default function SiteHeader() {
         categoriesLoading={isLoading}
         countries={countries?.data?.items}
         countriesLoading={countryLoading}
-        list={[]}
       />
 
       <MobileSearchSheet
