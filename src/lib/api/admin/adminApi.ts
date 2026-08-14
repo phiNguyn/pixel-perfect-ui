@@ -7,6 +7,7 @@ import {
   PaginatedResponse,
   SingleResponse,
   PaginationInfo,
+  TodayCheckIn,
 } from "./adminInterface";
 import type { StreakProfile } from "@/lib/api/streak/streakApi";
 import type {
@@ -401,6 +402,42 @@ export class AdminApi {
     } catch (error) {
       console.error("Toggle status error:", error);
       return { success: false, message: "Không thể thay đổi trạng thái" };
+    }
+  }
+
+  /**
+   * Get today's check-ins ranked by time (earliest first)
+   */
+  async getTodayCheckIns(
+    accessToken: string,
+    options: { page?: number; limit?: number } = {},
+  ): Promise<PaginatedResponse<TodayCheckIn>> {
+    try {
+      const params = new URLSearchParams();
+      params.set("page", String(options.page || 1));
+      params.set("limit", String(options.limit || 50));
+
+      const response = await fetch(
+        `${API_BASE_URL}/admin/check-ins/today?${params.toString()}`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch today's check-ins");
+      }
+
+      return response.json();
+    } catch (error) {
+      console.error("Get today check-ins error:", error);
+      return {
+        success: false,
+        data: [],
+        pagination: { page: 1, limit: 50, total: 0, totalPages: 0 },
+      };
     }
   }
 }

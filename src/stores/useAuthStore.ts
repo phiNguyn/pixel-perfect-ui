@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { authApi } from "@/lib/api/auth/authApi";
 
 export interface User {
   id: string;
@@ -40,11 +41,9 @@ export const useAuthStore = create<AuthState>()(
       isLoading: true,
       _hasHydrated: false,
 
-      setUser: (user) =>
-        set({ user, isAuthenticated: !!user }),
+      setUser: (user) => set({ user, isAuthenticated: !!user }),
 
-      setTokens: (tokens) =>
-        set({ tokens, isAuthenticated: !!tokens }),
+      setTokens: (tokens) => set({ tokens, isAuthenticated: !!tokens }),
 
       setLoading: (isLoading) => set({ isLoading }),
 
@@ -69,7 +68,16 @@ export const useAuthStore = create<AuthState>()(
           user: state.user ? { ...state.user, ...updates } : null,
         })),
 
-      setHasHydrated: (state) => set({ _hasHydrated: state }),
+      setHasHydrated: (state) => {
+        set({ _hasHydrated: state });
+        // If rehydrating with an authenticated user, update activity
+        if (state) {
+          const storedState = useAuthStore.getState();
+          if (storedState.isAuthenticated) {
+            authApi.updateActivity().catch(() => {});
+          }
+        }
+      },
     }),
     {
       name: "pinuss-flix-auth",

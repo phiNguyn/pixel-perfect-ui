@@ -97,13 +97,13 @@ export default function RootLayout({
         <Toaster />
         <Analytics />
         <SpeedInsights />
-        <Script
+        {/* <Script
           src="https://api.getbeam.fyi/pixel/tracker.js"
           data-site="site_51f899671d50"
           data-api="https://api.getbeam.fyi"
           data-identity-providers='[{"type":"leadpipe","id":"95247db8-8d49-4213-8ea7-ee0a6dd0ae78"}]'
           strategy="afterInteractive"
-        />
+        /> */}
         <Script
           src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID}`}
           strategy="afterInteractive"

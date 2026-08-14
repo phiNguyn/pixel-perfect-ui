@@ -9,6 +9,7 @@ export interface AdminUser {
   role: UserRole;
   provider: string;
   isActive: boolean;
+  lastLogin?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -58,6 +59,19 @@ export interface Comment {
   parentId?: string;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface TodayCheckIn {
+  _id: string;
+  userId: {
+    _id: string;
+    email: string;
+    name?: string;
+    avatar?: string;
+  };
+  date: string;
+  createdAt: string;
+  rank: number;
 }
 
 export interface PaginationInfo {

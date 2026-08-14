@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 import { getImageSrc } from "../../../services/uploadFile";
 import { cn } from "@/lib/utils";
 import type { TrendingMovie } from "@/lib/api/viewLog/viewLogInterface";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 function formatEpisodeLabel(current?: string, total?: string, status?: string) {
   if (!current) return null;

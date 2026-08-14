@@ -246,7 +246,10 @@ export default function MoviePlayer({
       setCurrentTime(currentProgress);
 
       // Detect seek (jump more than 5 seconds)
-      if (Math.abs(currentProgress - previousTimeRef.current) > 5 && previousTimeRef.current > 0) {
+      if (
+        Math.abs(currentProgress - previousTimeRef.current) > 5 &&
+        previousTimeRef.current > 0
+      ) {
         analytics.movieSeek({
           movie_id: movieId,
           movie_title: movieTitle,
@@ -264,7 +267,10 @@ export default function MoviePlayer({
         const percentWatched = currentProgress / video.duration;
         for (const milestone of milestones) {
           const milestoneKey = `${movieSlug}-${selectedEp}-${milestone}`;
-          if (percentWatched >= milestone && !watchMilestonesRef.current.has(milestoneKey)) {
+          if (
+            percentWatched >= milestone &&
+            !watchMilestonesRef.current.has(milestoneKey)
+          ) {
             watchMilestonesRef.current.add(milestoneKey);
             analytics.watchProgress({
               movie_id: movieId,
@@ -673,9 +679,11 @@ export default function MoviePlayer({
       hlsRef.current.currentLevel = index;
     }
     if (movieSlug && qualityLevels.length > 0) {
-      const qualityLabel = index === -1
-        ? "Auto"
-        : `${qualityLevels.find((q) => q.index === index)?.height}p` || "Unknown";
+      const qualityLabel =
+        index === -1
+          ? "Auto"
+          : `${qualityLevels.find((q) => q.index === index)?.height}p` ||
+            "Unknown";
       analytics.qualityChange({
         movie_id: movieId,
         movie_title: movieTitle,
@@ -697,13 +705,14 @@ export default function MoviePlayer({
 
   // Detect upcoming ad within next 5 seconds (YouTube-style countdown)
   const UPCOMING_AD_WINDOW = 5;
-  const upcomingAd = !activeAd && currentTime > 0
-    ? adSegments.find(
-        (ad) =>
-          currentTime < ad.start &&
-          ad.start - currentTime < UPCOMING_AD_WINDOW,
-      )
-    : undefined;
+  const upcomingAd =
+    !activeAd && currentTime > 0
+      ? adSegments.find(
+          (ad) =>
+            currentTime < ad.start &&
+            ad.start - currentTime < UPCOMING_AD_WINDOW,
+        )
+      : undefined;
   const upcomingAdCountdown = upcomingAd
     ? Math.max(1, Math.ceil(upcomingAd.start - currentTime))
     : 0;
@@ -752,7 +761,6 @@ export default function MoviePlayer({
             aria-hidden="true"
           />
         )}
-
 
         {/* Loading Spinner */}
         {isLoading && (

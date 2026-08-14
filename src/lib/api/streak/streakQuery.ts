@@ -8,7 +8,8 @@ export const useQueryStreakProfile = (enabled = true) => {
     queryKey: [...STREAK_QUERY_KEY, "profile"],
     queryFn: () => streakApi.getProfile(),
     enabled,
-    staleTime: 60_000,
+    staleTime: Infinity,
+    gcTime: 120_000,
   });
 };
 

@@ -1,16 +1,61 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { ChevronRight, Flame, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 import { useAuth } from "@/components/auth/AuthProvider";
-import { useQueryStreakProfile } from "@/lib/api/streak/streakQuery";
+import {
+  useQueryStreakProfile,
+  useStreakCheckIn,
+} from "@/lib/api/streak/streakQuery";
 import { useStreakDialog } from "@/stores/useStreakDialog";
 import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "sonner";
 
 export default function StreakHomeCard() {
   const { isAuthenticated } = useAuth();
   const { setOpen } = useStreakDialog();
   const { data, isLoading } = useQueryStreakProfile(isAuthenticated);
+  const checkInMutation = useStreakCheckIn();
+  const hasCheckedInRef = useRef(false);
+
+  // Auto check-in if not checked in today
+  useEffect(() => {
+    if (
+      !data ||
+      data.checkedInToday ||
+      hasCheckedInRef.current ||
+      checkInMutation.isPending
+    ) {
+      return;
+    }
+
+    hasCheckedInRef.current = true;
+
+    checkInMutation.mutate(undefined, {
+      onSuccess: (result) => {
+        if (result.isNewCheckIn) {
+          const hour = new Date().getHours();
+          toast.success(
+            hour >= 20
+              ? `🌙 Ghé tối nay! +1 ngày chuỗi — tổng ${result.totalActiveDays} ngày`
+              : `🔥 +1 ngày ghé thăm! Tổng cộng ${result.totalActiveDays} ngày`,
+            { duration: 4000 },
+          );
+        }
+        for (const badge of result.newlyUnlockedBadges) {
+          toast.success(`🏅 Huy hiệu mới: ${badge.name}`, {
+            description: badge.description,
+            duration: 6000,
+          });
+        }
+      },
+      onError: (err) => {
+        console.error("[StreakHomeCard] Check-in error:", err);
+        hasCheckedInRef.current = false;
+      },
+    });
+  }, [data, checkInMutation]);
 
   if (!isAuthenticated) return null;
   if (isLoading) return <Skeleton className="w-full h-[116px] md:h-[218px]" />;

@@ -23,43 +23,213 @@ import {
   Search,
   Shield,
   Users as UsersIcon,
+  Filter,
+  X,
 } from "lucide-react";
 import { UserDetailDialog } from "./UserDetailDialog";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { formatTimeAgo } from "@/services/dateService";
+
+// Simple filter presets
+const DATE_FILTERS = [
+  { label: "Tất cả", value: "" },
+  { label: "Hôm nay", value: "0" },
+  { label: "7 ngày", value: "7" },
+  { label: "30 ngày", value: "30" },
+] as const;
+
+type DateFilterValue = "" | "0" | "7" | "30";
 
 const AdminUsers = () => {
-  const token = useAuthStore.getState().tokens?.accessToken;
-  const { queryResult, searchValue, setSearch, setPage } = useQueryResult();
-  const { data, isLoading, refetch } = useAdminQueryUsers(token, queryResult);
+  const token = useAuthStore((state) => state.tokens?.accessToken);
+  const { queryResult, searchValue, setSearch, setPage, setQuery } =
+    useQueryResult({ queryMode: "flat" });
+
+  // Filter states
+  const [createdFilter, setCreatedFilter] = useState<DateFilterValue>("");
+  const [lastLoginFilter, setLastLoginFilter] = useState<DateFilterValue>("");
+  const [checkInFilter, setCheckInFilter] = useState<"all" | "yes" | "no">(
+    "all",
+  );
+  const [showFilters, setShowFilters] = useState(false);
+
+  const hasActiveFilters =
+    createdFilter || lastLoginFilter || checkInFilter !== "all";
+
+  // Update query when filters change
+  useEffect(() => {
+    const newQuery: Record<string, string> = {};
+    if (createdFilter) newQuery.createdWithin = createdFilter;
+    if (lastLoginFilter) newQuery.lastLoginWithin = lastLoginFilter;
+    if (checkInFilter === "yes") newQuery.hasCheckedInToday = "true";
+    if (checkInFilter === "no") newQuery.hasCheckedInToday = "false";
+
+    setQuery(newQuery as any);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [createdFilter, lastLoginFilter, checkInFilter]);
+
+  const clearFilters = () => {
+    setCreatedFilter("");
+    setLastLoginFilter("");
+    setCheckInFilter("all");
+  };
+
+  const { data, isLoading, refetch } = useAdminQueryUsers(
+    token || "",
+    queryResult,
+  );
   const [user, setSelectedUser] = useState<any | null>(null);
 
   const handleUpdateRole = async (userId: string, role: "user" | "admin") => {
-    const token = useAuthStore.getState().tokens?.accessToken;
-    if (token) {
-      await adminApi.updateUserRole(userId, role, token);
-      refetch();
-    }
+    if (!token) return;
+    await adminApi.updateUserRole(userId, role, token);
+    refetch();
   };
 
   const handleToggleStatus = async (userId: string, isActive: boolean) => {
-    const token = useAuthStore.getState().tokens?.accessToken;
-    if (token) {
-      await adminApi.toggleUserStatus(userId, isActive, token);
-      refetch();
-    }
+    if (!token) return;
+    await adminApi.toggleUserStatus(userId, isActive, token);
+    refetch();
   };
 
   return (
     <div className="space-y-4">
-      <div className="relative max-w-md">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-        <Input
-          placeholder="Tìm kiếm theo tên hoặc email..."
-          value={searchValue}
-          onChange={(e) => setSearch(e.target.value)}
-          className="pl-9"
-        />
+      {/* Search and Filter Bar */}
+      <div className="flex flex-col sm:flex-row gap-3">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+          <Input
+            placeholder="Tìm kiếm theo tên hoặc email..."
+            value={searchValue}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-9"
+          />
+        </div>
+
+        {/* Filter Toggle */}
+        <Button
+          variant={showFilters ? "default" : "outline"}
+          onClick={() => setShowFilters(!showFilters)}
+          className="gap-2"
+        >
+          <Filter className="size-4" />
+          <span>Lọc</span>
+          {hasActiveFilters && (
+            <Badge variant="secondary" className="ml-1 h-5 px-1.5 text-[10px]">
+              {
+                [
+                  createdFilter,
+                  lastLoginFilter,
+                  checkInFilter !== "all" ? "checkin" : "",
+                ].filter(Boolean).length
+              }
+            </Badge>
+          )}
+        </Button>
       </div>
+
+      {/* Filter Panel */}
+      {showFilters && (
+        <Card className="bg-muted/30">
+          <CardContent className="p-4">
+            <div className="flex flex-wrap items-center gap-6">
+              {/* Created Within Filter */}
+              <div className="space-y-2">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                  Ngày tạo
+                </p>
+                <div className="flex gap-1">
+                  {DATE_FILTERS.map((filter) => (
+                    <Button
+                      key={filter.value}
+                      variant={
+                        createdFilter === filter.value ? "default" : "outline"
+                      }
+                      size="sm"
+                      onClick={() =>
+                        setCreatedFilter(filter.value as DateFilterValue)
+                      }
+                      className="h-8 text-xs"
+                    >
+                      {filter.label}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Last Login Filter */}
+              <div className="space-y-2">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                  Truy cập gần đây
+                </p>
+                <div className="flex gap-1">
+                  {DATE_FILTERS.map((filter) => (
+                    <Button
+                      key={filter.value}
+                      variant={
+                        lastLoginFilter === filter.value ? "default" : "outline"
+                      }
+                      size="sm"
+                      onClick={() =>
+                        setLastLoginFilter(filter.value as DateFilterValue)
+                      }
+                      className="h-8 text-xs"
+                    >
+                      {filter.label}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Check-in Today Filter */}
+              <div className="space-y-2">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                  Check-in hôm nay
+                </p>
+                <div className="flex gap-1">
+                  <Button
+                    variant={checkInFilter === "all" ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setCheckInFilter("all")}
+                    className="h-8 text-xs"
+                  >
+                    Tất cả
+                  </Button>
+                  <Button
+                    variant={checkInFilter === "yes" ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setCheckInFilter("yes")}
+                    className="h-8 text-xs"
+                  >
+                    ✓ Đã check-in
+                  </Button>
+                  <Button
+                    variant={checkInFilter === "no" ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setCheckInFilter("no")}
+                    className="h-8 text-xs"
+                  >
+                    ✗ Chưa check-in
+                  </Button>
+                </div>
+              </div>
+
+              {/* Clear Filters */}
+              {hasActiveFilters && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={clearFilters}
+                  className="h-8 text-xs text-muted-foreground hover:text-destructive gap-1 ml-auto"
+                >
+                  <X className="size-3" />
+                  Xóa lọc
+                </Button>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <Card className="overflow-hidden">
         {isLoading ? (
@@ -87,6 +257,9 @@ const AdminUsers = () => {
                   <TableHead className="hidden md:table-cell">Email</TableHead>
                   <TableHead>Vai trò</TableHead>
                   <TableHead>Trạng thái</TableHead>
+                  <TableHead className="table-cell">
+                    Lần cuối truy cập
+                  </TableHead>
                   <TableHead className="hidden sm:table-cell">
                     Ngày tạo
                   </TableHead>
@@ -153,6 +326,11 @@ const AdminUsers = () => {
                       >
                         {user.isActive ? "Hoạt động" : "Bị khóa"}
                       </Badge>
+                    </TableCell>
+                    <TableCell className="table-cell text-sm text-muted-foreground whitespace-nowrap">
+                      {user.lastLogin
+                        ? formatTimeAgo(user.lastLogin)
+                        : "Chưa có"}
                     </TableCell>
                     <TableCell className="hidden sm:table-cell text-sm text-muted-foreground whitespace-nowrap">
                       {new Date(user.createdAt).toLocaleDateString("vi-VN")}

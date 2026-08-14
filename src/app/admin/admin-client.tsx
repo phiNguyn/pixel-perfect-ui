@@ -3,52 +3,24 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
-import Link from "next/link";
 import {
   Users,
   MessageSquare,
   History,
   BarChart3,
-  ChevronLeft,
-  ChevronRight,
-  Search,
-  Trash2,
   AlertTriangle,
   CheckCircle,
-  FileText,
-  Zap,
-  Lightbulb,
-  Bug,
   Film,
-  Send,
-  RefreshCw,
   LayoutDashboard,
   ArrowLeft,
   LogOut,
   Menu,
-  TrendingUp,
-  TrendingDown,
-  ExternalLink,
   Inbox,
+  CalendarCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-  DialogDescription,
-} from "@/components/ui/dialog";
+
 import {
   Card,
   CardContent,
@@ -65,10 +37,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Progress } from "@/components/ui/progress";
-import { Separator } from "@/components/ui/separator";
-import { Textarea } from "@/components/ui/textarea";
-import { ScrollArea } from "@/components/ui/scroll-area";
+
 import {
   Sheet,
   SheetContent,
@@ -77,26 +46,19 @@ import {
 } from "@/components/ui/sheet";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { adminApi } from "@/lib/api/admin/adminApi";
-import { feedbackApi } from "@/lib/api/feedback/feedbackApi";
-import {
-  WatchHistoryItem,
-  PaginationInfo,
-} from "@/lib/api/admin/adminInterface";
-import {
-  Feedback,
-  FeedbackStats,
-  FEEDBACK_CATEGORIES,
-  FEEDBACK_STATUS,
-  FeedbackCategory,
-  FeedbackStatus,
-} from "@/lib/api/feedback/feedbackInterface";
+import { PaginationInfo, TodayCheckIn } from "@/lib/api/admin/adminInterface";
+
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  useAdminQueryComments,
-  useAdminQueryStats,
-} from "@/lib/api/admin/adminQuery";
-import useQueryResult from "@/hooks/useQueryResult";
+import { useAdminQueryStats } from "@/lib/api/admin/adminQuery";
 import { cn } from "@/lib/utils";
+import AdminSectionCard, {
+  AdminEmptyState,
+  AdminPagination,
+} from "@/components/features/Admin/Card/AdminSectionCard";
+import WatchHistoryContent from "@/components/features/Admin/WatchHistoriesContent";
+import FeedbackContent from "@/components/features/Admin/FeedbackContent";
+import StatCard from "@/components/features/Admin/Card/StatCard";
+import CommentContent from "@/components/features/Admin/Comment/CommentContent";
 
 // Lazy load AdminUsers - heavy component với nhiều dialogs và tables
 const AdminUsers = dynamic(
@@ -124,7 +86,8 @@ type TabValue =
   | "users"
   | "watch-history"
   | "comments"
-  | "feedback";
+  | "feedback"
+  | "check-ins";
 
 const NAV_ITEMS: {
   id: TabValue;
@@ -155,6 +118,12 @@ const NAV_ITEMS: {
     label: "Bình luận",
     description: "Kiểm duyệt nội dung",
     icon: MessageSquare,
+  },
+  {
+    id: "check-ins",
+    label: "Check-in",
+    description: "Điểm danh hôm nay",
+    icon: CalendarCheck,
   },
   {
     id: "feedback",
@@ -190,10 +159,6 @@ export default function AdminDashboard() {
     setMobileNavOpen(false);
     router.replace(`/admin?tab=${tab}`);
   };
-
-  if (loading) {
-    return <AdminLoadingSkeleton />;
-  }
 
   if (error || user?.role !== "admin") {
     return (
@@ -329,7 +294,8 @@ export default function AdminDashboard() {
             )}
             {activeTab === "users" && <AdminUsers />}
             {activeTab === "watch-history" && <WatchHistoryContent />}
-            {activeTab === "comments" && <CommentsContent />}
+            {activeTab === "comments" && <CommentContent />}
+            {activeTab === "check-ins" && <TodayCheckInsContent />}
             {activeTab === "feedback" && <FeedbackContent />}
           </div>
         </div>
@@ -446,103 +412,6 @@ function AdminPageIntro({
   );
 }
 
-function AdminSectionCard({
-  title,
-  description,
-  action,
-  children,
-  className,
-}: {
-  title?: string;
-  description?: string;
-  action?: React.ReactNode;
-  children: React.ReactNode;
-  className?: string;
-}) {
-  return (
-    <Card className={cn("overflow-hidden", className)}>
-      {(title || action) && (
-        <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-4">
-          <div>
-            {title && <CardTitle className="text-base">{title}</CardTitle>}
-            {description && (
-              <CardDescription className="mt-1">{description}</CardDescription>
-            )}
-          </div>
-          {action}
-        </CardHeader>
-      )}
-      <CardContent className={title || action ? "pt-0" : "p-0"}>
-        {children}
-      </CardContent>
-    </Card>
-  );
-}
-
-function AdminEmptyState({
-  icon: Icon,
-  title,
-  description,
-}: {
-  icon: React.ElementType;
-  title: string;
-  description?: string;
-}) {
-  return (
-    <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
-      <div className="flex size-12 items-center justify-center rounded-full bg-muted mb-3">
-        <Icon className="size-5 text-muted-foreground" />
-      </div>
-      <p className="font-medium">{title}</p>
-      {description && (
-        <p className="text-sm text-muted-foreground mt-1 max-w-sm">
-          {description}
-        </p>
-      )}
-    </div>
-  );
-}
-
-function AdminPagination({
-  pagination,
-  onPageChange,
-}: {
-  pagination: PaginationInfo;
-  onPageChange: (page: number) => void;
-}) {
-  if (pagination.totalPages <= 1) return null;
-
-  return (
-    <div className="flex items-center justify-between border-t px-4 py-3 bg-muted/20">
-      <p className="text-sm text-muted-foreground">
-        Trang {pagination.page} / {pagination.totalPages}
-        <span className="hidden sm:inline">
-          {" "}
-          · {pagination.total.toLocaleString()} mục
-        </span>
-      </p>
-      <div className="flex gap-1">
-        <Button
-          variant="outline"
-          size="sm"
-          disabled={pagination.page <= 1}
-          onClick={() => onPageChange(pagination.page - 1)}
-        >
-          <ChevronLeft className="size-4" />
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          disabled={pagination.page >= pagination.totalPages}
-          onClick={() => onPageChange(pagination.page + 1)}
-        >
-          <ChevronRight className="size-4" />
-        </Button>
-      </div>
-    </div>
-  );
-}
-
 // ============ DASHBOARD ============
 
 function DashboardContent({
@@ -550,8 +419,8 @@ function DashboardContent({
 }: {
   onNavigate: (tab: TabValue) => void;
 }) {
-  const token = useAuthStore.getState().tokens?.accessToken;
-  const { data, isLoading } = useAdminQueryStats(token);
+  const token = useAuthStore((state) => state.tokens?.accessToken);
+  const { data, isLoading } = useAdminQueryStats(token || "");
 
   if (isLoading) {
     return (
@@ -633,719 +502,152 @@ function DashboardContent({
   );
 }
 
-function StatCard({
-  title,
-  value,
-  icon: Icon,
-  trend,
-  trendLabel,
-  accent = "primary",
-}: {
-  title: string;
-  value: number;
-  icon: React.ElementType;
-  trend?: number;
-  trendLabel?: string;
-  accent?: "primary" | "emerald" | "sky" | "amber";
-}) {
-  const accentStyles = {
-    primary: "bg-primary/10 text-primary",
-    emerald: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
-    sky: "bg-sky-500/10 text-sky-600 dark:text-sky-400",
-    amber: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
-  };
+// ============ CHECK-INS ============
 
-  return (
-    <Card className="relative overflow-hidden">
-      <CardContent className="p-5">
-        <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <p className="text-sm text-muted-foreground">{title}</p>
-            <p className="text-3xl font-bold tracking-tight mt-1 tabular-nums">
-              {value.toLocaleString()}
-            </p>
-            {trend !== undefined && (
-              <div
-                className={cn(
-                  "inline-flex items-center gap-1 text-xs font-medium mt-2",
-                  trend >= 0
-                    ? "text-emerald-600 dark:text-emerald-400"
-                    : "text-red-500",
-                )}
-              >
-                {trend >= 0 ? (
-                  <TrendingUp className="size-3" />
-                ) : (
-                  <TrendingDown className="size-3" />
-                )}
-                {trend >= 0 ? "+" : ""}
-                {trend}% {trendLabel}
-              </div>
-            )}
-          </div>
-          <div
-            className={cn(
-              "flex size-11 shrink-0 items-center justify-center rounded-xl",
-              accentStyles[accent],
-            )}
-          >
-            <Icon className="size-5" />
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-// ============ WATCH HISTORY ============
-
-function WatchHistoryContent() {
-  const [history, setHistory] = useState<WatchHistoryItem[]>([]);
+function TodayCheckInsContent() {
+  const token = useAuthStore((state) => state.tokens?.accessToken);
+  const [checkIns, setCheckIns] = useState<TodayCheckIn[]>([]);
   const [pagination, setPagination] = useState<PaginationInfo | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [selectedUserId, setSelectedUserId] = useState("");
-  const [searched, setSearched] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  const loadHistory = async (page = 1) => {
-    if (!selectedUserId.trim()) return;
-    setLoading(true);
-    setSearched(true);
-    const token = useAuthStore.getState().tokens?.accessToken;
-    if (token) {
-      const result = await adminApi.getUserWatchHistory(
-        selectedUserId.trim(),
-        token,
-        { page },
-      );
+  const loadCheckIns = useCallback(
+    async (page = 1) => {
+      if (!token) return;
+      setLoading(true);
+      const result = await adminApi.getTodayCheckIns(token, { page });
       if (result.success) {
-        setHistory(result.data);
+        setCheckIns(result.data);
         setPagination(result.pagination);
       }
+      setLoading(false);
+    },
+    [token],
+  );
+
+  useEffect(() => {
+    loadCheckIns();
+  }, [loadCheckIns]);
+
+  const getRankBadge = (rank: number) => {
+    if (rank === 1) {
+      return (
+        <Badge className="bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30">
+          🥇 #1
+        </Badge>
+      );
     }
-    setLoading(false);
+    if (rank === 2) {
+      return (
+        <Badge className="bg-slate-400/15 text-slate-500 dark:text-slate-400 border-slate-400/30">
+          🥈 #2
+        </Badge>
+      );
+    }
+    if (rank === 3) {
+      return (
+        <Badge className="bg-orange-600/15 text-orange-600 dark:text-orange-400 border-orange-600/30">
+          🥉 #3
+        </Badge>
+      );
+    }
+    return (
+      <Badge variant="outline" className="text-muted-foreground">
+        #{rank}
+      </Badge>
+    );
+  };
+
+  const formatTime = (isoString: string) => {
+    const date = new Date(isoString);
+    return date.toLocaleTimeString("vi-VN", {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    });
   };
 
   return (
     <div className="space-y-4">
       <AdminSectionCard
-        title="Tra cứu lịch sử xem"
-        description="Nhập User ID để xem danh sách phim đã xem"
+        title="Check-in hôm nay"
+        description="Danh sách người dùng đã check-in, xếp theo thời gian sớm nhất"
       >
-        <div className="flex flex-col sm:flex-row gap-3">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-            <Input
-              placeholder="Nhập User ID..."
-              value={selectedUserId}
-              onChange={(e) => setSelectedUserId(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && loadHistory(1)}
-              className="pl-9"
-            />
-          </div>
-          <Button
-            onClick={() => loadHistory(1)}
-            disabled={!selectedUserId.trim()}
-            className="shrink-0"
-          >
-            <Search className="size-4 mr-2" />
-            Tìm kiếm
-          </Button>
-        </div>
-      </AdminSectionCard>
-
-      {searched && (
-        <AdminSectionCard className="p-0">
-          {loading ? (
-            <div className="p-4 space-y-3">
-              {[...Array(5)].map((_, i) => (
-                <Skeleton key={i} className="h-14 w-full" />
-              ))}
-            </div>
-          ) : history.length === 0 ? (
-            <AdminEmptyState
-              icon={History}
-              title="Không có lịch sử xem"
-              description="User này chưa xem phim nào hoặc ID không hợp lệ"
-            />
-          ) : (
-            <>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Phim</TableHead>
-                    <TableHead className="hidden md:table-cell">Tập</TableHead>
-                    <TableHead>Tiến độ</TableHead>
-                    <TableHead>Trạng thái</TableHead>
-                    <TableHead className="hidden sm:table-cell">
-                      Ngày xem
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {history.map((item) => {
-                    const progressPct =
-                      item.duration > 0
-                        ? Math.round((item.progress / item.duration) * 100)
-                        : 0;
-                    return (
-                      <TableRow key={item._id}>
-                        <TableCell>
-                          <div className="flex items-center gap-3">
-                            {item.moviePoster && (
-                              <img
-                                src={`https://img.ophim.live/uploads/movies/${item.moviePoster}`}
-                                alt=""
-                                className="size-10 rounded object-cover shrink-0"
-                              />
-                            )}
-                            <div className="min-w-0">
-                              <p className="font-medium text-sm line-clamp-2">
-                                {item.movieTitle}
-                              </p>
-                              <p className="text-xs text-muted-foreground">
-                                {item.year} · {item.quality}
-                              </p>
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell className="hidden md:table-cell text-sm">
-                          {item.currentEpName || item.currentEpSlug || "—"}
-                        </TableCell>
-                        <TableCell>
-                          <div className="w-24 space-y-1">
-                            <Progress value={progressPct} className="h-1.5" />
-                            <span className="text-xs text-muted-foreground">
-                              {progressPct}%
-                            </span>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          {item.deletedAt ? (
-                            <Badge variant="destructive" className="text-xs">
-                              Đã xóa
-                            </Badge>
-                          ) : item.completed ? (
-                            <Badge className="text-xs bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-500/15">
-                              Hoàn thành
-                            </Badge>
-                          ) : (
-                            <Badge variant="secondary" className="text-xs">
-                              Đang xem
-                            </Badge>
-                          )}
-                        </TableCell>
-                        <TableCell className="hidden sm:table-cell text-sm text-muted-foreground">
-                          {new Date(item.updatedAt).toLocaleDateString("vi-VN")}
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-              {pagination && (
-                <AdminPagination
-                  pagination={pagination}
-                  onPageChange={loadHistory}
-                />
-              )}
-            </>
-          )}
-        </AdminSectionCard>
-      )}
-
-      {!searched && (
-        <AdminEmptyState
-          icon={Search}
-          title="Nhập User ID để bắt đầu"
-          description="Tra cứu lịch sử xem phim của từng người dùng"
-        />
-      )}
-    </div>
-  );
-}
-
-// ============ COMMENTS ============
-
-function CommentsContent() {
-  const { queryResult, searchValue, setSearch, setPage } = useQueryResult();
-  const token = useAuthStore.getState().tokens?.accessToken;
-  const { data, isLoading, refetch } = useAdminQueryComments(
-    token,
-    queryResult,
-  );
-
-  const handleDelete = async (commentId: string) => {
-    if (!confirm("Bạn có chắc muốn xóa bình luận này?")) return;
-    const token = useAuthStore.getState().tokens?.accessToken;
-    if (token) {
-      await adminApi.deleteComment(commentId, token);
-      refetch();
-    }
-  };
-
-  return (
-    <div className="space-y-4">
-      <div className="relative max-w-md">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-        <Input
-          placeholder="Tìm kiếm bình luận..."
-          value={searchValue}
-          onChange={(e) => setSearch(e.target.value)}
-          className="pl-9"
-        />
-      </div>
-
-      <AdminSectionCard className="p-0">
-        {isLoading ? (
+        {loading ? (
           <div className="p-4 space-y-3">
             {[...Array(5)].map((_, i) => (
-              <Skeleton key={i} className="h-14 w-full" />
+              <Skeleton key={i} className="h-16 w-full" />
             ))}
           </div>
-        ) : data?.data?.length === 0 ? (
+        ) : checkIns.length === 0 ? (
           <AdminEmptyState
-            icon={MessageSquare}
-            title="Không có bình luận nào"
-            description="Danh sách bình luận trống hoặc không khớp tìm kiếm"
+            icon={CalendarCheck}
+            title="Chưa có ai check-in hôm nay"
+            description="Danh sách sẽ cập nhật khi có người dùng điểm danh"
           />
         ) : (
           <>
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead className="w-16">Hạng</TableHead>
                   <TableHead>Người dùng</TableHead>
-                  <TableHead className="hidden md:table-cell">Phim</TableHead>
-                  <TableHead>Nội dung</TableHead>
-                  <TableHead className="hidden sm:table-cell">Ngày</TableHead>
-                  <TableHead className="text-right w-16">Xóa</TableHead>
+                  <TableHead>Thời gian check-in</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {data?.data?.map((comment) => (
-                  <TableRow key={comment._id}>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <Avatar className="size-7">
-                          <AvatarImage src={comment.userId?.avatar} />
-                          <AvatarFallback className="text-[10px]">
-                            {comment.userId?.name?.[0] || "?"}
-                          </AvatarFallback>
-                        </Avatar>
-                        <span className="text-sm truncate max-w-[120px]">
-                          {comment.userId?.name || "Ẩn danh"}
-                        </span>
-                      </div>
-                    </TableCell>
-                    <TableCell className="hidden md:table-cell">
-                      <Link
-                        href={`/phim/${comment.movieSlug}`}
-                        className="inline-flex items-center gap-1 text-sm hover:text-primary transition-colors"
-                      >
-                        <span className="truncate max-w-[160px]">
-                          {comment.movieTitle || comment.movieSlug}
-                        </span>
-                        <ExternalLink className="size-3 shrink-0 opacity-50" />
-                      </Link>
-                    </TableCell>
-                    <TableCell>
-                      <p className="text-sm line-clamp-2 max-w-md">
-                        {comment.text}
-                      </p>
-                      <p className="md:hidden text-xs text-muted-foreground mt-1 truncate">
-                        {comment.movieTitle || comment.movieSlug}
-                      </p>
-                    </TableCell>
-                    <TableCell className="hidden sm:table-cell text-sm text-muted-foreground whitespace-nowrap">
-                      {new Date(comment.createdAt).toLocaleDateString("vi-VN")}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleDelete(comment._id)}
-                        className="size-8 text-destructive hover:text-destructive hover:bg-destructive/10"
-                      >
-                        <Trash2 className="size-4" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {checkIns.map((checkIn, index) => {
+                  const rank =
+                    ((pagination?.page || 1) - 1) * (pagination?.limit || 50) +
+                    index +
+                    1;
+                  return (
+                    <TableRow key={checkIn._id}>
+                      <TableCell>{getRankBadge(rank)}</TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-3">
+                          <Avatar className="size-9">
+                            <AvatarImage src={checkIn.userId?.avatar} />
+                            <AvatarFallback className="text-xs">
+                              {checkIn.userId?.name?.[0] ||
+                                checkIn.userId?.email?.[0] ||
+                                "?"}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="min-w-0">
+                            <p className="font-medium text-sm truncate max-w-[200px]">
+                              {checkIn.userId?.name || "Không tên"}
+                            </p>
+                            <p className="text-xs text-muted-foreground truncate max-w-[200px]">
+                              {checkIn.userId?.email}
+                            </p>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex flex-col">
+                          <span className="text-sm font-medium">
+                            {formatTime(checkIn.createdAt)}
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            {checkIn.date}
+                          </span>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
-            {data?.pagination && (
+            {pagination && (
               <AdminPagination
-                pagination={data.pagination}
-                onPageChange={setPage}
+                pagination={pagination}
+                onPageChange={loadCheckIns}
               />
             )}
           </>
         )}
       </AdminSectionCard>
     </div>
-  );
-}
-
-// ============ FEEDBACK ============
-
-function FeedbackContent() {
-  const [feedbackList, setFeedbackList] = useState<Feedback[]>([]);
-  const [stats, setStats] = useState<FeedbackStats | null>(null);
-  const [pagination, setPagination] = useState<PaginationInfo | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [selectedFeedback, setSelectedFeedback] = useState<Feedback | null>(
-    null,
-  );
-  const [filterStatus, setFilterStatus] = useState<FeedbackStatus | "all">(
-    "all",
-  );
-  const [filterCategory, setFilterCategory] = useState<
-    FeedbackCategory | "all"
-  >("all");
-
-  const loadFeedback = useCallback(
-    async (page = 1) => {
-      setLoading(true);
-      const token = useAuthStore.getState().tokens?.accessToken;
-      if (token) {
-        const result = await feedbackApi.getList(token, {
-          page,
-          status: filterStatus !== "all" ? filterStatus : undefined,
-          category: filterCategory !== "all" ? filterCategory : undefined,
-        });
-        if (result.success) {
-          setFeedbackList(result.data);
-          setPagination(result.pagination);
-        }
-      }
-      setLoading(false);
-    },
-    [filterStatus, filterCategory],
-  );
-
-  const loadStats = useCallback(async () => {
-    const token = useAuthStore.getState().tokens?.accessToken;
-    if (token) {
-      const result = await feedbackApi.getStats(token);
-      if (result.success && result.data) {
-        setStats(result.data);
-      }
-    }
-  }, []);
-
-  useEffect(() => {
-    loadStats();
-  }, [loadStats]);
-
-  useEffect(() => {
-    loadFeedback();
-  }, [loadFeedback]);
-
-  const handleReply = async (
-    feedbackId: string,
-    status: FeedbackStatus,
-    reply: string,
-  ) => {
-    const token = useAuthStore.getState().tokens?.accessToken;
-    if (token) {
-      await feedbackApi.reply(feedbackId, token, { status, adminReply: reply });
-      loadFeedback(pagination?.page);
-      loadStats();
-      setSelectedFeedback(null);
-    }
-  };
-
-  const handleDelete = async (feedbackId: string) => {
-    if (!confirm("Bạn có chắc muốn xóa phản hồi này?")) return;
-    const token = useAuthStore.getState().tokens?.accessToken;
-    if (token) {
-      await feedbackApi.delete(feedbackId, token);
-      loadFeedback(pagination?.page);
-      loadStats();
-    }
-  };
-
-  const getCategoryIcon = (category: FeedbackCategory) => {
-    switch (category) {
-      case "bug_report":
-        return Bug;
-      case "feature_request":
-        return Lightbulb;
-      case "improvement":
-        return Zap;
-      case "content_request":
-        return Film;
-      default:
-        return FileText;
-    }
-  };
-
-  return (
-    <div className="space-y-5">
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <StatCard title="Tổng" value={stats?.total || 0} icon={FileText} />
-        <StatCard
-          title="Chờ xử lý"
-          value={stats?.pending || 0}
-          icon={AlertTriangle}
-          accent="amber"
-        />
-        <StatCard
-          title="Đang xử lý"
-          value={stats?.inProgress || 0}
-          icon={RefreshCw}
-          accent="sky"
-        />
-        <StatCard
-          title="Đã xử lý"
-          value={stats?.resolved || 0}
-          icon={CheckCircle}
-          accent="emerald"
-        />
-      </div>
-
-      <div className="flex flex-col sm:flex-row gap-3">
-        <Select
-          value={filterStatus}
-          onValueChange={(v) => setFilterStatus(v as FeedbackStatus | "all")}
-        >
-          <SelectTrigger className="w-full sm:w-44">
-            <SelectValue placeholder="Trạng thái" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Tất cả trạng thái</SelectItem>
-            <SelectItem value="pending">Chờ xử lý</SelectItem>
-            <SelectItem value="in_progress">Đang xử lý</SelectItem>
-            <SelectItem value="resolved">Đã xử lý</SelectItem>
-            <SelectItem value="rejected">Từ chối</SelectItem>
-          </SelectContent>
-        </Select>
-
-        <Select
-          value={filterCategory}
-          onValueChange={(v) =>
-            setFilterCategory(v as FeedbackCategory | "all")
-          }
-        >
-          <SelectTrigger className="w-full sm:w-52">
-            <SelectValue placeholder="Loại" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Tất cả loại</SelectItem>
-            <SelectItem value="bug_report">Báo lỗi</SelectItem>
-            <SelectItem value="feature_request">Đề xuất tính năng</SelectItem>
-            <SelectItem value="improvement">Cải thiện</SelectItem>
-            <SelectItem value="content_request">Yêu cầu thêm phim</SelectItem>
-            <SelectItem value="other">Khác</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      {loading ? (
-        <div className="space-y-3">
-          {[...Array(4)].map((_, i) => (
-            <Skeleton key={i} className="h-28 rounded-xl" />
-          ))}
-        </div>
-      ) : feedbackList.length === 0 ? (
-        <AdminSectionCard>
-          <AdminEmptyState
-            icon={Inbox}
-            title="Không có phản hồi nào"
-            description="Thử đổi bộ lọc hoặc quay lại sau"
-          />
-        </AdminSectionCard>
-      ) : (
-        <div className="space-y-3">
-          {feedbackList.map((fb) => {
-            const CategoryIcon = getCategoryIcon(fb.category);
-            return (
-              <Card
-                key={fb._id}
-                className="overflow-hidden transition-colors hover:border-primary/30"
-              >
-                <CardContent className="p-4 md:p-5">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="min-w-0 flex-1 space-y-2">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <Badge variant="outline" className="gap-1 text-xs">
-                          <CategoryIcon className="size-3" />
-                          {FEEDBACK_CATEGORIES[fb.category]?.label ||
-                            fb.category}
-                        </Badge>
-                        <Badge
-                          className={cn(
-                            "text-xs",
-                            FEEDBACK_STATUS[fb.status]?.color,
-                          )}
-                        >
-                          {FEEDBACK_STATUS[fb.status]?.label}
-                        </Badge>
-                        {fb.priority === "high" && (
-                          <Badge variant="destructive" className="text-xs">
-                            Ưu tiên cao
-                          </Badge>
-                        )}
-                      </div>
-
-                      <h4 className="font-medium leading-snug">{fb.subject}</h4>
-                      <p className="text-sm text-muted-foreground line-clamp-2">
-                        {fb.content}
-                      </p>
-
-                      {fb.adminReply && (
-                        <div className="rounded-lg border-l-2 border-primary bg-primary/5 px-3 py-2">
-                          <p className="text-xs font-medium text-primary mb-0.5">
-                            Phản hồi Admin
-                          </p>
-                          <p className="text-sm">{fb.adminReply}</p>
-                        </div>
-                      )}
-
-                      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
-                        <span>
-                          {fb.userId
-                            ? fb.userId.name || fb.userId.email
-                            : fb.email || "Ẩn danh"}
-                        </span>
-                        <span>
-                          {new Date(fb.createdAt).toLocaleDateString("vi-VN", {
-                            day: "2-digit",
-                            month: "2-digit",
-                            year: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="flex shrink-0 gap-1">
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        className="size-8"
-                        onClick={() => setSelectedFeedback(fb)}
-                      >
-                        <Send className="size-3.5" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="size-8 text-destructive hover:text-destructive hover:bg-destructive/10"
-                        onClick={() => handleDelete(fb._id)}
-                      >
-                        <Trash2 className="size-3.5" />
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
-      )}
-
-      {pagination && pagination.totalPages > 1 && (
-        <Card className="overflow-hidden">
-          <AdminPagination
-            pagination={pagination}
-            onPageChange={loadFeedback}
-          />
-        </Card>
-      )}
-
-      <FeedbackReplyDialog
-        feedback={selectedFeedback}
-        onClose={() => setSelectedFeedback(null)}
-        onReply={handleReply}
-      />
-    </div>
-  );
-}
-
-function FeedbackReplyDialog({
-  feedback,
-  onClose,
-  onReply,
-}: {
-  feedback: Feedback | null;
-  onClose: () => void;
-  onReply: (feedbackId: string, status: FeedbackStatus, reply: string) => void;
-}) {
-  const [status, setStatus] = useState<FeedbackStatus>("pending");
-  const [reply, setReply] = useState("");
-
-  useEffect(() => {
-    if (feedback) {
-      setStatus(
-        feedback.status === "pending" ? "in_progress" : feedback.status,
-      );
-      setReply("");
-    }
-  }, [feedback]);
-
-  if (!feedback) return null;
-
-  return (
-    <Dialog open={!!feedback} onOpenChange={() => onClose()}>
-      <DialogContent className="max-w-lg">
-        <DialogHeader>
-          <DialogTitle>Phản hồi người dùng</DialogTitle>
-          <DialogDescription className="line-clamp-1">
-            {feedback.subject}
-          </DialogDescription>
-        </DialogHeader>
-
-        <div className="space-y-4">
-          <div>
-            <p className="text-sm font-medium mb-2">Nội dung gốc</p>
-            <div className="rounded-lg border bg-muted/40 p-3 text-sm">
-              {feedback.content}
-            </div>
-          </div>
-
-          <Separator />
-
-          <div className="space-y-2">
-            <p className="text-sm font-medium">Cập nhật trạng thái</p>
-            <Select
-              value={status}
-              onValueChange={(v) => setStatus(v as FeedbackStatus)}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="pending">Chờ xử lý</SelectItem>
-                <SelectItem value="in_progress">Đang xử lý</SelectItem>
-                <SelectItem value="resolved">Đã xử lý</SelectItem>
-                <SelectItem value="rejected">Từ chối</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <p className="text-sm font-medium">Phản hồi của bạn</p>
-            <Textarea
-              placeholder="Viết phản hồi cho người dùng..."
-              value={reply}
-              onChange={(e) => setReply(e.target.value)}
-              className="min-h-[120px] resize-none"
-            />
-          </div>
-        </div>
-
-        <DialogFooter className="gap-2 sm:gap-0">
-          <Button variant="outline" onClick={onClose}>
-            Hủy
-          </Button>
-          <Button onClick={() => onReply(feedback._id, status, reply)}>
-            <Send className="size-4 mr-2" />
-            Gửi phản hồi
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
   );
 }
 

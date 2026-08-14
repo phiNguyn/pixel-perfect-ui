@@ -34,44 +34,63 @@ export default function StreakCheckInProvider({
   const { isAuthenticated } = useAuth();
   const hasHydrated = useAuthStore((s) => s._hasHydrated);
   const queryClient = useQueryClient();
-  const hasCheckedInSession = useRef(false);
+  const hasCheckedInRef = useRef(false);
 
   useEffect(() => {
-    if (!hasHydrated || !isAuthenticated || hasCheckedInSession.current) {
+    // Only run when user is authenticated and not already checked in
+    if (!isAuthenticated || hasCheckedInRef.current) {
       return;
     }
 
-    hasCheckedInSession.current = true;
+    // Wait for hydration to complete before making API call
+    const doCheckIn = () => {
+      hasCheckedInRef.current = true;
 
-    const runCheckIn = async () => {
-      try {
-        const result = await streakApi.checkIn();
-        queryClient.invalidateQueries({ queryKey: STREAK_QUERY_KEY });
-        queryClient.invalidateQueries({ queryKey: ["notifications"] });
+      streakApi
+        .checkIn()
+        .then((result) => {
+          queryClient.invalidateQueries({ queryKey: STREAK_QUERY_KEY });
+          queryClient.invalidateQueries({ queryKey: ["notifications"] });
 
-        if (result.isNewCheckIn) {
-          const evening = isEveningInVietnam();
-          toast.success(
-            evening
-              ? `🌙 Ghé tối nay! +1 ngày chuỗi — tổng ${result.totalActiveDays} ngày`
-              : `🔥 +1 ngày ghé thăm! Tổng cộng ${result.totalActiveDays} ngày`,
-            { duration: 4000 },
-          );
-        }
+          if (result.isNewCheckIn) {
+            const evening = isEveningInVietnam();
+            toast.success(
+              evening
+                ? `🌙 Ghé tối nay! +1 ngày chuỗi — tổng ${result.totalActiveDays} ngày`
+                : `🔥 +1 ngày ghé thăm! Tổng cộng ${result.totalActiveDays} ngày`,
+              { duration: 4000 },
+            );
+          }
 
-        for (const badge of result.newlyUnlockedBadges) {
-          toast.success(`🏅 Huy hiệu mới: ${badge.name}`, {
-            description: badge.description,
-            duration: 6000,
-          });
-        }
-      } catch {
-        // Silent fail — streak is non-critical
-      }
+          for (const badge of result.newlyUnlockedBadges) {
+            toast.success(`🏅 Huy hiệu mới: ${badge.name}`, {
+              description: badge.description,
+              duration: 6000,
+            });
+          }
+        })
+        .catch((err) => {
+          console.error("[StreakCheckIn] Error:", err);
+          hasCheckedInRef.current = false;
+        });
     };
 
-    runCheckIn();
-  }, [hasHydrated, isAuthenticated, queryClient]);
+    // If already hydrated, check in immediately
+    if (hasHydrated) {
+      doCheckIn();
+    } else {
+      // Poll for hydration to complete
+      const interval = setInterval(() => {
+        const currentHydrated = useAuthStore.getState()._hasHydrated;
+        if (currentHydrated) {
+          clearInterval(interval);
+          doCheckIn();
+        }
+      }, 50);
+
+      return () => clearInterval(interval);
+    }
+  }, [isAuthenticated, hasHydrated, queryClient]);
 
   return (
     <>

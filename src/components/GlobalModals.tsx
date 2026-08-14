@@ -7,6 +7,11 @@ const LoginModal = dynamic(
   { ssr: false },
 );
 
+const StreakDetailDialog = dynamic(
+  () => import("@/components/features/Streak/StreakDetailDialog"),
+  { ssr: false },
+);
+
 // const FeedbackChatbot = dynamic(
 //   () =>
 //     import("@/components/features/Feedback/FeedbackChatbot").then(
@@ -19,6 +24,7 @@ export function GlobalModals() {
   return (
     <>
       <LoginModal />
+      <StreakDetailDialog />
       {/* <FeedbackChatbot source="floating" /> */}
     </>
   );

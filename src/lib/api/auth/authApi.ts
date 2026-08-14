@@ -249,6 +249,15 @@ class AuthApiClient {
     );
     return response.data;
   }
+
+  async updateActivity(): Promise<void> {
+    try {
+      await this.client.post("/auth/me/activity");
+    } catch (error) {
+      // Silent fail - don't block app for this
+      console.warn("Failed to update activity:", error);
+    }
+  }
 }
 
 export const authApi = new AuthApiClient(API_BASE_URL);
