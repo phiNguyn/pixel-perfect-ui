@@ -4,6 +4,7 @@ import Link from "next/link";
 import {
   Bell,
   CalendarDays,
+  FolderHeart,
   History,
   LogOut,
   Settings,
@@ -44,6 +45,14 @@ export default function UserAccountMenuContent({
       >
         <Bell className="h-4 w-4" />
         <span>Thông báo</span>
+      </Link>
+      <Link
+        href="/favorites"
+        onClick={onNavigate}
+        className="flex items-center gap-2 rounded-sm px-2 py-1.5 text-sm hover:bg-accent cursor-pointer"
+      >
+        <FolderHeart className="h-4 w-4" />
+        <span>Yêu thích & Bộ sưu tập</span>
       </Link>
       <Link
         href="/watch-histories"

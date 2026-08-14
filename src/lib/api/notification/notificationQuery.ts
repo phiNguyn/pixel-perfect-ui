@@ -23,7 +23,7 @@ export const useQueryUnreadNotificationCount = (enabled = true) => {
     queryFn: () => notificationApi.getUnreadCount(),
     enabled,
     staleTime: Infinity,
-    refetchInterval: enabled ? 60_000 : false,
+    gcTime: 120_000,
   });
 };
 

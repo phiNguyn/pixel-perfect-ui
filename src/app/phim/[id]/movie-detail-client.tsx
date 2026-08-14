@@ -2,7 +2,7 @@
 "use client";
 import { useRouter, useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
-import { Play, Heart, Share2, BookmarkPlus, Star } from "lucide-react";
+import { Play, Share2, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useEffect, useMemo, useState, useRef } from "react";
@@ -26,6 +26,9 @@ import { trackMovieView } from "@/lib/hooks/useTrackMovieView";
 import { useWatchSessionTracker } from "@/lib/hooks/useWatchSessionTracker";
 import { useQueryMovieViewCount } from "@/lib/api/viewLog/viewLogQuery";
 import { Skeleton } from "@/components/ui/skeleton";
+import { AddToCollectionDialog } from "@/components/features/Collections/AddToCollectionDialog";
+import { FavoriteSource } from "@/lib/api/favorites/favoriteInterface";
+import { FavoriteButton } from "@/components/features/Movies/FavoriteButton";
 
 // Lazy load MoviePlayer - heavy với hls.js, chỉ cần khi user chọn episode
 const MoviePlayer = dynamic(
@@ -495,24 +498,55 @@ export default function MovieDetail({ id }: { id: string }) {
                       >
                         <Share2 className="w-4 h-4" />
                       </Button>
-                      <Button
-                        size="icon"
-                        disabled
-                        aria-label="Yêu thích"
-                        name="favorite"
-                        className="w-12 h-12 rounded-2xl bg-background/40 backdrop-blur-md border border-border/60 text-foreground"
-                      >
-                        <Heart className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        size="icon"
-                        disabled
-                        aria-label="Lưu"
-                        name="bookmark"
-                        className="w-12 h-12 rounded-2xl bg-background/40 backdrop-blur-md border border-border/60 text-foreground"
-                      >
-                        <BookmarkPlus className="w-4 h-4" />
-                      </Button>
+                      <div className="flex gap-2">
+                        <FavoriteButton
+                          movieId={movie.slug}
+                          movieSlug={movie.slug}
+                          movieTitle={movie.name}
+                          moviePoster={getPosterUrl("thumb")}
+                          movieYear={movie.year}
+                          movieType={movie.episode_total ? "series" : "single"}
+                          source={
+                            (isPhimApi ? "phimapi" : "ophim") as FavoriteSource
+                          }
+                          size="icon"
+                          className="w-12 h-12 rounded-2xl bg-background/40 backdrop-blur-md border border-border/60 hover:border-primary/50 text-foreground"
+                        />
+                        <AddToCollectionDialog
+                          movieId={movie.slug}
+                          movieSlug={movie.slug}
+                          movieTitle={movie.name}
+                          moviePoster={getPosterUrl("thumb")}
+                          movieYear={movie.year}
+                          movieType={movie.episode_total ? "series" : "single"}
+                          source={
+                            (isPhimApi ? "phimapi" : "ophim") as FavoriteSource
+                          }
+                          trigger={
+                            <Button
+                              size="icon"
+                              aria-label="Lưu"
+                              name="bookmark"
+                              className="w-12 h-12 rounded-2xl bg-background/40 backdrop-blur-md border border-border/60 hover:border-primary/50 text-foreground transition-all hover:scale-105"
+                            >
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="16"
+                                height="16"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                className="w-4 h-4"
+                              >
+                                <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z" />
+                              </svg>
+                            </Button>
+                          }
+                        />
+                      </div>
                     </div>
                   </div>
 
@@ -540,7 +574,7 @@ export default function MovieDetail({ id }: { id: string }) {
                     adSegments={
                       isPhimApi
                         ? [
-                            { start: 5, end: 15, label: "Bỏ qua quảng cáo" },
+                            // { start: 5, end: 15, label: "Bỏ qua quảng cáo" },
                             {
                               start: 15 * 60,
                               end: 15 * 60 + 33,

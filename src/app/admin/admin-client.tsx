@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import {
@@ -17,6 +17,8 @@ import {
   Menu,
   Inbox,
   CalendarCheck,
+  TrendingUp,
+  PieChart as PieChartIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -59,6 +61,7 @@ import WatchHistoryContent from "@/components/features/Admin/WatchHistoriesConte
 import FeedbackContent from "@/components/features/Admin/FeedbackContent";
 import StatCard from "@/components/features/Admin/Card/StatCard";
 import CommentContent from "@/components/features/Admin/Comment/CommentContent";
+import { StatsAreaChart, StatsBarChart, StatsPieChart } from "@/components/features/Charts/StatsCharts";
 
 // Lazy load AdminUsers - heavy component với nhiều dialogs và tables
 const AdminUsers = dynamic(
@@ -414,6 +417,28 @@ function AdminPageIntro({
 
 // ============ DASHBOARD ============
 
+// Mock data for charts - in production, this would come from an API endpoint
+function generateMockChartData() {
+  // User growth data (last 6 months)
+  const months = ["T1", "T2", "T3", "T4", "T5", "T6"];
+  const userGrowth = [120, 185, 245, 310, 380, 450];
+  const activeUsers = [80, 120, 165, 210, 280, 350];
+
+  return {
+    userGrowth: months.map((name, i) => ({
+      name,
+      "Người dùng mới": userGrowth[i],
+      "Người dùng hoạt động": activeUsers[i],
+    })),
+    activity: [
+      { name: "Bình luận", value: 1250, color: "#6366f1" },
+      { name: "Lịch sử xem", value: 3420, color: "#8b5cf6" },
+      { name: "Check-in", value: 890, color: "#10b981" },
+      { name: "Yêu thích", value: 670, color: "#f59e0b" },
+    ],
+  };
+}
+
 function DashboardContent({
   onNavigate,
 }: {
@@ -421,6 +446,7 @@ function DashboardContent({
 }) {
   const token = useAuthStore((state) => state.tokens?.accessToken);
   const { data, isLoading } = useAdminQueryStats(token || "");
+  const chartData = useMemo(() => generateMockChartData(), []);
 
   if (isLoading) {
     return (
@@ -467,6 +493,45 @@ function DashboardContent({
           accent="amber"
         />
       </div>
+
+      {/* Charts Section */}
+      <AdminSectionCard
+        title="Thống kê chi tiết"
+        description="Biểu đồ hoạt động của hệ thống"
+      >
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          {/* User Growth Area Chart */}
+          <div className="lg:col-span-2 bg-card/50 rounded-xl p-4 border border-border/30">
+            <div className="flex items-center gap-2 mb-3">
+              <TrendingUp className="h-4 w-4 text-primary" />
+              <h3 className="text-sm font-medium">Tăng trưởng người dùng</h3>
+            </div>
+            <div className="h-56">
+              <StatsAreaChart
+                data={chartData.userGrowth.map(d => ({ name: d.name, value: d["Người dùng mới"] }))}
+                color="primary"
+                valueFormatter={(v) => `${v} người`}
+              />
+            </div>
+          </div>
+
+          {/* Activity Pie Chart */}
+          <div className="bg-card/50 rounded-xl p-4 border border-border/30">
+            <div className="flex items-center gap-2 mb-3">
+              <PieChartIcon className="h-4 w-4 text-primary" />
+              <h3 className="text-sm font-medium">Phân bố hoạt động</h3>
+            </div>
+            <div className="h-56">
+              <StatsPieChart
+                data={chartData.activity}
+                valueFormatter={(v) => `${v}`}
+                innerRadius={40}
+                outerRadius={70}
+              />
+            </div>
+          </div>
+        </div>
+      </AdminSectionCard>
 
       <AdminSectionCard
         title="Truy cập nhanh"

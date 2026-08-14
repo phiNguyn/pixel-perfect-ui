@@ -1,6 +1,6 @@
 "use client";
 
-import { Play, Plus, ChevronLeft, ChevronRight, Star } from "lucide-react";
+import { Play, ChevronLeft, ChevronRight, Star } from "lucide-react";
 import { useRef, useState, useEffect, useLayoutEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useQueryTrendingMovies } from "@/lib/api/trending/trendingQuery";
@@ -10,7 +10,6 @@ import { useRouter } from "next/navigation";
 import { getImageSrc } from "../../../services/uploadFile";
 import { cn } from "@/lib/utils";
 import type { TrendingMovie } from "@/lib/api/viewLog/viewLogInterface";
-import { useIsMobile } from "@/hooks/use-mobile";
 
 function formatEpisodeLabel(current?: string, total?: string, status?: string) {
   if (!current) return null;
@@ -445,9 +444,9 @@ export default function HeroBanner() {
                     <Play className="size-5 fill-current" />
                     Xem Ngay
                   </Button>
-                  <button className="w-14 h-14 rounded-2xl bg-background/40 hover:bg-background/60 backdrop-blur-md border border-border/60 hover:border-primary/50 text-foreground flex items-center justify-center transition-all hover:scale-105">
+                  {/* <button className="w-14 h-14 rounded-2xl bg-background/40 hover:bg-background/60 backdrop-blur-md border border-border/60 hover:border-primary/50 text-foreground flex items-center justify-center transition-all hover:scale-105">
                     <Plus className="w-6 h-6" />
-                  </button>
+                  </button> */}
                 </div>
               </div>
             </div>

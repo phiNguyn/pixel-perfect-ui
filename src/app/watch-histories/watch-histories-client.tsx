@@ -1,14 +1,14 @@
 "use client";
 
 import { useHistoryStore, WatchHistoryItem } from "@/stores/useHistoryStore";
-import { X, Play, Clock, History, Trash2, Film, SearchX } from "lucide-react";
+import { X, Play, Clock, History, Trash2, Film, SearchX, TrendingUp, Calendar } from "lucide-react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import MovieImage from "@/components/features/Movies/MovieImage";
 import { normalizeEpisode } from "@/lib/utils";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -23,6 +23,7 @@ import {
 import Empty from "@/components/Common/Empty";
 import LoginBenefitsCard from "@/components/Common/LoginBenefitsCard";
 import { formatTimeAgo } from "@/services/dateService";
+import { StatsLineChart, StatsBarChart } from "@/components/features/Charts/StatsCharts";
 
 function formatDuration(seconds: number) {
   const m = Math.floor(seconds / 60);
@@ -41,6 +42,112 @@ function formatDate(timestamp: number) {
 }
 
 type ViewMode = "grid" | "list";
+
+// Chart data generation helpers
+function generateWatchTrendData(history: WatchHistoryItem[]) {
+  if (history.length === 0) return [];
+
+  // Group by day for last 14 days
+  const days: Record<string, number> = {};
+  const now = Date.now();
+  const dayMs = 24 * 60 * 60 * 1000;
+
+  // Initialize last 14 days
+  for (let i = 13; i >= 0; i--) {
+    const date = new Date(now - i * dayMs);
+    const key = date.toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit" });
+    days[key] = 0;
+  }
+
+  // Count movies watched per day
+  history.forEach((item) => {
+    const date = new Date(item.watchedAt);
+    const key = date.toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit" });
+    if (key in days) {
+      days[key]++;
+    }
+  });
+
+  return Object.entries(days).map(([name, value]) => ({ name, value }));
+}
+
+function generateCategoryData(history: WatchHistoryItem[]) {
+  if (history.length === 0) return [];
+
+  // Since we don't have category info, we'll use quality as a proxy
+  const qualities: Record<string, number> = {};
+
+  history.forEach((item) => {
+    const quality = item.quality || "Khác";
+    qualities[quality] = (qualities[quality] || 0) + 1;
+  });
+
+  const colors = ["#6366f1", "#8b5cf6", "#a855f7", "#d946ef", "#ec4899", "#f43f5e"];
+
+  return Object.entries(qualities)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 6)
+    .map(([name, value], index) => ({
+      name,
+      value,
+      color: colors[index % colors.length],
+    }));
+}
+
+// Chart Summary Component
+function WatchHistoryCharts({ history }: { history: WatchHistoryItem[] }) {
+  const trendData = useMemo(() => generateWatchTrendData(history), [history]);
+  const categoryData = useMemo(() => generateCategoryData(history), [history]);
+
+  if (history.length === 0) return null;
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      {/* Watch Trend Line Chart */}
+      <div className="bg-card rounded-xl border border-border/50 p-4">
+        <div className="flex items-center gap-2 mb-3">
+          <TrendingUp className="h-4 w-4 text-primary" />
+          <h3 className="text-sm font-medium">Xu hướng xem (14 ngày gần nhất)</h3>
+        </div>
+        <div className="h-40">
+          {trendData.length > 0 ? (
+            <StatsLineChart
+              data={trendData}
+              color="primary"
+              valueFormatter={(v) => `${v} phim`}
+              showDots={true}
+            />
+          ) : (
+            <div className="h-full flex items-center justify-center text-muted-foreground text-sm">
+              Chưa có đủ dữ liệu
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Quality Distribution Bar Chart */}
+      <div className="bg-card rounded-xl border border-border/50 p-4">
+        <div className="flex items-center gap-2 mb-3">
+          <Calendar className="h-4 w-4 text-primary" />
+          <h3 className="text-sm font-medium">Phân bố theo chất lượng</h3>
+        </div>
+        <div className="h-40">
+          {categoryData.length > 0 ? (
+            <StatsBarChart
+              data={categoryData}
+              color="violet"
+              valueFormatter={(v) => `${v} phim`}
+            />
+          ) : (
+            <div className="h-full flex items-center justify-center text-muted-foreground text-sm">
+              Chưa có dữ liệu
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function WatchHistoriesClient() {
   const { watchHistory, removeWatchHistory, clearWatchHistory } =
@@ -91,6 +198,10 @@ export default function WatchHistoriesClient() {
         className="mb-6"
         variant="inline"
       />
+
+      {/* Watch History Charts */}
+      <WatchHistoryCharts history={watchHistory} />
+
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">

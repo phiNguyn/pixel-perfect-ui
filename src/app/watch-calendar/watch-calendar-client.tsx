@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { CalendarDays, LogIn } from "lucide-react";
+import { CalendarDays, LogIn, TrendingUp, Activity } from "lucide-react";
 import { vi } from "date-fns/locale";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { Calendar } from "@/components/ui/calendar";
@@ -14,6 +14,10 @@ import {
 } from "@/lib/api/watchCalendar/watchCalendarQuery";
 import { formatWatchHours } from "@/lib/utils/watchTime";
 import { cn } from "@/lib/utils";
+import {
+  StatsBarChart,
+  StatsAreaChart,
+} from "@/components/features/Charts/StatsCharts";
 
 function toDateString(date: Date): string {
   const y = date.getFullYear();
@@ -155,6 +159,44 @@ export default function WatchCalendarClient() {
     );
   }
 
+  // Chart data for daily watch time
+  const dailyChartData = useMemo(() => {
+    if (!monthData?.activeDays) return [];
+
+    // Get days in month
+    const daysInMonth = new Date(year, month, 0).getDate();
+    const data = [];
+
+    for (let day = 1; day <= daysInMonth; day++) {
+      const dateStr = `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+      const dayData = monthData.activeDays.find((d) => d.date === dateStr);
+      data.push({
+        name: `${day}`,
+        value: dayData?.totalWatchHours || 0,
+      });
+    }
+    return data;
+  }, [monthData, year, month]);
+
+  // Chart data for watch time trends (weekly aggregation)
+  const weeklyTrendData = useMemo(() => {
+    if (!monthData?.activeDays || monthData.activeDays.length === 0) return [];
+
+    const weeks = ["Tuần 1", "Tuần 2", "Tuần 3", "Tuần 4"];
+    const weekData = [0, 0, 0, 0];
+
+    monthData.activeDays.forEach((day) => {
+      const dayNum = parseInt(day.date.split("-")[2], 10);
+      const weekIndex = Math.min(Math.floor((dayNum - 1) / 7), 3);
+      weekData[weekIndex] += day.totalWatchHours;
+    });
+
+    return weeks.map((name, i) => ({
+      name,
+      value: Math.round(weekData[i] * 10) / 10,
+    }));
+  }, [monthData]);
+
   return (
     <div className="max-w-2xl lg:max-w-6xl mx-auto px-4 py-8 mt-16">
       <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl overflow-hidden">
@@ -174,6 +216,50 @@ export default function WatchCalendarClient() {
             </p>
           )}
         </div>
+
+        {/* Charts Section */}
+        {monthLoading ? (
+          <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Skeleton className="h-48 rounded-xl" />
+            <Skeleton className="h-48 rounded-xl" />
+          </div>
+        ) : dailyChartData.length > 0 && monthData?.activeDays.length ? (
+          <div className="p-4 border-b border-white/10">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Daily Watch Time Bar Chart */}
+              <div className="bg-card/50 rounded-xl p-4 border border-white/5">
+                <div className="flex items-center gap-2 mb-3">
+                  <Activity className="h-4 w-4 text-primary" />
+                  <h3 className="text-sm font-medium">
+                    Thời gian xem theo ngày
+                  </h3>
+                </div>
+                <div className="h-40">
+                  <StatsBarChart
+                    data={dailyChartData}
+                    color="primary"
+                    valueFormatter={(v) => `${v.toFixed(1)}h`}
+                  />
+                </div>
+              </div>
+
+              {/* Weekly Trend Area Chart */}
+              <div className="bg-card/50 rounded-xl p-4 border border-white/5">
+                <div className="flex items-center gap-2 mb-3">
+                  <TrendingUp className="h-4 w-4 text-primary" />
+                  <h3 className="text-sm font-medium">Xu hướng theo tuần</h3>
+                </div>
+                <div className="h-40">
+                  <StatsAreaChart
+                    data={weeklyTrendData}
+                    color="primary"
+                    valueFormatter={(v) => `${v.toFixed(1)}h`}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : null}
 
         <div className="p-2 md:p-6 flex flex-col lg:flex-row md:gap-x-5">
           {monthLoading ? (
