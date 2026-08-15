@@ -2,7 +2,7 @@
 "use client";
 import { useRouter, useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
-import { Play, Share2, Star } from "lucide-react";
+import { Bookmark, Play, Share2, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useEffect, useMemo, useState, useRef } from "react";
@@ -510,7 +510,7 @@ export default function MovieDetail({ id }: { id: string }) {
                             (isPhimApi ? "phimapi" : "ophim") as FavoriteSource
                           }
                           size="icon"
-                          className="w-12 h-12 rounded-2xl bg-background/40 backdrop-blur-md border border-border/60 hover:border-primary/50 text-foreground"
+                          className="w-12 h-12 rounded-2xl"
                         />
                         <AddToCollectionDialog
                           movieId={movie.slug}
@@ -529,20 +529,7 @@ export default function MovieDetail({ id }: { id: string }) {
                               name="bookmark"
                               className="w-12 h-12 rounded-2xl bg-background/40 backdrop-blur-md border border-border/60 hover:border-primary/50 text-foreground transition-all hover:scale-105"
                             >
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="16"
-                                height="16"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                className="w-4 h-4"
-                              >
-                                <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z" />
-                              </svg>
+                              <Bookmark className="w-4 h-4" />
                             </Button>
                           }
                         />

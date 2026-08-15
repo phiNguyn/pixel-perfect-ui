@@ -11,7 +11,7 @@ import {
 import UserAccountMenuContent from "@/components/layouts/navigation/UserAccountMenuContent";
 
 type HeaderAuthSectionProps = {
-  user: User | null;
+  user: any | null;
   isAuthenticated: boolean;
   onLogin: () => void;
   onLogout: () => void;

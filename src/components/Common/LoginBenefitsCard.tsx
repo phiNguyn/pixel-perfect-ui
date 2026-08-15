@@ -98,7 +98,6 @@ export default function LoginBenefitsCard({
   dismissible = true,
 }: LoginBenefitsCardProps) {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
-  const hasHydrated = useAuthStore((s) => s._hasHydrated);
   const { openLoginModal } = useAuth();
   const [dismissed, setDismissed] = useState(true);
 
@@ -118,17 +117,7 @@ export default function LoginBenefitsCard({
     }
   }, [storageKey, dismissible]);
 
-  const handleDismiss = () => {
-    setDismissed(true);
-    try {
-      const until = Date.now() + dismissDays * 24 * 60 * 60 * 1000;
-      localStorage.setItem(STORAGE_PREFIX + storageKey, String(until));
-    } catch {
-      /* ignore */
-    }
-  };
-
-  if (!hasHydrated || isAuthenticated || dismissed) return null;
+  if (isAuthenticated || dismissed) return null;
 
   const isHero = variant === "hero";
 

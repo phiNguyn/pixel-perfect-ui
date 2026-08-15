@@ -118,6 +118,7 @@ export default function MoviePlayer({
   const [isHovering, setIsHovering] = useState(false);
 
   const [previewTime, setPreviewTime] = useState<number | null>(null);
+  const [hoverPosition, setHoverPosition] = useState<number | null>(null);
   const [sliderValue, setSliderValue] = useState([0]);
   const [isDragging, setIsDragging] = useState(false);
   const debouncedSliderValue = useDebounce(sliderValue[0], 200);
@@ -868,6 +869,7 @@ export default function MoviePlayer({
             )}
             <div className="relative">
               <Slider
+                step={1}
                 className="
         cursor-pointer
         [&_[data-orientation=horizontal]]:h-1.5
@@ -889,6 +891,20 @@ export default function MoviePlayer({
                   setIsDragging(false);
                   setPreviewTime(null);
                 }}
+                onPointerMove={(e) => {
+                  if (e.pointerType !== "mouse") return;
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  const percent = Math.max(0, Math.min(100, ((e.clientX - rect.left) / rect.width) * 100));
+                  const t = (percent / 100) * duration;
+                  setHoverPosition(percent);
+                  if (!isDragging) {
+                    setPreviewTime(t);
+                  }
+                }}
+                onPointerLeave={() => {
+                  setHoverPosition(null);
+                  if (!isDragging) setPreviewTime(null);
+                }}
                 onValueChange={(vals) => {
                   setSliderValue(vals);
                   const t = (vals[0] / 100) * duration;
@@ -901,13 +917,12 @@ export default function MoviePlayer({
                     videoRef.current.currentTime = (vals[0] / 100) * duration;
                   }
                 }}
-                onMouseLeave={() => setPreviewTime(null)}
               />
               {/* Preview Time Tooltip */}
               {previewTime !== null && (
                 <div
-                  className="absolute -top-8 left-0 bg-black/90 text-white text-xs px-2 py-1 rounded pointer-events-none transform -translate-x-1/2"
-                  style={{ left: `${isDragging ? sliderValue[0] : 0}%` }}
+                  className="absolute -top-8 bg-black/90 text-white text-xs px-2 py-1 rounded pointer-events-none transform -translate-x-1/2"
+                  style={{ left: `${isDragging ? sliderValue[0] : (hoverPosition ?? 0)}%` }}
                 >
                   {formatTime(previewTime)}
                 </div>

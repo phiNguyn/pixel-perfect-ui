@@ -85,9 +85,7 @@ export default function EpisodeList({
   const filteredEpisodes = useMemo(() => {
     const valid = episodes.filter((ep) => ep.slug);
     if (!search.trim()) {
-      return useRanges
-        ? (ranges[activeRangeIndex]?.episodes ?? [])
-        : valid;
+      return useRanges ? (ranges[activeRangeIndex]?.episodes ?? []) : valid;
     }
 
     const query = search.trim();
