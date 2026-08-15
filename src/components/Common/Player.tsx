@@ -869,7 +869,7 @@ export default function MoviePlayer({
             )}
             <div className="relative">
               <Slider
-                step={1}
+                step={Math.max(0.1, 100 / Math.max(duration, 1))}
                 className="
         cursor-pointer
         [&_[data-orientation=horizontal]]:h-1.5
