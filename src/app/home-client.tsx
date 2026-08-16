@@ -12,10 +12,24 @@ export default function HomeClient() {
   return (
     <>
       <HeroBanner />
-      <div className="px-4 md:px-16">
-        <StreakHomeCard />
-        <LoginBenefitsCard storageKey="home-hero" />
+      <main className="mx-auto w-full max-w-[1440px] px-4 pb-12 md:px-8 lg:px-12">
+        <div className="flex flex-col gap-3 py-5 md:flex-row md:items-center md:justify-between">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">Dành cho bạn</p>
+            <h1 className="mt-1 text-xl font-semibold tracking-tight text-foreground md:text-2xl">Tìm bộ phim tiếp theo</h1>
+          </div>
+          <div className="flex items-center gap-2">
+            <StreakHomeCard />
+            <LoginBenefitsCard storageKey="home-hero" />
+          </div>
+        </div>
         <WatchHistoryRow />
+        <LazyMovieRow
+          title="Đang thịnh hành"
+          cacheKey="trending"
+          slug="trending"
+          type="danh-sach"
+        />
         <LazyMovieRow
           title="Phim Mới Cập Nhật"
           cacheKey={MovieCategory.PHIM_MOI}
@@ -43,7 +57,7 @@ export default function HomeClient() {
           slug="danh-sach/hoat-hinh"
           type="danh-sach"
         />
-      </div>
+      </main>
     </>
   );
 }

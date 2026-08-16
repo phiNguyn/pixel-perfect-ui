@@ -59,7 +59,7 @@ export default function SiteFooter() {
       )}
     >
       <div className="max-w-[1400px] mx-auto px-4">
-        <div className="flex items-start md:items-center justify-between mb-4">
+        <div className="mb-8 flex flex-col gap-5 border-b border-border/60 pb-6 md:flex-row md:items-center md:justify-between">
           <div className="flex-col flex gap-2">
             <AvatarComponent />
             <div className="block md:hidden ">

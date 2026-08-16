@@ -117,7 +117,7 @@ export default function SiteHeader() {
   return (
     <>
       <header
-        className={`py-2 max-h-16 fixed w-full top-0 z-50 transition-all duration-300 ${isScrolled ? "bg-background/50 backdrop-blur-md border-b border-border/50" : "bg-transparent border-transparent"}`}
+        className={`fixed top-0 z-50 w-full border-b py-2 transition-all duration-300 ${isScrolled ? "border-border/70 bg-background/90 shadow-sm backdrop-blur-xl" : "border-transparent bg-background/10 backdrop-blur-sm"}`}
       >
         <div className="max-w-[1400px] mx-auto px-4">
           <div className="flex items-center justify-between h-14">

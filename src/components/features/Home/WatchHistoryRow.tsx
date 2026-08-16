@@ -22,12 +22,12 @@ export default function WatchHistoryRow() {
   if (watchHistory.length === 0) return null;
 
   return (
-    <section className="mb-6">
-      <div className="flex items-center justify-between mb-3 px-0 md:px-4 max-w-[1560px] mx-auto">
+    <section className="mb-2 py-6 md:py-8">
+      <div className="mx-auto flex max-w-[1560px] items-center justify-between px-0 md:px-4">
         <div className="flex items-center gap-2">
           <History className="w-4 h-4 text-primary" />
           <h2 className="text-base md:text-lg font-semibold text-foreground">
-            Xem gần đây
+            Tiếp tục xem
           </h2>
           <span className="text-xs text-muted-foreground">
             ({watchHistory.length})

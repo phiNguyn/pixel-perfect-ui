@@ -35,17 +35,17 @@ export default function MovieRow({
 
   return (
     <>
-      <section className="py-4">
-        <div className="max-w-[1560px] mx-auto px-0 md:px-4">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-lg font-semibold text-foreground tracking-tight">
+      <section className="py-6 md:py-8">
+        <div className="mx-auto max-w-[1560px] px-0 md:px-4">
+          <div className="mb-4 flex items-end justify-between gap-4">
+            <h2 className="text-lg font-semibold tracking-tight text-foreground md:text-xl">
               {title}
             </h2>
             <Link
               href={`/${type}/${type_list}`}
               className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors font-medium"
             >
-              Xem thêm <ChevronRight className="w-3.5 h-3.5" />
+              Xem tất cả <ChevronRight className="w-3.5 h-3.5" />
             </Link>
           </div>
         </div>
@@ -60,7 +60,7 @@ export default function MovieRow({
 
           <div
             ref={scrollRef}
-            className="flex gap-3 overflow-x-auto scrollbar-hide pb-2"
+            className="flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2 scrollbar-hide"
           >
             {loading ? (
               <SkeletonCard

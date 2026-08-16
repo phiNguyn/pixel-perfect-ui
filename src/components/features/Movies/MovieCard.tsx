@@ -59,8 +59,8 @@ export default function MovieCard({
     <Link href={`/phim/${movie.slug}?source=${source}`} onClick={handleClick}>
       <div
         className={cn(
-          "relative flex-shrink-0 w-[140px] md:w-[170px] group cursor-pointer",
-          "transition-transform duration-200 ease-out will-change-transform hover:scale-105",
+          "group relative w-[140px] flex-shrink-0 cursor-pointer snap-start md:w-[178px]",
+          "transition-transform duration-300 ease-out will-change-transform hover:-translate-y-1",
           className,
         )}
       >
@@ -72,11 +72,11 @@ export default function MovieCard({
             {rank}
           </div>
         )}
-        <div className="relative aspect-[2/3] rounded-lg overflow-hidden shadow-[var(--shadow-card)]">
+        <div className="relative aspect-[2/3] overflow-hidden rounded-xl border border-border/60 bg-card shadow-[var(--shadow-card)] transition-colors duration-300 group-hover:border-primary/50">
           <MovieImage movie={movie} source="phimapi" />
           <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
-          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-            <div className="w-10 h-10 rounded-full bg-primary/90 flex items-center justify-center">
+          <div className="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+            <div className="flex size-11 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg">
               <Play className="w-4 h-4 text-primary-foreground fill-current ml-0.5" />
             </div>
           </div>
