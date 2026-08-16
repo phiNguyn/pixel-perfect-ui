@@ -55,12 +55,21 @@ export default function MovieCard({
     });
   };
 
+  const rating = movie?.tmdb?.vote_average;
+  const country = movie?.country?.[0]?.name;
+  const latestEpisode = movie?.last_episodes?.[0];
+
   return (
-    <Link href={`/phim/${movie.slug}?source=${source}`} onClick={handleClick}>
+    <Link
+      href={`/phim/${movie.slug}?source=${source}`}
+      onClick={handleClick}
+      aria-label={movie.name}
+      className="rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+    >
       <div
         className={cn(
           "relative flex-shrink-0 w-[140px] md:w-[170px] group cursor-pointer",
-          "transition-transform duration-200 ease-out will-change-transform hover:scale-105",
+          "transition-transform duration-300 ease-out will-change-transform hover:scale-[1.04] active:scale-[0.98]",
           className,
         )}
       >
@@ -72,53 +81,48 @@ export default function MovieCard({
             {rank}
           </div>
         )}
-        <div className="relative aspect-[2/3] rounded-lg overflow-hidden shadow-[var(--shadow-card)]">
+
+        <div className="relative aspect-[2/3] rounded-xl overflow-hidden bg-muted/40 ring-1 ring-border/40 shadow-[var(--shadow-card)]">
           <MovieImage movie={movie} source="phimapi" />
-          <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
-          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-            <div className="w-10 h-10 rounded-full bg-primary/90 flex items-center justify-center">
+
+          {/* Hover / focus overlay */}
+          <div className="absolute inset-0 bg-background/45 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <span className="w-11 h-11 rounded-full bg-primary flex items-center justify-center shadow-lg">
               <Play className="w-4 h-4 text-primary-foreground fill-current ml-0.5" />
-            </div>
+            </span>
           </div>
-          {}
-          <>
-            <div className="absolute top-2 left-2 flex gap-1">
-              {movie.quality && (
-                <span className="bg-primary text-primary-foreground text-[10px] font-bold px-1.5 py-0.5 rounded">
-                  {movie.quality}
-                </span>
-              )}
-            </div>
-            <div className="absolute top-2 right-2 flex flex-col gap-1">
-              {movie.episode_current === "Trailer" ? (
-                <span className="bg-background/80 backdrop-blur-sm text-foreground text-[10px] font-medium px-1.5 py-0.5 rounded">
-                  {movie.episode_current}
-                </span>
-              ) : (
-                movie.last_episodes.slice(0, 2).map((ep, idx) => (
-                  <span
-                    key={idx}
-                    className="bg-background/80 backdrop-blur-sm text-foreground text-[10px] font-medium px-1.5 py-0.5 rounded"
-                  >
-                    {getEpisodeBadge(ep.server_name, ep.name)}
-                  </span>
-                ))
-              )}
-            </div>
-          </>
-          <div className="absolute bottom-0 left-0 right-0 p-2">
-            <div className="w-fit flex items-center gap-1 text-yellow-400 text-[10px] bg-background/30 backdrop-blur-sm px-1.5 py-0.5 rounded">
-              <Star className="w-2.5 h-2.5 fill-current" />
-              <span>{movie?.tmdb?.vote_average}</span>
-            </div>
-          </div>
+
+          {/* Top badges: quality (left) + episode (right) */}
+          {movie.quality && (
+            <span className="absolute top-2 left-2 bg-background/70 backdrop-blur-sm text-foreground text-[10px] font-semibold px-1.5 py-0.5 rounded-md ring-1 ring-border/40">
+              {movie.quality}
+            </span>
+          )}
+          {(movie.episode_current === "Trailer" || latestEpisode) && (
+            <span className="absolute top-2 right-2 bg-background/70 backdrop-blur-sm text-foreground text-[10px] font-medium px-1.5 py-0.5 rounded-md ring-1 ring-border/40">
+              {movie.episode_current === "Trailer"
+                ? "Trailer"
+                : getEpisodeBadge(latestEpisode.server_name, latestEpisode.name)}
+            </span>
+          )}
         </div>
-        <h3 className="mt-2 text-xs font-medium text-foreground line-clamp-2 leading-snug">
+
+        <h3 className="mt-2 text-[13px] md:text-sm font-medium text-foreground line-clamp-1 leading-snug group-hover:text-primary transition-colors">
           {movie.name}
         </h3>
-        <p className="text-[10px] text-muted-foreground mt-0.5">
-          {movie.year} · {movie?.country?.map((item) => item.name).join(", ")}
-        </p>
+        <div className="mt-1 flex items-center gap-2 text-[11px] md:text-xs text-muted-foreground">
+          {rating ? (
+            <span className="flex items-center gap-0.5 text-foreground/80">
+              <Star className="w-3 h-3 fill-current text-primary" />
+              {rating}
+            </span>
+          ) : null}
+          {movie.year ? <span>{movie.year}</span> : null}
+          {country ? (
+            <span className="truncate hidden sm:inline">{country}</span>
+          ) : null}
+        </div>
       </div>
     </Link>
   );
