@@ -1,7 +1,17 @@
 "use client";
 
 import { useHistoryStore, WatchHistoryItem } from "@/stores/useHistoryStore";
-import { X, Play, Clock, History, Trash2, Film, SearchX, TrendingUp, Calendar } from "lucide-react";
+import {
+  X,
+  Play,
+  Clock,
+  History,
+  Trash2,
+  Film,
+  SearchX,
+  TrendingUp,
+  Calendar,
+} from "lucide-react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -23,7 +33,10 @@ import {
 import Empty from "@/components/Common/Empty";
 import LoginBenefitsCard from "@/components/Common/LoginBenefitsCard";
 import { formatTimeAgo } from "@/services/dateService";
-import { StatsLineChart, StatsBarChart } from "@/components/features/Charts/StatsCharts";
+import {
+  StatsLineChart,
+  StatsBarChart,
+} from "@/components/features/Charts/StatsCharts";
 
 function formatDuration(seconds: number) {
   const m = Math.floor(seconds / 60);
@@ -55,14 +68,20 @@ function generateWatchTrendData(history: WatchHistoryItem[]) {
   // Initialize last 14 days
   for (let i = 13; i >= 0; i--) {
     const date = new Date(now - i * dayMs);
-    const key = date.toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit" });
+    const key = date.toLocaleDateString("vi-VN", {
+      day: "2-digit",
+      month: "2-digit",
+    });
     days[key] = 0;
   }
 
   // Count movies watched per day
   history.forEach((item) => {
     const date = new Date(item.watchedAt);
-    const key = date.toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit" });
+    const key = date.toLocaleDateString("vi-VN", {
+      day: "2-digit",
+      month: "2-digit",
+    });
     if (key in days) {
       days[key]++;
     }
@@ -82,7 +101,14 @@ function generateCategoryData(history: WatchHistoryItem[]) {
     qualities[quality] = (qualities[quality] || 0) + 1;
   });
 
-  const colors = ["#6366f1", "#8b5cf6", "#a855f7", "#d946ef", "#ec4899", "#f43f5e"];
+  const colors = [
+    "#6366f1",
+    "#8b5cf6",
+    "#a855f7",
+    "#d946ef",
+    "#ec4899",
+    "#f43f5e",
+  ];
 
   return Object.entries(qualities)
     .sort((a, b) => b[1] - a[1])
@@ -107,7 +133,9 @@ function WatchHistoryCharts({ history }: { history: WatchHistoryItem[] }) {
       <div className="bg-card rounded-xl border border-border/50 p-4">
         <div className="flex items-center gap-2 mb-3">
           <TrendingUp className="h-4 w-4 text-primary" />
-          <h3 className="text-sm font-medium">Xu hướng xem (14 ngày gần nhất)</h3>
+          <h3 className="text-sm font-medium">
+            Xu hướng xem (14 ngày gần nhất)
+          </h3>
         </div>
         <div className="h-40">
           {trendData.length > 0 ? (
@@ -292,7 +320,7 @@ export default function WatchHistoriesClient() {
               <div className="col-span-2 md:col-span-2">Hành động</div>
             </div>
           </div>
-          <ScrollArea className="max-h-[600px]">
+          <ScrollArea>
             <div className="divide-y divide-border/50">
               <AnimatePresence>
                 {sortedHistory.map((item) => (

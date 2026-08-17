@@ -49,11 +49,11 @@ export default function SiteHeader() {
   const [search, setSearch] = useState("");
   const value = useDebounce(search, 500);
 
-  const {
-    data: searchMovie,
-    isLoading: searchLoaing,
-    isFetching: searchFetching,
-  } = useQuerySearchMovie<{ data: { items: Movie[] } }>(value);
+  // const {
+  //   data: searchMovie,
+  //   isLoading: searchLoaing,
+  //   isFetching: searchFetching,
+  // } = useQuerySearchMovie<{ data: { items: Movie[] } }>(value);
   const {
     data: phimApiSearchMovie,
     isLoading: phimApiSearchLoading,
@@ -75,21 +75,17 @@ export default function SiteHeader() {
       }
     }
     // Ophim đứng sau, bỏ qua nếu trùng slug với phimapi
-    for (const item of searchMovie?.data?.items || []) {
-      if (!seenSlugs.has(item.slug)) {
-        seenSlugs.add(item.slug);
-        result.push({ ...item, source: "ophim" as const });
-      }
-    }
+    // for (const item of searchMovie?.data?.items || []) {
+    //   if (!seenSlugs.has(item.slug)) {
+    //     seenSlugs.add(item.slug);
+    //     result.push({ ...item, source: "ophim" as const });
+    //   }
+    // }
 
     return result;
   })();
 
-  const isSearchLoading =
-    searchLoaing ||
-    searchFetching ||
-    phimApiSearchLoading ||
-    phimApiSearchFetching;
+  const isSearchLoading = phimApiSearchLoading || phimApiSearchFetching;
 
   const openMobilePanel = searchSheetOpen
     ? "search"

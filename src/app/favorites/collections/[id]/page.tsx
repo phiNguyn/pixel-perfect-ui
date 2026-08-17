@@ -73,7 +73,7 @@ export default function CollectionDetailPage({
   };
 
   return (
-    <div className="px-4 pb-8">
+    <div className="pb-8">
       {/* Back button */}
       {/* Collection header */}
       <div className="mb-8">

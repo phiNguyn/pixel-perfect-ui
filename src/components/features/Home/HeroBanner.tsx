@@ -21,7 +21,7 @@ function formatEpisodeLabel(current?: string, total?: string, status?: string) {
 // Mobile: 16:9 theo chiều ngang + vùng text/CTA (~64px)
 const HERO_MOBILE_POSTER_HEIGHT = "h-[calc(56.25vw+64px)]";
 // Desktop: full viewport trừ header + khoảng peek content bên dưới
-const HERO_DESKTOP_HEIGHT = "h-[calc(100svh-128px)]";
+const HERO_DESKTOP_HEIGHT = "h-[calc(100svh)]";
 
 function HeroMovieMeta({
   movie,
