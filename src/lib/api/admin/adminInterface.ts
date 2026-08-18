@@ -1,5 +1,53 @@
 export type UserRole = "user" | "admin";
 
+export type NotificationType =
+  | "comment_reply"
+  | "leaderboard_overtake"
+  | "rank_change"
+  | "system"
+  | "event";
+
+export interface ReadByUser {
+  userId: {
+    _id: string;
+    name?: string;
+    email: string;
+    avatar?: string;
+  };
+  readAt: string;
+}
+
+export interface AdminNotification {
+  _id: string;
+  userId?: {
+    _id: string;
+    email: string;
+    name?: string;
+    avatar?: string;
+  };
+  recipients: Array<{
+    _id: string;
+    email: string;
+    name?: string;
+    avatar?: string;
+  }>;
+  type: NotificationType;
+  title: string;
+  message: string;
+  link?: string;
+  readBy: ReadByUser[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateNotificationPayload {
+  userIds: string[];
+  type: NotificationType;
+  title: string;
+  message: string;
+  link?: string;
+}
+
 export interface AdminUser {
   _id: string;
   email: string;

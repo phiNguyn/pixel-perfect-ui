@@ -31,7 +31,7 @@ export function FavoriteButton({
   moviePoster,
   movieYear,
   movieType,
-  source = "ophim",
+  source = "phimapi",
   size = "default",
   className,
 }: FavoriteButtonProps) {
@@ -75,16 +75,16 @@ export function FavoriteButton({
   };
   return (
     <Button
-      variant={isFavorited ? "default" : "outline"}
+      variant={isFavorited ? "outline" : "outline"}
       size={size}
       onClick={handleToggle}
       disabled={isLoading || isChecking}
       className={cn(
         "transition-all duration-200",
         isFavorited && [
-          "bg-primary hover:bg-primary/90",
-          "border-primary hover:border-primary/90",
-          "text-primary-foreground",
+          "bg-transparent",
+          "border-primary hover:border-primary/80",
+          "text-primary hover:text-primary/80",
         ],
         className,
       )}
@@ -92,7 +92,9 @@ export function FavoriteButton({
       <Heart
         className={cn(
           "w-4 h-4 transition-all duration-200",
-          isFavorited && "fill-current scale-110",
+          isFavorited
+            ? "fill-primary text-primary scale-110"
+            : "text-foreground",
         )}
       />
       {size !== "icon" && <span>Yêu thích</span>}

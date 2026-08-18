@@ -19,6 +19,7 @@ import {
   CalendarCheck,
   TrendingUp,
   PieChart as PieChartIcon,
+  Bell,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -59,9 +60,14 @@ import AdminSectionCard, {
 } from "@/components/features/Admin/Card/AdminSectionCard";
 import WatchHistoryContent from "@/components/features/Admin/WatchHistoriesContent";
 import FeedbackContent from "@/components/features/Admin/FeedbackContent";
+import NotificationContent from "@/components/features/Admin/Notification/NotificationContent";
 import StatCard from "@/components/features/Admin/Card/StatCard";
 import CommentContent from "@/components/features/Admin/Comment/CommentContent";
-import { StatsAreaChart, StatsBarChart, StatsPieChart } from "@/components/features/Charts/StatsCharts";
+import {
+  StatsAreaChart,
+  StatsBarChart,
+  StatsPieChart,
+} from "@/components/features/Charts/StatsCharts";
 
 // Lazy load AdminUsers - heavy component với nhiều dialogs và tables
 const AdminUsers = dynamic(
@@ -90,7 +96,8 @@ type TabValue =
   | "watch-history"
   | "comments"
   | "feedback"
-  | "check-ins";
+  | "check-ins"
+  | "notifications";
 
 const NAV_ITEMS: {
   id: TabValue;
@@ -133,6 +140,12 @@ const NAV_ITEMS: {
     label: "Phản hồi",
     description: "Hỗ trợ người dùng",
     icon: Inbox,
+  },
+  {
+    id: "notifications",
+    label: "Thông báo",
+    description: "Gửi & quản lý thông báo",
+    icon: Bell,
   },
 ];
 
@@ -300,6 +313,7 @@ export default function AdminDashboard() {
             {activeTab === "comments" && <CommentContent />}
             {activeTab === "check-ins" && <TodayCheckInsContent />}
             {activeTab === "feedback" && <FeedbackContent />}
+            {activeTab === "notifications" && <NotificationContent />}
           </div>
         </div>
       </div>
@@ -508,7 +522,10 @@ function DashboardContent({
             </div>
             <div className="h-56">
               <StatsAreaChart
-                data={chartData.userGrowth.map(d => ({ name: d.name, value: d["Người dùng mới"] }))}
+                data={chartData.userGrowth.map((d) => ({
+                  name: d.name,
+                  value: d["Người dùng mới"],
+                }))}
                 color="primary"
                 valueFormatter={(v) => `${v} người`}
               />

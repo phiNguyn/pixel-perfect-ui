@@ -8,6 +8,9 @@ import {
   SingleResponse,
   PaginationInfo,
   TodayCheckIn,
+  AdminNotification,
+  NotificationType,
+  CreateNotificationPayload,
 } from "./adminInterface";
 import type { StreakProfile } from "@/lib/api/streak/streakApi";
 import type {
@@ -438,6 +441,99 @@ export class AdminApi {
         data: [],
         pagination: { page: 1, limit: 50, total: 0, totalPages: 0 },
       };
+    }
+  }
+
+  /**
+   * Get all notifications
+   */
+  async getNotifications(
+    accessToken: string,
+    options: { page?: number; limit?: number; type?: NotificationType } = {},
+  ): Promise<PaginatedResponse<AdminNotification>> {
+    try {
+      const params = new URLSearchParams();
+      params.set("page", String(options.page || 1));
+      params.set("limit", String(options.limit || 20));
+      if (options.type) params.set("type", options.type);
+
+      const response = await fetch(
+        `${API_BASE_URL}/admin/notifications?${params.toString()}`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch notifications");
+      }
+
+      return response.json();
+    } catch (error) {
+      console.error("Get notifications error:", error);
+      return {
+        success: false,
+        data: [],
+        pagination: { page: 1, limit: 20, total: 0, totalPages: 0 },
+      };
+    }
+  }
+
+  /**
+   * Get notification detail
+   */
+  async getNotificationDetail(
+    notificationId: string,
+    accessToken: string,
+  ): Promise<SingleResponse<AdminNotification>> {
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/admin/notifications/${notificationId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch notification detail");
+      }
+
+      return response.json();
+    } catch (error) {
+      console.error("Get notification detail error:", error);
+      return { success: false };
+    }
+  }
+
+  /**
+   * Create notifications for users
+   */
+  async createNotification(
+    payload: CreateNotificationPayload,
+    accessToken: string,
+  ): Promise<{ success: boolean; message?: string; data?: { created: number; failed: number } }> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/admin/notifications`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to create notification");
+      }
+
+      return response.json();
+    } catch (error) {
+      console.error("Create notification error:", error);
+      return { success: false, message: "Không thể tạo thông báo" };
     }
   }
 }
