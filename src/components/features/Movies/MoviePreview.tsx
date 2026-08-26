@@ -1,7 +1,11 @@
 "use client";
 
 import * as React from "react";
-import * as HoverCardPrimitive from "@radix-ui/react-hover-card";
+import {
+  HoverCard,
+  HoverCardTrigger,
+  HoverCardContent,
+} from "@/components/ui/hover-card";
 import { Play, Plus, Star, Clock, Film } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
@@ -17,9 +21,6 @@ interface MoviePreviewProps {
   align?: "start" | "center" | "end";
   sideOffset?: number;
 }
-
-const HoverCard = HoverCardPrimitive.Root;
-const HoverCardTrigger = HoverCardPrimitive.Trigger;
 
 export default function MoviePreview({
   movie,
@@ -37,9 +38,8 @@ export default function MoviePreview({
 
   return (
     <HoverCard closeDelay={100} openDelay={200}>
-      <HoverCardTrigger asChild>{children}</HoverCardTrigger>
-      <HoverCardPrimitive.Portal>
-        <HoverCardPrimitive.Content
+      <HoverCardTrigger render={children} />
+      <HoverCardContent
           onClick={(e) => e.stopPropagation()}
           className={cn(
             "z-50 w-96 rounded-xl border bg-card/95 backdrop-blur-md p-0",
@@ -159,8 +159,7 @@ export default function MoviePreview({
               />
             </div>
           </div>
-        </HoverCardPrimitive.Content>
-      </HoverCardPrimitive.Portal>
+        </HoverCardContent>
     </HoverCard>
   );
 }
