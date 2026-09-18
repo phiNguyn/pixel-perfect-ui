@@ -3,8 +3,7 @@ import SiteHeader from "@/components/layouts/SiteHeader";
 import SiteFooter from "@/components/layouts/SiteFooter";
 import "./globals.css";
 import { Providers } from "@/components/Providers";
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as SonnerToaster } from "@/components/ui/sonner";
+import { Toaster } from "@/components/ui/sonner";
 import { Analytics } from "@vercel/analytics/next";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import Script from "next/script";
@@ -90,10 +89,9 @@ export default function RootLayout({
             <main className="flex-1 md:pb-0">{children}</main>
             <SiteFooter />
             <GlobalModals />
-            <SonnerToaster />
+            <Toaster />
           </ThemeProvider>
         </Providers>
-        <Toaster />
         <Analytics />
         <Script
           src="https://api.getbeam.fyi/pixel/tracker.js"

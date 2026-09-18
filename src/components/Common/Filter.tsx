@@ -364,7 +364,7 @@ export const Filter: FC<OrderFilterProps> = ({
           <SheetTitle>Bộ lọc</SheetTitle>
         </SheetHeader>
         <div
-          style={{ maxHeight: "calc(100vh - 70px)" }}
+          style={{ maxHeight: "calc(100vh - 110px)" }}
           className="p-4 flex flex-col gap-4 overflow-y-auto scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent"
         >
           <FilterContent {...contentProps} />
