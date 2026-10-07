@@ -20,6 +20,7 @@ import {
   TrendingUp,
   PieChart as PieChartIcon,
   Bell,
+  LineChart,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -68,6 +69,7 @@ import {
   StatsBarChart,
   StatsPieChart,
 } from "@/components/features/Charts/StatsCharts";
+import AnalyticsDashboard from "@/lib/api/analytics/AnalyticsDashboard";
 
 // Lazy load AdminUsers - heavy component với nhiều dialogs và tables
 const AdminUsers = dynamic(
@@ -92,6 +94,7 @@ const AdminUsers = dynamic(
 
 type TabValue =
   | "dashboard"
+  | "analytics"
   | "users"
   | "watch-history"
   | "comments"
@@ -108,8 +111,14 @@ const NAV_ITEMS: {
   {
     id: "dashboard",
     label: "Tổng quan",
-    description: "Thống kê hệ thống",
+    description: "Thống kê cơ bản",
     icon: LayoutDashboard,
+  },
+  {
+    id: "analytics",
+    label: "Phân tích",
+    description: "Thống kê nâng cao",
+    icon: LineChart,
   },
   {
     id: "users",
@@ -308,6 +317,7 @@ export default function AdminDashboard() {
             {activeTab === "dashboard" && (
               <DashboardContent onNavigate={handleTabChange} />
             )}
+            {activeTab === "analytics" && <AnalyticsDashboard />}
             {activeTab === "users" && <AdminUsers />}
             {activeTab === "watch-history" && <WatchHistoryContent />}
             {activeTab === "comments" && <CommentContent />}

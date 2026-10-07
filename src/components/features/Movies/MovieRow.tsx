@@ -1,11 +1,12 @@
 "use client";
 
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Play } from "lucide-react";
 import { useRef } from "react";
 import MovieCard from "./MovieCard";
 import { Movie } from "@/lib/api/movies/movieInterface";
 import Link from "next/link";
 import { SkeletonCard } from "./Skeletons/SkeletonCard";
+import { cn } from "@/lib/utils";
 
 interface MovieRowProps {
   title: string;
@@ -15,6 +16,44 @@ interface MovieRowProps {
   type_list?: string;
   type?: string;
 }
+
+export function SectionHeader({
+  title,
+  subtitle,
+  href,
+}: {
+  title: string;
+  subtitle?: string;
+  href?: string;
+}) {
+  return (
+    <div className="flex items-center justify-between mb-4">
+      <div>
+        <h2 className="text-lg font-semibold">{title}</h2>
+        {subtitle && <p className="text-sm text-muted-foreground mt-0.5">{subtitle}</p>}
+      </div>
+      {href && (
+        <Link href={href} className="text-sm text-primary hover:text-primary/80 font-medium flex items-center gap-1">
+          Xem thêm <ChevronRight className="w-4 h-4" />
+        </Link>
+      )}
+    </div>
+  );
+}
+
+export function MovieRowSkeleton({ count = 6 }: { count?: number }) {
+  return (
+    <div className="flex gap-3 md:gap-5 overflow-x-auto pb-2">
+      {[...Array(count)].map((_, i) => (
+        <div key={i} className="flex-shrink-0">
+          <SkeletonCard count={1} className="h-[244px] md:h-[313px] !w-full w-[124px] md:w-[150px]" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+export const CARD_WIDTH_CLASS = "w-[124px] md:w-[150px]";
 
 export default function MovieRow({
   title,
