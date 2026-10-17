@@ -1,13 +1,12 @@
 "use client";
 
-import * as React from "react";
 import * as HoverCardPrimitive from "@radix-ui/react-hover-card";
-import { Play, Plus, Star, Clock, Film } from "lucide-react";
+import { Play, Star, Clock, Film } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Movie } from "@/lib/api/movies/movieInterface";
 import MovieImage from "./MovieImage";
-import FavoriteButton from "./FavoriteButton";
+// import FavoriteButton from "./FavoriteButton";
 
 interface MoviePreviewProps {
   movie: Movie;
@@ -146,7 +145,7 @@ export default function MoviePreview({
                 <Plus className="w-4 h-4 text-muted-foreground" />
               </button> */}
 
-              <FavoriteButton
+              {/* <FavoriteButton
                 movieId={movie.slug}
                 movieSlug={movie.slug}
                 movieTitle={movie.name}
@@ -156,7 +155,7 @@ export default function MoviePreview({
                 source={source}
                 size="default"
                 className="h-8"
-              />
+              /> */}
             </div>
           </div>
         </HoverCardPrimitive.Content>
