@@ -330,13 +330,6 @@ export default function MovieDetail({ id }: { id: string }) {
                 "radial-gradient(ellipse at center, transparent 30%, hsl(var(--background) / 0.85) 100%)",
             }}
           />
-          <div
-            className="absolute inset-0 opacity-[0.05] mix-blend-overlay pointer-events-none"
-            style={{
-              backgroundImage:
-                "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")",
-            }}
-          />
         </div>
 
         <div className="max-w-[1400px] mx-auto px-4 -mt-52 md:-mt-56 relative z-10">
@@ -345,7 +338,7 @@ export default function MovieDetail({ id }: { id: string }) {
               {/* Movie header */}
               <div className="flex mt-20 md:mt-0 flex-col md:flex-row gap-5 md:gap-7 mb-8">
                 <div className="flex items-center md:items-end justify-center md:justify-start">
-                  <div className="w-[130px] md:w-[170px] aspect-[2/3] rounded-2xl overflow-hidden ring-2 ring-primary/30 shadow-2xl shadow-primary/20 flex-shrink-0">
+                  <div className="w-[130px] md:w-[170px] aspect-[2/3] rounded-2xl overflow-hidden ring-2 ring-primary/30 shadow-2xl shadow-primary/20 flex-shrink-0 relative">
                     <MovieImage
                       movie={movie}
                       source={isPhimApi ? "phimapi" : "ophim"}
