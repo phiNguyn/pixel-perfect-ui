@@ -26,14 +26,12 @@ export const useQueryNguoncSearchMovie = (q: string) => {
 };
 
 export const useQueryNguoncGetMovie = (link: string) => {
-  return useQuery<IMovieDetail>({
+  return useQuery({
     queryKey: ["nguonc-get-movie", link],
     enabled: !!link,
     queryFn: async () => {
-      const data = (await nguoncApi.getMovie(
-        link as string,
-      )) as NguoncMovieDetailResponse;
-      return convertNguoncDetailToIMovieDetail(data.movie);
+      const data = await nguoncApi.getMovie(link as string);
+      return data;
     },
     retry: false,
     staleTime: 5 * 60 * 1000,

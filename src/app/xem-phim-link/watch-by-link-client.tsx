@@ -23,8 +23,8 @@ export default function WatchByLinkClient() {
   const [playerMode, setPlayerMode] = useState<"m3u8" | "embed">("embed");
   const searchParams = useSearchParams();
   const link = searchParams.get("link");
-  const { data: movie, isLoading } = useQueryNguoncGetMovie(link);
-
+  const { data: movieData, isLoading } = useQueryNguoncGetMovie(link);
+  const { movie, episodes } = movieData ?? {};
   const handlePlayM3u8 = () => {
     if (m3u8Link.trim()) {
       setActiveM3u8(m3u8Link.trim());
@@ -51,7 +51,12 @@ export default function WatchByLinkClient() {
       setActiveM3u8("");
     }
   };
-
+  if (isLoading)
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+      </div>
+    );
   return (
     <div className="container mx-auto px-4 py-6 max-w-5xl mt-16">
       <div className="py-4 md:py-0 flex-col md:flex-row flex items-start justify-between gap-2">
@@ -125,7 +130,7 @@ export default function WatchByLinkClient() {
           </div>
 
           {/* Episode list */}
-          {movie.episodes && movie.episodes.length > 0 && (
+          {episodes && episodes.length > 0 && (
             <div className="mt-4">
               {/* Player mode toggle */}
               <div className="flex items-center gap-2 mb-3">
@@ -158,7 +163,7 @@ export default function WatchByLinkClient() {
                 </div>
               </div>
 
-              {movie.episodes.map((server, sIndex) => (
+              {episodes.map((server, sIndex) => (
                 <div key={sIndex} className="mb-3">
                   <p className="text-xs font-medium text-foreground mb-2">
                     {server.server_name}
@@ -198,12 +203,6 @@ export default function WatchByLinkClient() {
               ))}
             </div>
           )}
-        </div>
-      )}
-
-      {isLoading && (
-        <div className="flex items-center justify-center py-12">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
         </div>
       )}
 

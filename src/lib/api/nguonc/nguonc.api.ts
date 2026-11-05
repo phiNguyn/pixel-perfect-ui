@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit any */
 
 import { BaseApi } from "@/lib/client";
-import { Category, Country, IMovieDetail } from "@/lib/api/movies/movieInterface";
+import { Category, IMovieDetail } from "@/lib/api/movies/movieInterface";
 
 export interface NguoncMovie {
   id: string;
@@ -20,6 +20,8 @@ export interface NguoncMovie {
   language: string;
   director: string;
   casts: string;
+  year?: number;
+  origin_name: string;
 }
 
 export interface NguoncSearchResponse {
@@ -48,23 +50,26 @@ export interface NguoncEpisodeServer {
 export interface NguoncMovieDetailResponse {
   status: string;
   movie: NguoncMovie & {
-    category: Record<string, {
-      group: { id: string; name: string };
-      list: { id: string; name: string }[];
-    }>;
+    category: Record<
+      string,
+      {
+        group: { id: string; name: string };
+        list: { id: string; name: string }[];
+      }
+    >;
     episodes: NguoncEpisodeServer[];
   };
 }
 
 export class NguoncApi extends BaseApi {
   constructor() {
-    super("https://phim.nguonc.com/api/");
+    super("https://vsmov.com/api/");
   }
-  async getMovie(link: string) {
-    return this.get(`film/${link}`);
+  async getMovie(link: string): Promise<any> {
+    return this.get(`phim/${link}`);
   }
   async searchMovie(value: string) {
-    return this.get(`films/search?keyword=${value}&limit=10`);
+    return this.get(`tim-kiem?keyword=${value}&limit=10`);
   }
 }
 
@@ -75,7 +80,7 @@ export function convertNguoncToMovie(item: NguoncMovie) {
     _id: item.id,
     name: item.name,
     slug: item.slug,
-    origin_name: item.original_name,
+    origin_name: item.origin_name,
     alternative_names: [],
 
     type: "movie",
@@ -92,7 +97,7 @@ export function convertNguoncToMovie(item: NguoncMovie) {
     lang: item.language,
     lang_key: [],
 
-    year: 0,
+    year: item?.year ?? 0,
     category: [],
     country: [],
     last_episodes: [],
@@ -115,7 +120,9 @@ export function convertNguoncToMovie(item: NguoncMovie) {
   };
 }
 
-export function convertNguoncDetailToIMovieDetail(data: NguoncMovieDetailResponse["movie"]): IMovieDetail {
+export function convertNguoncDetailToIMovieDetail(
+  data: NguoncMovieDetailResponse["movie"],
+): IMovieDetail {
   const allCategories: Category[] = [];
   const allCountries: Category[] = [];
 
@@ -127,7 +134,7 @@ export function convertNguoncDetailToIMovieDetail(data: NguoncMovieDetailRespons
           id: item.id,
           name: item.name,
           slug: "",
-        }))
+        })),
       );
     } else if (groupName.includes("năm") || groupName.includes("nam")) {
       // year will be extracted separately
@@ -137,14 +144,14 @@ export function convertNguoncDetailToIMovieDetail(data: NguoncMovieDetailRespons
           id: item.id,
           name: item.name,
           slug: "",
-        }))
+        })),
       );
     }
   });
 
-  const yearEntry = Object.values(data.category)
-    .find((group) => group.group.name.toLowerCase().includes("năm"))
-    ?.list[0]?.name;
+  const yearEntry = Object.values(data.category).find((group) =>
+    group.group.name.toLowerCase().includes("năm"),
+  )?.list[0]?.name;
 
   const year = yearEntry ? parseInt(yearEntry) : 0;
 
