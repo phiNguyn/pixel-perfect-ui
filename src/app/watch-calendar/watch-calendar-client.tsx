@@ -116,6 +116,44 @@ export default function WatchCalendarClient() {
     }
   }, [isAuthenticated]);
 
+  // Chart data for daily watch time
+  const dailyChartData = useMemo(() => {
+    if (!monthData?.activeDays) return [];
+
+    // Get days in month
+    const daysInMonth = new Date(year, month, 0).getDate();
+    const data = [];
+
+    for (let day = 1; day <= daysInMonth; day++) {
+      const dateStr = `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+      const dayData = monthData.activeDays.find((d) => d.date === dateStr);
+      data.push({
+        name: `${day}`,
+        value: dayData?.totalWatchHours || 0,
+      });
+    }
+    return data;
+  }, [monthData, year, month]);
+
+  // Chart data for watch time trends (weekly aggregation)
+  const weeklyTrendData = useMemo(() => {
+    if (!monthData?.activeDays || monthData.activeDays.length === 0) return [];
+
+    const weeks = ["Tuần 1", "Tuần 2", "Tuần 3", "Tuần 4"];
+    const weekData = [0, 0, 0, 0];
+
+    monthData.activeDays.forEach((day) => {
+      const dayNum = parseInt(day.date.split("-")[2], 10);
+      const weekIndex = Math.min(Math.floor((dayNum - 1) / 7), 3);
+      weekData[weekIndex] += day.totalWatchHours;
+    });
+
+    return weeks.map((name, i) => ({
+      name,
+      value: Math.round(weekData[i] * 10) / 10,
+    }));
+  }, [monthData]);
+
   if (!isAuthenticated) {
     return (
       <div className="max-w-2xl mx-auto px-4 py-8 mt-16">
@@ -158,44 +196,6 @@ export default function WatchCalendarClient() {
       </div>
     );
   }
-
-  // Chart data for daily watch time
-  const dailyChartData = useMemo(() => {
-    if (!monthData?.activeDays) return [];
-
-    // Get days in month
-    const daysInMonth = new Date(year, month, 0).getDate();
-    const data = [];
-
-    for (let day = 1; day <= daysInMonth; day++) {
-      const dateStr = `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-      const dayData = monthData.activeDays.find((d) => d.date === dateStr);
-      data.push({
-        name: `${day}`,
-        value: dayData?.totalWatchHours || 0,
-      });
-    }
-    return data;
-  }, [monthData, year, month]);
-
-  // Chart data for watch time trends (weekly aggregation)
-  const weeklyTrendData = useMemo(() => {
-    if (!monthData?.activeDays || monthData.activeDays.length === 0) return [];
-
-    const weeks = ["Tuần 1", "Tuần 2", "Tuần 3", "Tuần 4"];
-    const weekData = [0, 0, 0, 0];
-
-    monthData.activeDays.forEach((day) => {
-      const dayNum = parseInt(day.date.split("-")[2], 10);
-      const weekIndex = Math.min(Math.floor((dayNum - 1) / 7), 3);
-      weekData[weekIndex] += day.totalWatchHours;
-    });
-
-    return weeks.map((name, i) => ({
-      name,
-      value: Math.round(weekData[i] * 10) / 10,
-    }));
-  }, [monthData]);
 
   return (
     <div className="max-w-2xl lg:max-w-6xl mx-auto px-4 py-8 mt-16">
