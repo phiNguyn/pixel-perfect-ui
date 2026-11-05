@@ -79,7 +79,10 @@ const WatchMovieLinkSearch = () => {
                         onSelect={() => {
                           // Track search result click
                           analytics.movieClick({
-                            movie_id: item.tmdb?.id?.toString() || item._id || item.slug,
+                            movie_id:
+                              item.tmdb?.id?.toString() ||
+                              item._id ||
+                              item.slug,
                             movie_title: item.name,
                             movie_slug: item.slug,
                             source: "nguonc",
